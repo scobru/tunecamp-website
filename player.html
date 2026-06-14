@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tunecamp Community Player - Listen to Independent Music</title>
-    <meta name="description" content="Listen to music from independent artists using Tunecamp. A decentralized community player powered by Zen.">
+    <meta name="description" content="Listen to music from independent artists using Tunecamp. A community player for the open TuneCamp federation.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
@@ -171,15 +171,10 @@
         </div>
     </div>
 
-    <!-- Zen & Player Scripts -->
-    <script type="module" src="zen.js"></script>
-    <script type="module" src="gun-init.js"></script>
+    <!-- Federated discovery over HTTP — no Zen, queries /api/community/sites -->
+    <script src="config.js"></script>
 
     <script type="module">
-        const REGISTRY_ROOT = 'tunecamp';
-        const REGISTRY_NAMESPACE = 'tunecamp-community';
-
-        let zen;
         let audio = new Audio();
         let allTracks = [];
         let filteredTracks = [];
@@ -188,29 +183,25 @@
         let isShuffle = false;
         let isRepeat = false;
 
-        zen = getZen();
-        initStatus();
         loadTracks();
         initPlayer();
 
-        function initStatus() {
+        function setStatus(state) {
             const dot = document.getElementById('statusDot');
             const text = document.getElementById('statusText');
-
-            zen.on('hi', () => {
+            if (state === 'live') {
                 dot.style.background = '#10b981';
                 dot.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.8)';
                 text.textContent = 'Network Live';
-            });
-
-            zen.on('bye', () => {
-                const peers = Object.keys(zen._.opt.peers || {}).length;
-                if (peers === 0) {
-                    dot.style.background = '#ef4444';
-                    dot.style.boxShadow = '0 0 10px rgba(239, 68, 68, 0.8)';
-                    text.textContent = 'Offline';
-                }
-            });
+            } else if (state === 'connecting') {
+                dot.style.background = '#f59e0b';
+                dot.style.boxShadow = '0 0 10px rgba(245, 158, 11, 0.8)';
+                text.textContent = 'Connecting...';
+            } else {
+                dot.style.background = '#ef4444';
+                dot.style.boxShadow = '0 0 10px rgba(239, 68, 68, 0.8)';
+                text.textContent = 'Offline';
+            }
         }
 
         function initPlayer() {
@@ -252,11 +243,11 @@
             const artistsSet = new Set();
             const processedSites = new Set();
 
-            zen.get(`${REGISTRY_ROOT}/${REGISTRY_NAMESPACE}/sites`).map().on((siteData, siteId) => {
-                if (!siteData || siteId === "_" || processedSites.has(siteId)) return;
-                const siteUrl = siteData.url ? siteData.url.replace(/\/zen$/, "").replace(/\/$/, "") : null;
-                if (!siteUrl) return;
-                processedSites.add(siteId);
+            const processSite = (siteData) => {
+                const siteUrl = siteData.url ? siteData.url.replace(/\/$/, "") : null;
+                if (!siteUrl || processedSites.has(siteUrl)) return;
+                processedSites.add(siteUrl);
+                const siteId = siteUrl;
 
                 fetch(`${siteUrl}/api/catalog`, { headers: { 'Accept': 'application/json' } })
                 .then(res => res.ok ? res.json() : Promise.reject())
@@ -310,7 +301,27 @@
                     if (Array.isArray(catalog.tracks)) catalog.tracks.forEach(t => process(t, null));
                     updateTracksList(tracksMap, artistsSet);
                 }).catch(()=>{});
-            });
+            };
+
+            const directories = Array.isArray(window.TUNECAMP_DIRECTORY) ? window.TUNECAMP_DIRECTORY : [];
+            if (directories.length === 0) {
+                setStatus('offline');
+            } else {
+                setStatus('connecting');
+                let reached = 0;
+                await Promise.all(directories.map(async (base) => {
+                    const origin = (base || '').replace(/\/$/, '');
+                    if (!origin) return;
+                    try {
+                        const res = await fetch(`${origin}/api/community/sites`, { headers: { 'Accept': 'application/json' } });
+                        if (!res.ok) return;
+                        const sites = await res.json();
+                        reached++;
+                        (Array.isArray(sites) ? sites : []).forEach(s => processSite({ url: s.url, title: s.name || s.title, coverImage: s.coverImage }));
+                    } catch (err) {}
+                }));
+                setStatus(reached > 0 ? 'live' : 'offline');
+            }
 
             setTimeout(() => {
                 if (allTracks.length === 0) {

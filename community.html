@@ -115,8 +115,8 @@
             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-primary/10 blur-3xl -z-10"></div>
             <h3 class="font-display text-2xl md:text-3xl font-bold mb-4">🎵 Join the Community</h3>
             <p class="text-text-muted max-w-2xl mx-auto mb-8">
-                Your Tunecamp site is automatically registered when visitors browse it.<br>
-                No sign-up needed — it's fully decentralized via Zen.
+                Your Tunecamp instance is discovered automatically through open HTTP federation.<br>
+                No sign-up needed — instances find each other and share their catalogs.
             </p>
             <div class="flex justify-center gap-4">
                 <a href="player.html" class="btn-primary">Listen Now</a>
@@ -132,18 +132,14 @@
                 <a href="index.html" class="text-text-muted hover:text-white transition-colors text-sm">Home</a>
                 <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors text-sm"><i class="fab fa-github mr-1"></i> GitHub</a>
             </nav>
-            <p class="text-xs text-text-muted">Powered by Zen. Made with ❤️ by scobru</p>
+            <p class="text-xs text-text-muted">Federated over HTTP. Made with ❤️ by scobru</p>
         </div>
     </footer>
 
-    <!-- Scripts remain identical to original logic -->
-    <script type="module" src="zen.js"></script>
-    <script type="module" src="gun-init.js"></script>
+    <!-- Federated discovery over HTTP — no Zen, queries /api/community/sites -->
+    <script src="config.js"></script>
     <script type="module">
-        const REGISTRY_ROOT = 'tunecamp';
-        const REGISTRY_NAMESPACE = 'tunecamp-community';
-
-        const zen = getZen();
+        const DIRECTORIES = Array.isArray(window.TUNECAMP_DIRECTORY) ? window.TUNECAMP_DIRECTORY : [];
 
         const sitesMap = new Map();
         const tracksMap = new Map();
@@ -179,43 +175,58 @@
             }
         }
 
-        function initStatus() {
+        function setStatus(state, detail) {
             const dot = document.getElementById('statusDot');
             const text = document.getElementById('statusText');
             const peerInfo = document.getElementById('peerInfo');
-
-            zen.on('hi', (peer) => {
+            if (state === 'live') {
                 dot.style.background = '#10b981';
                 dot.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.8)';
                 text.textContent = 'Network Live';
-                peerInfo.textContent = `Connected to ${new URL(peer.url).hostname}`;
-            });
-
-            zen.on('bye', (peer) => {
-                const peers = Object.keys(zen._.opt.peers || {}).length;
-                if (peers === 0) {
-                    dot.style.background = '#ef4444';
-                    dot.style.boxShadow = '0 0 10px rgba(239, 68, 68, 0.8)';
-                    text.textContent = 'Disconnected';
-                    peerInfo.textContent = 'No active peers';
-                }
-            });
+            } else if (state === 'connecting') {
+                dot.style.background = '#f59e0b';
+                dot.style.boxShadow = '0 0 10px rgba(245, 158, 11, 0.8)';
+                text.textContent = 'Connecting...';
+            } else {
+                dot.style.background = '#ef4444';
+                dot.style.boxShadow = '0 0 10px rgba(239, 68, 68, 0.8)';
+                text.textContent = 'Offline';
+            }
+            if (peerInfo && detail) peerInfo.textContent = detail;
         }
 
         async function initDiscovery() {
-            const processedSites = new Set();
+            if (DIRECTORIES.length === 0) {
+                setStatus('offline', 'No directory configured');
+                showEmptyState('sitesGrid', 'No directory instance configured — edit config.js.', 'fas fa-gear');
+                showEmptyState('tracksGrid', 'No directory instance configured — edit config.js.', 'fas fa-gear');
+                return;
+            }
 
-            zen.get(`${REGISTRY_ROOT}/${REGISTRY_NAMESPACE}/sites`).map().on((directoryData, siteId) => {
-                if (!directoryData || siteId === "_" || processedSites.has(siteId)) return;
-                const siteUrl = directoryData.url ? directoryData.url.replace(/\/zen$/, "").replace(/\/$/, "") : null;
-                if (!siteUrl) return;
-                processedSites.add(siteId);
+            setStatus('connecting');
+            const seenSites = new Set();
+            let reached = 0;
 
-                const siteInfo = normalizeSiteData(siteId, directoryData, !!directoryData.pub);
-                if (validateSite(siteInfo)) {
-                    fetchCatalog(siteUrl, siteId, siteInfo);
-                }
-            });
+            await Promise.all(DIRECTORIES.map(async (base) => {
+                const origin = (base || '').replace(/\/$/, '');
+                if (!origin) return;
+                try {
+                    const res = await fetch(`${origin}/api/community/sites`, { headers: { 'Accept': 'application/json' } });
+                    if (!res.ok) return;
+                    const sites = await res.json();
+                    reached++;
+                    for (const s of (Array.isArray(sites) ? sites : [])) {
+                        const siteUrl = s.url ? s.url.replace(/\/$/, "") : null;
+                        if (!siteUrl || seenSites.has(siteUrl)) continue;
+                        seenSites.add(siteUrl);
+                        const siteInfo = normalizeSiteData(siteUrl, s);
+                        if (validateSite(siteInfo)) fetchCatalog(siteUrl, siteUrl, siteInfo);
+                    }
+                } catch (err) {}
+            }));
+
+            setStatus(reached > 0 ? 'live' : 'offline',
+                reached > 0 ? `${reached} director${reached !== 1 ? 'ies' : 'y'} reached` : 'Directories unreachable');
 
             setTimeout(() => {
                 if (sitesMap.size === 0) showEmptyState('sitesGrid', 'No sites found yet.', 'fas fa-search');
@@ -300,7 +311,10 @@
         }
 
         function isValidUrl(url) { return url && url.startsWith('http'); }
-        function normalizeSiteData(id, data, isSecure) { return { id, url: data.url, title: data.title || data.name, artistName: data.artistName || '', coverImage: data.coverImage, communityLink: data.communityLink || '', registeredAt: data.registeredAt, lastSeen: data.lastSeen || Date.now(), _secure: isSecure }; }
+        function normalizeSiteData(id, data) {
+            const ls = typeof data.lastSeen === 'number' ? data.lastSeen : (data.lastSeen ? new Date(data.lastSeen).getTime() : Date.now());
+            return { id, url: data.url, title: data.name || data.title, artistName: data.artistName || '', coverImage: data.coverImage, communityLink: data.communityLink || '', lastSeen: ls, _secure: (data.url || '').startsWith('https://') };
+        }
         function validateSite(site) { return site.url && isValidUrl(site.url) && site.title && site.title !== 'Untitled' && site.title !== 'TuneCamp Server' && site.title.trim() !== ''; }
 
         function renderSites() {
@@ -420,7 +434,6 @@
         window.switchTab = switchTab;
         window.playTrack = playTrack;
 
-        initStatus();
         initDiscovery();
     </script>
 </body>
