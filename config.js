@@ -12,5 +12,5 @@
  * slash). Results from all of them are merged and de-duplicated by URL.
  */
 window.TUNECAMP_DIRECTORY = [
-    "https://sudorecord.scobrudot.dev",
+    "https://sudorecords.scobrudot.dev",
 ];
