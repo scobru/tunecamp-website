@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tunecamp — Decentralized Music Streaming</title>
     <link rel="icon" type="image/svg+xml" href="tunecamp.svg">
-    <meta name="description" content="Personal streaming server for independent musicians. Self-host your music, connect to the Fediverse, and share with your fans.">
+    <meta name="description"
+        content="Personal streaming server for independent musicians. Self-host your music, connect to the Fediverse, and share with your fans.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+        crossorigin="anonymous" />
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="styles.css">
     <style type="text/tailwindcss">
@@ -38,21 +43,27 @@
         }
     </style>
 </head>
+
 <body class="min-h-screen flex flex-col relative">
     <!-- Ambient Glow -->
-    <div class="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/20 blur-[120px] rounded-full pointer-events-none -z-10"></div>
-    
+    <div
+        class="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/20 blur-[120px] rounded-full pointer-events-none -z-10">
+    </div>
+
     <!-- Hero Section -->
     <section class="pt-32 pb-20 px-6 text-center relative">
         <div class="max-w-4xl mx-auto flex flex-col items-center">
-            <img src="tunecamp.svg" alt="Tunecamp Logo" class="w-28 h-28 mb-8 animate-pulse-slow drop-shadow-[0_0_15px_rgba(139,92,246,0.5)]">
+            <img src="tunecamp.svg" alt="Tunecamp Logo"
+                class="w-28 h-28 mb-8 animate-pulse-slow drop-shadow-[0_0_15px_rgba(139,92,246,0.5)]">
             <h1 class="font-display text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight">
-                Own Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-pink-500">Music</span>
+                Own Your <span
+                    class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-pink-500">Music</span>
             </h1>
             <p class="text-lg md:text-xl text-text-muted max-w-2xl mx-auto mb-12">
-                The open-source, AI-powered streaming server for independent artists. Self-host your library, monetize your work, and federate with the world.
+                The open-source, AI-powered streaming server for independent artists. Self-host your library, monetize
+                your work, and federate with the world.
             </p>
-            
+
             <div class="flex flex-col sm:flex-row gap-4 justify-center w-full sm:w-auto mb-16">
                 <a href="https://github.com/scobru/tunecamp" class="btn-primary">
                     <i class="fab fa-github text-xl"></i> Get Started on GitHub
@@ -62,8 +73,10 @@
                 </a>
             </div>
 
-            <div class="bg-black/80 border border-white/10 rounded-xl p-6 text-left font-mono text-sm text-gray-300 shadow-2xl w-full max-w-2xl mx-auto backdrop-blur-xl">
-                <div class="mb-2"><span class="text-primary mr-2">$</span> git clone https://github.com/scobru/tunecamp</div>
+            <div
+                class="bg-black/80 border border-white/10 rounded-xl p-6 text-left font-mono text-sm text-gray-300 shadow-2xl w-full max-w-2xl mx-auto backdrop-blur-xl">
+                <div class="mb-2"><span class="text-primary mr-2">$</span> git clone https://github.com/scobru/tunecamp
+                </div>
                 <div class="mb-2"><span class="text-primary mr-2">$</span> cd tunecamp</div>
                 <div class="mb-2"><span class="text-primary mr-2">$</span> docker-compose up -d --build</div>
                 <div class="text-green-400 mt-4 opacity-80">🎶 Tunecamp Server running at http://localhost:1970</div>
@@ -73,53 +86,88 @@
 
     <!-- Features Section -->
     <section class="py-24 px-6 relative" id="features">
-        <div class="absolute top-1/2 left-[-10%] w-[500px] h-[500px] bg-pink-500/10 blur-[100px] rounded-full pointer-events-none -z-10"></div>
+        <div
+            class="absolute top-1/2 left-[-10%] w-[500px] h-[500px] bg-pink-500/10 blur-[100px] rounded-full pointer-events-none -z-10">
+        </div>
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-16">
                 <h2 class="font-display text-4xl md:text-5xl font-bold mb-4">Everything you need to broadcast</h2>
-                <p class="text-text-muted text-lg max-w-2xl mx-auto">Tunecamp combines personal streaming with social federation, giving you full control over your catalog and your community.</p>
+                <p class="text-text-muted text-lg max-w-2xl mx-auto">Tunecamp combines personal streaming with social
+                    federation, giving you full control over your catalog and your community.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div class="glass-card group">
-                    <div class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300"><i class="fas fa-network-wired"></i></div>
+                    <div
+                        class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
                     <h3 class="text-xl font-bold mb-3 font-display">ActivityPub</h3>
-                    <p class="text-text-muted text-sm leading-relaxed">Connect with Mastodon and the Fediverse. Fans can follow your artist profile directly from their favorite social app.</p>
+                    <p class="text-text-muted text-sm leading-relaxed">Connect with Mastodon and the Fediverse. Fans can
+                        follow your artist profile directly from their favorite social app.</p>
                 </div>
                 <div class="glass-card group">
-                    <div class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300"><i class="fas fa-mobile-screen"></i></div>
+                    <div
+                        class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+                        <i class="fas fa-mobile-screen"></i>
+                    </div>
                     <h3 class="text-xl font-bold mb-3 font-display">Subsonic API</h3>
-                    <p class="text-text-muted text-sm leading-relaxed">Stream your music on the go. Compatible with DSub, Symfonium, Amuse, and dozens of other mobile clients.</p>
+                    <p class="text-text-muted text-sm leading-relaxed">Stream your music on the go. Compatible with
+                        DSub, Symfonium, Amuse, and dozens of other mobile clients.</p>
                 </div>
                 <div class="glass-card group">
-                    <div class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300"><i class="fas fa-share-nodes"></i></div>
+                    <div
+                        class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+                        <i class="fas fa-share-nodes"></i>
+                    </div>
                     <h3 class="text-xl font-bold mb-3 font-display">Federated</h3>
-                    <p class="text-text-muted text-sm leading-relaxed">Built on open standards — ActivityPub and HTTP federation. Instances discover each other and share their catalogs across the network.</p>
+                    <p class="text-text-muted text-sm leading-relaxed">Built on open standards — ActivityPub and HTTP
+                        federation. Instances discover each other and share their catalogs across the network.</p>
                 </div>
                 <div class="glass-card group">
-                    <div class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300"><i class="fas fa-water"></i></div>
+                    <div
+                        class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+                        <i class="fas fa-water"></i>
+                    </div>
                     <h3 class="text-xl font-bold mb-3 font-display">Waveforms</h3>
-                    <p class="text-text-muted text-sm leading-relaxed">Beautiful, automatically generated waveforms for every track, providing a professional streaming experience.</p>
+                    <p class="text-text-muted text-sm leading-relaxed">Beautiful, automatically generated waveforms for
+                        every track, providing a professional streaming experience.</p>
                 </div>
                 <div class="glass-card group">
-                    <div class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300"><i class="fas fa-box-open"></i></div>
+                    <div
+                        class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+                        <i class="fas fa-box-open"></i>
+                    </div>
                     <h3 class="text-xl font-bold mb-3 font-display">Distribution</h3>
-                    <p class="text-text-muted text-sm leading-relaxed">Offer free downloads, pay-what-you-want options, or protect your releases with unique unlock codes.</p>
+                    <p class="text-text-muted text-sm leading-relaxed">Offer free downloads, pay-what-you-want options,
+                        or protect your releases with unique unlock codes.</p>
                 </div>
                 <div class="glass-card group">
-                    <div class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300"><i class="fas fa-brain"></i></div>
+                    <div
+                        class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+                        <i class="fas fa-brain"></i>
+                    </div>
                     <h3 class="text-xl font-bold mb-3 font-display">AI Intelligence</h3>
-                    <p class="text-text-muted text-sm leading-relaxed">Automated album identification and metadata enrichment. Keep your library organized with minimal effort.</p>
+                    <p class="text-text-muted text-sm leading-relaxed">Automated album identification and metadata
+                        enrichment. Keep your library organized with minimal effort.</p>
                 </div>
                 <div class="glass-card group">
-                    <div class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300"><i class="fas fa-wallet"></i></div>
+                    <div
+                        class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+                        <i class="fas fa-wallet"></i>
+                    </div>
                     <h3 class="text-xl font-bold mb-3 font-display">Monetization</h3>
-                    <p class="text-text-muted text-sm leading-relaxed">Support for Stripe. Sell your music directly to fans without platform middleman fees.</p>
+                    <p class="text-text-muted text-sm leading-relaxed">Support for Stripe. Sell your music directly to
+                        fans without platform middleman fees.</p>
                 </div>
                 <div class="glass-card group">
-                    <div class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300"><i class="fas fa-palette"></i></div>
+                    <div
+                        class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+                        <i class="fas fa-palette"></i>
+                    </div>
                     <h3 class="text-xl font-bold mb-3 font-display">Modern UI</h3>
-                    <p class="text-text-muted text-sm leading-relaxed">A premium, responsive dashboard for you to manage your library and for your fans to enjoy your music.</p>
+                    <p class="text-text-muted text-sm leading-relaxed">A premium, responsive dashboard for you to manage
+                        your library and for your fans to enjoy your music.</p>
                 </div>
             </div>
         </div>
@@ -130,27 +178,122 @@
         <div class="max-w-5xl mx-auto">
             <div class="text-center mb-16">
                 <h2 class="font-display text-4xl md:text-5xl font-bold mb-4">Simple to host, easy to manage</h2>
-                <p class="text-text-muted text-lg max-w-2xl mx-auto">Tunecamp works with your existing file structure. No complex databases required to start.</p>
+                <p class="text-text-muted text-lg max-w-2xl mx-auto">Tunecamp works with your existing file structure.
+                    No complex databases required to start.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="text-center p-6 relative">
-                    <div class="text-6xl font-display font-black text-white/5 absolute top-0 left-1/2 -translate-x-1/2 z-0">01</div>
-                    <div class="w-16 h-16 bg-gradient-to-br from-primary to-purple-600 rounded-2xl flex items-center justify-center text-2xl text-white mx-auto mb-6 relative z-10 shadow-lg"><i class="fas fa-folder-open"></i></div>
+                    <div
+                        class="text-6xl font-display font-black text-white/5 absolute top-0 left-1/2 -translate-x-1/2 z-0">
+                        01</div>
+                    <div
+                        class="w-16 h-16 bg-gradient-to-br from-primary to-purple-600 rounded-2xl flex items-center justify-center text-2xl text-white mx-auto mb-6 relative z-10 shadow-lg">
+                        <i class="fas fa-folder-open"></i>
+                    </div>
                     <h3 class="text-2xl font-bold mb-4 font-display relative z-10">Organize</h3>
                     <p class="text-text-muted relative z-10">Drop your audio files into folders by Artist and Album.</p>
                 </div>
                 <div class="text-center p-6 relative">
-                    <div class="text-6xl font-display font-black text-white/5 absolute top-0 left-1/2 -translate-x-1/2 z-0">02</div>
-                    <div class="w-16 h-16 bg-gradient-to-br from-primary to-purple-600 rounded-2xl flex items-center justify-center text-2xl text-white mx-auto mb-6 relative z-10 shadow-lg"><i class="fas fa-rocket"></i></div>
+                    <div
+                        class="text-6xl font-display font-black text-white/5 absolute top-0 left-1/2 -translate-x-1/2 z-0">
+                        02</div>
+                    <div
+                        class="w-16 h-16 bg-gradient-to-br from-primary to-purple-600 rounded-2xl flex items-center justify-center text-2xl text-white mx-auto mb-6 relative z-10 shadow-lg">
+                        <i class="fas fa-rocket"></i>
+                    </div>
                     <h3 class="text-2xl font-bold mb-4 font-display relative z-10">Launch</h3>
-                    <p class="text-text-muted relative z-10">Run the Tunecamp server and point it to your music directory.</p>
+                    <p class="text-text-muted relative z-10">Run the Tunecamp server and point it to your music
+                        directory.</p>
                 </div>
                 <div class="text-center p-6 relative">
-                    <div class="text-6xl font-display font-black text-white/5 absolute top-0 left-1/2 -translate-x-1/2 z-0">03</div>
-                    <div class="w-16 h-16 bg-gradient-to-br from-primary to-purple-600 rounded-2xl flex items-center justify-center text-2xl text-white mx-auto mb-6 relative z-10 shadow-lg"><i class="fas fa-earth-americas"></i></div>
+                    <div
+                        class="text-6xl font-display font-black text-white/5 absolute top-0 left-1/2 -translate-x-1/2 z-0">
+                        03</div>
+                    <div
+                        class="w-16 h-16 bg-gradient-to-br from-primary to-purple-600 rounded-2xl flex items-center justify-center text-2xl text-white mx-auto mb-6 relative z-10 shadow-lg">
+                        <i class="fas fa-earth-americas"></i>
+                    </div>
                     <h3 class="text-2xl font-bold mb-4 font-display relative z-10">Share</h3>
-                    <p class="text-text-muted relative z-10">Your site is live with streaming, downloads, and Fediverse connectivity.</p>
+                    <p class="text-text-muted relative z-10">Your site is live with streaming, downloads, and Fediverse
+                        connectivity.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ecosystem -->
+    <section class="py-24 px-6 bg-bg-surface-alt/50 relative" id="ecosystem">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="font-display text-4xl md:text-5xl font-bold mb-4">The Tunecamp Ecosystem</h2>
+                <p class="text-text-muted text-lg max-w-2xl mx-auto">Standalone tools that extend Tunecamp. Each lives
+                    in its own repo and can be used independently.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="glass-card group flex flex-col gap-4">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+                            <i class="fas fa-plug"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold font-display">tunecamp-peer</h3>
+                            <p class="text-xs text-text-muted font-mono">github.com/scobru/tunecamp-peer</p>
+                        </div>
+                    </div>
+                    <p class="text-text-muted text-sm leading-relaxed">Lightweight CLI daemon that shares your local
+                        music folders with any Tunecamp instance over a reverse WebSocket tunnel — no port-forwarding,
+                        no static IP. Disconnect and all index rows vanish instantly.</p>
+                    <div class="bg-black/60 rounded-lg p-4 font-mono text-xs text-gray-300 mt-auto">
+                        <div><span class="text-primary mr-2">$</span> git clone
+                            https://github.com/scobru/tunecamp-peer.git</div>
+                        <div><span class="text-primary mr-2">$</span> npm install && npm start</div>
+                    </div>
+                    <a href="https://github.com/scobru/tunecamp-peer" target="_blank"
+                        class="btn-secondary text-sm !py-2 !px-4"><i class="fab fa-github mr-2"></i>View on GitHub</a>
+                </div>
+                <div class="glass-card group flex flex-col gap-4">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+                            <i class="fas fa-tape"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold font-display">tunecamp-4-track-recorder</h3>
+                            <p class="text-xs text-text-muted font-mono">github.com/scobru/tunecamp-4-track-recorder</p>
+                        </div>
+                    </div>
+                    <p class="text-text-muted text-sm leading-relaxed">A browser-based 4-track cassette recorder built
+                        with the Web Audio API and Svelte 5. Low-latency overdub recording, latency compensation,
+                        sample-accurate playback — all client-side, no server needed.</p>
+                    <div class="bg-black/60 rounded-lg p-4 font-mono text-xs text-gray-300 mt-auto">
+                        <div><span class="text-primary mr-2">$</span> npm install 4-track-recorder</div>
+                        <div class="text-gray-500 mt-1">// Svelte 5 component — drop in anywhere</div>
+                    </div>
+                    <a href="https://github.com/scobru/tunecamp-4-track-recorder" target="_blank"
+                        class="btn-secondary text-sm !py-2 !px-4"><i class="fab fa-github mr-2"></i>View on GitHub</a>
+                </div>
+                <div class="glass-card group flex flex-col gap-4">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+                            <i class="fas fa-wave-square"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold font-display">tunecamp-audiofabric</h3>
+                            <p class="text-xs text-text-muted font-mono">github.com/scobru/tunecamp-audiofabric</p>
+                        </div>
+                    </div>
+                    <p class="text-text-muted text-sm leading-relaxed">Interactive 3D WebGL music visualization built
+                        with regl and the Web Audio API. Renders beautiful real-time audio-reactive 3D terrain and
+                        dynamic waveforms.</p>
+                    <div class="bg-black/60 rounded-lg p-4 font-mono text-xs text-gray-300 mt-auto">
+                        <div><span class="text-primary mr-2">$</span> git clone https://github.com/scobru/tunecamp-audiofabric.git</div>
+                        <div><span class="text-primary mr-2">$</span> npm install && npm start</div>
+                    </div>
+                    <a href="https://github.com/scobru/tunecamp-audiofabric" target="_blank"
+                        class="btn-secondary text-sm !py-2 !px-4"><i class="fab fa-github mr-2"></i>View on GitHub</a>
                 </div>
             </div>
         </div>
@@ -158,13 +301,17 @@
 
     <!-- Community -->
     <section class="py-24 px-6">
-        <div class="max-w-3xl mx-auto text-center bg-gradient-to-b from-primary/10 to-transparent p-12 rounded-3xl border border-primary/20">
+        <div
+            class="max-w-3xl mx-auto text-center bg-gradient-to-b from-primary/10 to-transparent p-12 rounded-3xl border border-primary/20">
             <h2 class="font-display text-4xl font-bold mb-4">Join the Community</h2>
-            <p class="text-text-muted text-lg mb-10">Discover other artists using Tunecamp and register your own instance.</p>
+            <p class="text-text-muted text-lg mb-10">Discover other artists using Tunecamp and register your own
+                instance.</p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="player.html" class="btn-primary"><i class="fas fa-play-circle text-xl"></i> Community Player</a>
+                <a href="player.html" class="btn-primary"><i class="fas fa-play-circle text-xl"></i> Community
+                    Player</a>
                 <a href="community.html" class="btn-secondary"><i class="fas fa-globe text-xl"></i> Browse Directory</a>
-                <a href="https://web.telegram.org/a/#-1004480953180" target="_blank" class="btn-secondary"><i class="fab fa-telegram text-xl text-[#24A1DE]"></i> Telegram Channel</a>
+                <a href="https://web.telegram.org/a/#-1004480953180" target="_blank" class="btn-secondary"><i
+                        class="fab fa-telegram text-xl text-[#24A1DE]"></i> Telegram Channel</a>
             </div>
         </div>
     </section>
@@ -173,13 +320,21 @@
     <footer class="border-t border-white/10 py-12 px-6 bg-bg-surface-alt/30">
         <div class="max-w-6xl mx-auto flex flex-col items-center">
             <nav class="flex gap-8 mb-8">
-                <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors"><i class="fab fa-github mr-2"></i>GitHub</a>
-                <a href="https://www.npmjs.com/package/tunecamp" class="text-text-muted hover:text-white transition-colors"><i class="fab fa-npm mr-2"></i>NPM</a>
-                <a href="https://web.telegram.org/a/#-1004480953180" class="text-text-muted hover:text-white transition-colors" target="_blank"><i class="fab fa-telegram mr-2"></i>Telegram</a>
-                <a href="https://buymeacoffee.com/scobru" class="text-text-muted hover:text-white transition-colors"><i class="fas fa-mug-hot mr-2"></i>Support</a>
+                <a href="https://github.com/scobru/tunecamp"
+                    class="text-text-muted hover:text-white transition-colors"><i
+                        class="fab fa-github mr-2"></i>GitHub</a>
+                <a href="https://www.npmjs.com/package/tunecamp"
+                    class="text-text-muted hover:text-white transition-colors"><i class="fab fa-npm mr-2"></i>NPM</a>
+                <a href="https://web.telegram.org/a/#-1004480953180"
+                    class="text-text-muted hover:text-white transition-colors" target="_blank"><i
+                        class="fab fa-telegram mr-2"></i>Telegram</a>
+                <a href="https://buymeacoffee.com/scobru" class="text-text-muted hover:text-white transition-colors"><i
+                        class="fas fa-mug-hot mr-2"></i>Support</a>
             </nav>
-            <p class="text-sm text-text-muted opacity-60">Tunecamp is MIT Licensed. Made with ❤️ for independent music.</p>
+            <p class="text-sm text-text-muted opacity-60">Tunecamp is MIT Licensed. Made with ❤️ for independent music.
+            </p>
         </div>
     </footer>
 </body>
+
 </html>
