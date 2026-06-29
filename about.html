@@ -58,14 +58,41 @@
             <a href="index.html" class="flex items-center gap-2 font-display font-bold text-lg">
                 <img src="tunecamp.svg" alt="Tunecamp" class="w-7 h-7" /> Tunecamp
             </a>
-            <div class="flex items-center gap-6 text-sm font-medium">
+            <div class="hidden sm:flex items-center gap-6 text-sm font-medium">
                 <a href="index.html" class="text-text-muted hover:text-white transition-colors">Explore</a>
                 <a href="run.html" class="text-text-muted hover:text-white transition-colors">Run Instance</a>
                 <a href="manifesto.html" class="text-text-muted hover:text-white transition-colors">Manifesto</a>
                 <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors"><i class="fab fa-github"></i></a>
             </div>
+            <!-- Mobile hamburger -->
+            <button id="menuToggle" aria-label="Menu" aria-expanded="false" class="sm:hidden w-10 h-10 -mr-2 flex items-center justify-center text-text-muted hover:text-white transition-colors">
+                <i class="fas fa-bars text-lg"></i>
+            </button>
+        </div>
+        <!-- Mobile menu panel -->
+        <div id="mobileMenu" class="hidden sm:hidden border-t border-white/10 bg-black/90 backdrop-blur-lg">
+            <div class="px-6 py-4 flex flex-col gap-1 text-sm font-medium">
+                <a href="index.html" class="py-2 text-text-muted hover:text-white transition-colors">Explore</a>
+                <a href="run.html" class="py-2 text-text-muted hover:text-white transition-colors">Run Instance</a>
+                <a href="manifesto.html" class="py-2 text-text-muted hover:text-white transition-colors">Manifesto</a>
+                <a href="about.html" class="py-2 text-white">About</a>
+                <a href="https://github.com/scobru/tunecamp" class="py-2 text-text-muted hover:text-white transition-colors"><i class="fab fa-github mr-2"></i>GitHub</a>
+            </div>
         </div>
     </nav>
+    <script>
+        (function () {
+            const btn = document.getElementById('menuToggle');
+            const menu = document.getElementById('mobileMenu');
+            if (btn && menu) {
+                btn.addEventListener('click', () => {
+                    const open = menu.classList.toggle('hidden') === false;
+                    btn.setAttribute('aria-expanded', String(open));
+                    btn.querySelector('i').className = open ? 'fas fa-times text-lg' : 'fas fa-bars text-lg';
+                });
+            }
+        })();
+    </script>
 
     <!-- Ambient Glow -->
     <div
@@ -395,7 +422,7 @@
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="player.html" class="btn-primary"><i class="fas fa-play-circle text-xl"></i> Community
                     Player</a>
-                <a href="community.html" class="btn-secondary"><i class="fas fa-globe text-xl"></i> Browse Directory</a>
+                <a href="index.html" class="btn-secondary"><i class="fas fa-globe text-xl"></i> Browse Directory</a>
                 <a href="https://web.telegram.org/a/#-1004480953180" target="_blank" class="btn-secondary"><i
                         class="fab fa-telegram text-xl text-[#24A1DE]"></i> Telegram
                     Channel</a>
