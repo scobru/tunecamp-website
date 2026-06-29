@@ -57,7 +57,7 @@
     </style>
 </head>
 
-<body class="min-h-screen flex flex-col relative pb-28">
+<body class="min-h-screen flex flex-col relative pb-24 sm:pb-28">
     <!-- Top Nav -->
     <nav class="sticky top-0 left-0 w-full z-40 bg-black/70 backdrop-blur-lg border-b border-white/10">
         <div class="max-w-7xl mx-auto px-6 h-16 flex items-center gap-6">
@@ -69,9 +69,9 @@
                 <input type="text" id="searchInput" placeholder="Search tracks and artists" oninput="filterTracks()"
                     class="w-full bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-primary/50 placeholder-text-muted" />
             </div>
-            <div class="flex items-center gap-5 text-sm font-medium ml-auto">
-                <a href="run.html" class="text-text-muted hover:text-white transition-colors">Run Instance</a>
-                <a href="manifesto.html" class="text-text-muted hover:text-white transition-colors">Manifesto</a>
+            <div class="flex items-center gap-4 text-sm font-medium ml-auto">
+                <a href="run.html" class="hidden md:block text-text-muted hover:text-white transition-colors whitespace-nowrap">Run Instance</a>
+                <a href="manifesto.html" class="hidden sm:block text-text-muted hover:text-white transition-colors">Manifesto</a>
                 <a href="about.html" class="text-text-muted hover:text-white transition-colors">About</a>
                 <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors"><i class="fab fa-github"></i></a>
             </div>
@@ -104,25 +104,25 @@
         </section>
 
         <!-- Artist filter -->
-        <div class="flex items-center gap-3 mb-6">
+        <div class="flex flex-wrap items-center gap-2 mb-6">
             <select id="artistFilter" onchange="filterTracks()"
-                class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-primary/50 text-white">
+                class="flex-1 min-w-0 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-primary/50 text-white">
                 <option value="" class="bg-bg-surface">All artists</option>
             </select>
             <select id="genreFilter" onchange="filterTracks()"
-                class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-primary/50 text-white">
+                class="flex-1 min-w-0 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-primary/50 text-white">
                 <option value="" class="bg-bg-surface">All genres</option>
             </select>
             <button onclick="shufflePlay()" title="Shuffle play"
-                class="bg-primary/20 text-primary border border-primary/30 rounded-xl px-4 py-2 text-sm hover:bg-primary/30 transition-colors">
-                <i class="fas fa-random mr-1"></i> Shuffle
+                class="shrink-0 bg-primary/20 text-primary border border-primary/30 rounded-xl px-4 py-2 text-sm hover:bg-primary/30 transition-colors">
+                <i class="fas fa-random"></i><span class="hidden sm:inline ml-1">Shuffle</span>
             </button>
         </div>
 
         <!-- Tracks grid -->
         <section>
             <h2 class="font-display text-lg font-bold mb-4">Latest tracks</h2>
-            <div id="tracksGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
+            <div id="tracksGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-5">
                 <div class="col-span-full py-20 text-center text-text-muted">
                     <i class="fas fa-circle-notch fa-spin text-3xl text-primary/50 mb-3"></i>
                     <p>Loading tracks from the community…</p>
@@ -131,7 +131,7 @@
         </section>
 
         <!-- Register instance -->
-        <section class="mt-16 mb-4 border border-white/10 rounded-2xl p-8 flex flex-col sm:flex-row items-center gap-6 bg-white/3">
+        <section class="mt-16 mb-4 border border-white/10 rounded-2xl p-5 sm:p-8 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 bg-white/3">
             <div class="flex-1 min-w-0">
                 <h2 class="font-display text-lg font-bold mb-1">Register your instance</h2>
                 <p class="text-text-muted text-sm">Running Tunecamp? Add your URL to appear in the network.</p>
@@ -147,33 +147,36 @@
     </main>
 
     <!-- Bottom Player Bar -->
-    <div class="fixed bottom-0 left-0 w-full bg-white/5 backdrop-blur-2xl border-t border-white/10 px-6 py-3 z-50">
-        <div class="max-w-7xl mx-auto flex items-center gap-4">
-            <div class="flex items-center gap-3 w-1/3 min-w-0">
-                <div id="miniCover" class="w-12 h-12 rounded-lg bg-white/10 overflow-hidden flex items-center justify-center text-white/30 flex-shrink-0">
-                    <i class="fas fa-music"></i>
+    <div class="fixed bottom-0 left-0 w-full bg-black/80 backdrop-blur-2xl border-t border-white/10 px-4 sm:px-6 py-2 sm:py-3 z-50">
+        <div class="max-w-7xl mx-auto flex items-center gap-3">
+            <!-- Cover + title -->
+            <div class="flex items-center gap-2 sm:gap-3 w-auto sm:w-1/3 min-w-0 shrink-0">
+                <div id="miniCover" class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-white/10 overflow-hidden flex items-center justify-center text-white/30 flex-shrink-0">
+                    <i class="fas fa-music text-sm"></i>
                 </div>
                 <div class="min-w-0 hidden sm:block">
                     <div id="miniTitle" class="font-semibold text-sm truncate">Select a track</div>
                     <div id="miniArtist" class="text-xs text-text-muted truncate">Tunecamp network</div>
                 </div>
             </div>
-            <div class="flex flex-col items-center flex-1">
-                <div class="flex items-center gap-4 mb-1.5">
-                    <button class="text-text-muted hover:text-white transition-colors" id="toggleShuffle" title="Shuffle"><i class="fas fa-random"></i></button>
+            <!-- Controls -->
+            <div class="flex flex-col items-center flex-1 min-w-0">
+                <div class="flex items-center gap-3 sm:gap-4 mb-1.5">
+                    <button class="hidden sm:block text-text-muted hover:text-white transition-colors" id="toggleShuffle" title="Shuffle"><i class="fas fa-random text-sm"></i></button>
                     <button class="text-text-muted hover:text-white transition-colors" id="prevBtn"><i class="fas fa-step-backward"></i></button>
-                    <button id="playBtn" class="w-11 h-11 rounded-full bg-gradient-to-r from-primary to-purple-500 flex items-center justify-center text-lg hover:scale-105 transition-transform"><i class="fas fa-play" id="playIcon"></i></button>
+                    <button id="playBtn" class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gradient-to-r from-primary to-purple-500 flex items-center justify-center text-base sm:text-lg hover:scale-105 transition-transform"><i class="fas fa-play" id="playIcon"></i></button>
                     <button class="text-text-muted hover:text-white transition-colors" id="nextBtn"><i class="fas fa-step-forward"></i></button>
-                    <button class="text-text-muted hover:text-white transition-colors" id="toggleRepeat" title="Repeat"><i class="fas fa-redo"></i></button>
+                    <button class="hidden sm:block text-text-muted hover:text-white transition-colors" id="toggleRepeat" title="Repeat"><i class="fas fa-redo text-sm"></i></button>
                 </div>
-                <div class="w-full flex items-center gap-2">
-                    <span id="currentTime" class="text-[11px] text-text-muted font-mono w-9 text-right">0:00</span>
-                    <div id="progressBar" class="h-1.5 bg-white/20 rounded-full cursor-pointer relative overflow-hidden flex-1">
+                <div class="w-full flex items-center gap-1.5 sm:gap-2">
+                    <span id="currentTime" class="text-[10px] sm:text-[11px] text-text-muted font-mono w-7 sm:w-9 text-right">0:00</span>
+                    <div id="progressBar" class="h-1 sm:h-1.5 bg-white/20 rounded-full cursor-pointer relative overflow-hidden flex-1">
                         <div id="progressFill" class="absolute top-0 left-0 h-full bg-primary rounded-full" style="width:0%"></div>
                     </div>
-                    <span id="duration" class="text-[11px] text-text-muted font-mono w-9">0:00</span>
+                    <span id="duration" class="text-[10px] sm:text-[11px] text-text-muted font-mono w-7 sm:w-9">0:00</span>
                 </div>
             </div>
+            <!-- Volume (desktop only) -->
             <div class="hidden md:flex items-center justify-end gap-3 w-1/3">
                 <i class="fas fa-volume-up text-text-muted text-sm"></i>
                 <input type="range" id="volumeSlider" class="w-24 h-1 bg-white/20 rounded-full appearance-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full cursor-pointer" min="0" max="100" value="80">
