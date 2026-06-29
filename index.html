@@ -84,6 +84,7 @@
         <div id="mobileMenu" class="hidden sm:hidden border-t border-white/10 bg-black/90 backdrop-blur-lg">
             <div class="px-6 py-4 flex flex-col gap-1 text-sm font-medium">
                 <a href="index.html" class="py-2 text-white">Explore</a>
+                <a href="player.html" class="py-2 text-text-muted hover:text-white transition-colors">Player</a>
                 <a href="run.html" class="py-2 text-text-muted hover:text-white transition-colors">Run Instance</a>
                 <a href="manifesto.html" class="py-2 text-text-muted hover:text-white transition-colors">Manifesto</a>
                 <a href="about.html" class="py-2 text-text-muted hover:text-white transition-colors">About</a>
@@ -522,7 +523,8 @@
             if (!directory) { msg.textContent = 'No directory configured.'; msg.className = 'text-sm text-red-400'; msg.classList.remove('hidden'); return; }
             btn.disabled = true; btn.textContent = 'Registering…'; msg.classList.add('hidden');
             try {
-                const res = await fetch(`${directory.replace(/\/$/, '')}/api/community/register`, {
+                const endpoint = `${directory.replace(/\/$/, '')}/api/community/register?url=${encodeURIComponent(url)}`;
+                const res = await fetch(endpoint, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }),
                 });
                 const data = await res.json().catch(() => ({}));
