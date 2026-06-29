@@ -89,6 +89,7 @@
         <aside class="hidden lg:block w-56 shrink-0">
             <div class="sticky top-24 space-y-1">
                 <p class="text-xs text-text-muted/50 uppercase tracking-widest font-semibold mb-4">On this page</p>
+                <a href="#railway" class="toc-link block py-1">Deploy on Railway</a>
                 <a href="#prerequisites" class="toc-link block py-1">Prerequisites</a>
                 <a href="#install" class="toc-link block py-1">Install &amp; run</a>
                 <a href="#first-login" class="toc-link block py-1">First login</a>
@@ -115,6 +116,39 @@
                     Follow these steps to go from zero to a live instance on the federated network.
                 </p>
             </div>
+
+            <!-- Railway: no-VPS alternative -->
+            <section id="railway" class="mb-6 bg-gradient-to-r from-violet-950/60 to-purple-900/40 border border-violet-500/30 rounded-2xl p-8">
+                <div class="flex items-center gap-3 mb-4">
+                    <svg class="w-6 h-6 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 21.5C3.5 17.5 3.5 13.5 4.5 9.5C5.5 5.5 9 2.5 12 2.5C15 2.5 18.5 5.5 19.5 9.5C20.5 13.5 20.5 17.5 19.5 21.5" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"/><path d="M12 2.5V21.5" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"/></svg>
+                    <h2 class="font-display text-xl font-bold">No VPS? Deploy on Railway</h2>
+                    <span class="tag ml-auto"><i class="fas fa-bolt text-amber-400"></i> ~2 min</span>
+                </div>
+                <p class="text-text-muted text-sm mb-5">
+                    Skip the Docker setup entirely. Railway provisions your instance, attaches a persistent volume, and gives you a public HTTPS URL — all from one click.
+                    SSL is included, so federation works out of the box.
+                </p>
+                <a href="https://railway.com/deploy/tunecamp?referralCode=BUSsSY&utm_medium=integration&utm_source=template&utm_campaign=generic"
+                   target="_blank" rel="noopener"
+                   class="inline-block hover:scale-105 transition-transform">
+                    <img src="https://railway.com/button.svg" alt="Deploy on Railway" class="h-10" />
+                </a>
+                <div class="mt-5 pt-5 border-t border-white/10 grid sm:grid-cols-3 gap-4 text-sm">
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-lock text-green-400 mt-0.5 shrink-0"></i>
+                        <span class="text-text-muted">HTTPS automatic — no Nginx or Certbot needed</span>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-database text-blue-400 mt-0.5 shrink-0"></i>
+                        <span class="text-text-muted">Persistent volume for DB and media files</span>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-globe text-primary mt-0.5 shrink-0"></i>
+                        <span class="text-text-muted">Set <code>TUNECAMP_PUBLIC_URL</code> to enable federation</span>
+                    </div>
+                </div>
+                <p class="text-xs text-text-muted mt-4">Want the Docker path instead? Continue with the steps below.</p>
+            </section>
 
             <!-- Step 1: Prerequisites -->
             <section id="prerequisites" class="step-card mb-6">
