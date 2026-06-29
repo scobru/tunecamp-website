@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Who Uses Tunecamp — Use Cases</title>
+    <link rel="icon" type="image/svg+xml" href="tunecamp.svg" />
+    <meta name="description"
+        content="From independent labels to vinyl collectors to digital archivists — see who runs Tunecamp and why." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.tunecamp.org/usecases.html" />
+    <meta property="og:title" content="Who Uses Tunecamp — Use Cases" />
+    <meta property="og:description" content="From independent labels to vinyl collectors to digital archivists — see who runs Tunecamp and why." />
+    <meta property="og:image" content="https://www.tunecamp.org/tunecamp.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://www.tunecamp.org/tunecamp.jpg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800;900&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+        crossorigin="anonymous" />
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <style type="text/tailwindcss">
+        @theme {
+            --color-primary: #8b5cf6;
+            --color-primary-hover: #a78bfa;
+            --color-bg-base: #050505;
+            --color-bg-surface: #111111;
+            --color-bg-surface-alt: #1a1a1a;
+            --color-text-base: #ffffff;
+            --color-text-muted: #a3a3a3;
+            --font-sans: "Inter", sans-serif;
+            --font-display: "Outfit", sans-serif;
+        }
+        body {
+            @apply bg-bg-base text-text-base font-sans antialiased selection:bg-primary/30 overflow-x-hidden;
+        }
+        .glass-card {
+            @apply bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl transition-all duration-300 hover:border-primary/40 hover:bg-white/8 hover:shadow-[0_8px_32px_rgba(139,92,246,0.12)];
+        }
+        .use-case-tag {
+            @apply inline-block text-[0.65rem] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full border;
+        }
+        .section-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(139,92,246,0.7);
+            font-weight: 600;
+        }
+        .pull-quote {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col relative">
+
+    <!-- Nav -->
+    <nav class="sticky top-0 left-0 w-full z-40 bg-black/70 backdrop-blur-lg border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center gap-6">
+            <a href="index.html" class="flex items-center gap-2 font-display font-bold text-lg shrink-0">
+                <img src="tunecamp.svg" alt="Tunecamp" class="w-7 h-7" /> Tunecamp
+            </a>
+            <div class="hidden sm:flex items-center gap-5 text-sm font-medium ml-auto">
+                <a href="index.html" class="text-text-muted hover:text-white transition-colors">Explore</a>
+                <a href="run.html" class="text-text-muted hover:text-white transition-colors whitespace-nowrap">Run Instance</a>
+                <a href="usecases.html" class="text-white">Use Cases</a>
+                <a href="manifesto.html" class="text-text-muted hover:text-white transition-colors">Manifesto</a>
+                <a href="https://scobru.github.io/tunecamp/" target="_blank" class="text-text-muted hover:text-white transition-colors">Docs</a>
+                <a href="about.html" class="text-text-muted hover:text-white transition-colors">About</a>
+                <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors"><i class="fab fa-github"></i></a>
+            </div>
+            <!-- Mobile hamburger -->
+            <button id="menuToggle" aria-label="Menu" aria-expanded="false" class="sm:hidden ml-auto w-10 h-10 -mr-2 flex items-center justify-center text-text-muted hover:text-white transition-colors">
+                <i class="fas fa-bars text-lg"></i>
+            </button>
+        </div>
+        <!-- Mobile menu -->
+        <div id="mobileMenu" class="hidden sm:hidden border-t border-white/10 bg-black/90 backdrop-blur-lg">
+            <div class="px-6 py-4 flex flex-col gap-1 text-sm font-medium">
+                <a href="index.html" class="py-2 text-text-muted hover:text-white transition-colors">Explore</a>
+                <a href="run.html" class="py-2 text-text-muted hover:text-white transition-colors">Run Instance</a>
+                <a href="usecases.html" class="py-2 text-white">Use Cases</a>
+                <a href="manifesto.html" class="py-2 text-text-muted hover:text-white transition-colors">Manifesto</a>
+                <a href="https://scobru.github.io/tunecamp/" target="_blank" class="py-2 text-text-muted hover:text-white transition-colors">Docs</a>
+                <a href="about.html" class="py-2 text-text-muted hover:text-white transition-colors">About</a>
+                <a href="https://github.com/scobru/tunecamp" class="py-2 text-text-muted hover:text-white transition-colors"><i class="fab fa-github mr-2"></i>GitHub</a>
+            </div>
+        </div>
+    </nav>
+    <script>
+        (function () {
+            const btn = document.getElementById('menuToggle');
+            const menu = document.getElementById('mobileMenu');
+            if (btn && menu) {
+                btn.addEventListener('click', () => {
+                    const open = menu.classList.toggle('hidden') === false;
+                    btn.setAttribute('aria-expanded', String(open));
+                    btn.querySelector('i').className = open ? 'fas fa-times text-lg' : 'fas fa-bars text-lg';
+                });
+            }
+        })();
+    </script>
+
+    <!-- Ambient glow -->
+    <div class="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-primary/15 blur-[130px] rounded-full pointer-events-none -z-10"></div>
+    <div class="absolute top-[60%] right-[-5%] w-[400px] h-[400px] bg-pink-500/8 blur-[100px] rounded-full pointer-events-none -z-10"></div>
+
+    <!-- Hero -->
+    <header class="pt-24 pb-16 px-6 text-center relative">
+        <div class="max-w-3xl mx-auto">
+            <p class="section-label mb-5">Use Cases</p>
+            <h1 class="font-display text-4xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
+                Who runs<br/>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-pink-400">Tunecamp?</span>
+            </h1>
+            <p class="text-lg text-text-muted max-w-2xl mx-auto leading-relaxed">
+                Tunecamp is infrastructure, not a platform — which means it fits many different people.
+                Here are some of the ways it's being used, and the problems it solves for each.
+            </p>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto w-full px-6 pb-24 flex-1">
+
+        <!-- ── 1. Independent Artist ── -->
+        <section class="mb-6" id="independent-artist">
+            <div class="glass-card p-8 md:p-10 flex flex-col md:flex-row gap-8 md:gap-12">
+                <div class="shrink-0 flex flex-col items-center md:items-start gap-4 md:w-56">
+                    <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/30 to-purple-700/40 border border-primary/30 flex items-center justify-center text-4xl">
+                        🎸
+                    </div>
+                    <span class="use-case-tag text-primary border-primary/30 bg-primary/10">Artist</span>
+                    <h2 class="font-display text-2xl font-bold text-center md:text-left leading-snug">The Independent Artist</h2>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-text-muted leading-relaxed mb-5">
+                        You've been releasing music on streaming platforms for years. You get a payout report every month — and every month you remind yourself that 0.003€ per stream is not a relationship. Your fans don't subscribe to <em>you</em>, they subscribe to the platform. You're interchangeable with every other artist in the catalogue.
+                    </p>
+                    <p class="text-white/80 leading-relaxed mb-5">
+                        With Tunecamp you run your own server at <code class="text-primary/80 bg-white/5 px-1.5 py-0.5 rounded text-sm">yourname.com</code>. Fans visit your site, stream your releases, and buy downloads directly — no cut taken. Your Fediverse actor means anyone on Mastodon or Pixelfed can follow you and get notified when you drop something new. The 4-track recorder lets you publish rough demos the same afternoon you record them.
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/8">
+                            <div class="text-primary mb-2"><i class="fas fa-wallet"></i></div>
+                            <div class="text-sm font-semibold mb-1">Direct sales</div>
+                            <div class="text-xs text-text-muted">Stripe integration — sell albums at any price, keep 100%</div>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/8">
+                            <div class="text-primary mb-2"><i class="fas fa-bell"></i></div>
+                            <div class="text-sm font-semibold mb-1">Fediverse reach</div>
+                            <div class="text-xs text-text-muted">ActivityPub lets fans follow you from any Mastodon instance</div>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/8">
+                            <div class="text-primary mb-2"><i class="fas fa-lock-open"></i></div>
+                            <div class="text-sm font-semibold mb-1">Unlock codes</div>
+                            <div class="text-xs text-text-muted">Protect exclusive content — send codes to your supporters</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── 2. Independent Label ── -->
+        <section class="mb-6" id="independent-label">
+            <div class="glass-card p-8 md:p-10 flex flex-col md:flex-row gap-8 md:gap-12">
+                <div class="shrink-0 flex flex-col items-center md:items-start gap-4 md:w-56">
+                    <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-pink-500/30 to-rose-700/40 border border-pink-500/30 flex items-center justify-center text-4xl">
+                        🏷️
+                    </div>
+                    <span class="use-case-tag text-pink-400 border-pink-500/30 bg-pink-500/10">Label</span>
+                    <h2 class="font-display text-2xl font-bold text-center md:text-left leading-snug">The Independent Label</h2>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-text-muted leading-relaxed mb-5">
+                        You run a small label — five, maybe ten artists. You handle distribution, artwork, social media, and the eternal question of what to do when Bandcamp changes its fee structure again. Your whole roster lives on third-party infrastructure that you pay for but don't control.
+                    </p>
+                    <p class="text-white/80 leading-relaxed mb-5">
+                        One Tunecamp instance becomes the label's home. You upload every release, maintain the full back catalogue, and let each artist have their own page within the same server. New releases land simultaneously on the Fediverse and on your own store. Fans who buy directly keep you from losing a percentage to middlemen on every transaction. When you need to migrate a file format or update metadata across the whole catalogue, you do it without filing a support ticket.
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/8">
+                            <div class="text-pink-400 mb-2"><i class="fas fa-users"></i></div>
+                            <div class="text-sm font-semibold mb-1">Multi-artist roster</div>
+                            <div class="text-xs text-text-muted">Manage all your artists from a single instance</div>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/8">
+                            <div class="text-pink-400 mb-2"><i class="fas fa-brain"></i></div>
+                            <div class="text-sm font-semibold mb-1">AI metadata</div>
+                            <div class="text-xs text-text-muted">Automatic album identification keeps the catalogue clean</div>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/8">
+                            <div class="text-pink-400 mb-2"><i class="fas fa-box-open"></i></div>
+                            <div class="text-sm font-semibold mb-1">Full catalogue</div>
+                            <div class="text-xs text-text-muted">Back catalogue, pre-releases, limited editions — all in one place</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── 3. Vinyl Collectors Crew ── -->
+        <section class="mb-6" id="vinyl-collectors">
+            <div class="glass-card p-8 md:p-10 flex flex-col md:flex-row gap-8 md:gap-12">
+                <div class="shrink-0 flex flex-col items-center md:items-start gap-4 md:w-56">
+                    <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-500/30 to-orange-700/40 border border-amber-500/30 flex items-center justify-center text-4xl">
+                        🎶
+                    </div>
+                    <span class="use-case-tag text-amber-400 border-amber-500/30 bg-amber-500/10">Collectors</span>
+                    <h2 class="font-display text-2xl font-bold text-center md:text-left leading-snug">The Vinyl &amp; Music Collectors Crew</h2>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-text-muted leading-relaxed mb-5">
+                        You and your friends have been collecting records for decades — jazz, dub, krautrock, rare soul. You share rips in a Telegram group, argue about turntable settings, and live with the quiet anxiety that the hard drive with your digitized collection will eventually fail and take 30 years of crate digging with it.
+                    </p>
+                    <p class="text-white/80 leading-relaxed mb-5">
+                        A shared Tunecamp instance becomes your crew's private listening room and archive. Everyone contributes rips from their collection. The Subsonic API means you can stream it all from your phone at a record fair. The federation layer means you can peer with other collector communities — find that obscure pressing you've been looking for on someone else's instance. The files are yours, hosted on hardware in someone's apartment, not behind a subscription wall.
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/8">
+                            <div class="text-amber-400 mb-2"><i class="fas fa-mobile-screen"></i></div>
+                            <div class="text-sm font-semibold mb-1">Subsonic on mobile</div>
+                            <div class="text-xs text-text-muted">Stream your collection anywhere with DSub, Symfonium, or Amuse</div>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/8">
+                            <div class="text-amber-400 mb-2"><i class="fas fa-plug"></i></div>
+                            <div class="text-sm font-semibold mb-1">tunecamp-peer</div>
+                            <div class="text-xs text-text-muted">Share local folders with the instance over a WebSocket tunnel — no port-forwarding</div>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/8">
+                            <div class="text-amber-400 mb-2"><i class="fas fa-share-nodes"></i></div>
+                            <div class="text-sm font-semibold mb-1">Federation</div>
+                            <div class="text-xs text-text-muted">Discover other collectors' instances across the network</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── 4. Music Curator ── -->
+        <section class="mb-6" id="music-curator">
+            <div class="glass-card p-8 md:p-10 flex flex-col md:flex-row gap-8 md:gap-12">
+                <div class="shrink-0 flex flex-col items-center md:items-start gap-4 md:w-56">
+                    <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-cyan-500/30 to-teal-700/40 border border-cyan-500/30 flex items-center justify-center text-4xl">
+                        📻
+                    </div>
+                    <span class="use-case-tag text-cyan-400 border-cyan-500/30 bg-cyan-500/10">Curator</span>
+                    <h2 class="font-display text-2xl font-bold text-center md:text-left leading-snug">The Music Curator &amp; Community Radio</h2>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-text-muted leading-relaxed mb-5">
+                        You run a blog, a newsletter, a Discord, or a community radio channel. You spend hours putting together listening guides, themed mixes, introductions to obscure artists. Your community trusts your taste. But the moment you point them to a streaming link, you're handing them to an algorithm that will immediately try to pull them away from what you built.
+                    </p>
+                    <p class="text-white/80 leading-relaxed mb-5">
+                        Your Tunecamp instance is your editorial space. You upload the music you feature — with permission, or music that's openly licensed — and present it your way: in albums, curated by mood, with context you write yourself. Your community listens on your site. They follow your instance from Mastodon. When you publish a new set, they see it in their feed — not buried under the platform's recommendations.
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/8">
+                            <div class="text-cyan-400 mb-2"><i class="fas fa-water"></i></div>
+                            <div class="text-sm font-semibold mb-1">Beautiful player</div>
+                            <div class="text-xs text-text-muted">Waveforms and a premium UI your community will actually enjoy</div>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/8">
+                            <div class="text-cyan-400 mb-2"><i class="fas fa-network-wired"></i></div>
+                            <div class="text-sm font-semibold mb-1">ActivityPub feed</div>
+                            <div class="text-xs text-text-muted">Every new upload posts to the Fediverse automatically</div>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/8">
+                            <div class="text-cyan-400 mb-2"><i class="fas fa-globe"></i></div>
+                            <div class="text-sm font-semibold mb-1">Your domain</div>
+                            <div class="text-xs text-text-muted">The listening happens on your URL, in your design, on your terms</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── 5. Digital Preservationist ── -->
+        <section class="mb-6" id="digital-preservationist">
+            <div class="glass-card p-8 md:p-10 flex flex-col md:flex-row gap-8 md:gap-12">
+                <div class="shrink-0 flex flex-col items-center md:items-start gap-4 md:w-56">
+                    <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500/30 to-green-700/40 border border-emerald-500/30 flex items-center justify-center text-4xl">
+                        🏛️
+                    </div>
+                    <span class="use-case-tag text-emerald-400 border-emerald-500/30 bg-emerald-500/10">Preservation</span>
+                    <h2 class="font-display text-2xl font-bold text-center md:text-left leading-snug">The Internet Philanthropist &amp; Digital Archivist</h2>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-text-muted leading-relaxed mb-5">
+                        Like the people behind Anna's Archive or the Internet Archive's music collections, you believe that cultural preservation is an act of public service. You've watched netlabel catalogues disappear when domains expired. You've seen entire scenes evaporate from the internet — early dubstep forums, experimental noise blogs, regional folk traditions recorded in someone's living room in the 1990s — because no institution thought they were worth keeping.
+                    </p>
+                    <p class="text-white/80 leading-relaxed mb-5">
+                        Your Tunecamp instance is a library node. You run it on a server with redundant storage, you seed every upload as a torrent, and you connect to other preservation-minded instances in the federation. The music stays findable. The metadata stays accurate. If someone does a web search for a forgotten record five years from now, your instance is there — not a dead Bandcamp link, not a 404. The manifesto says it clearly: <em>this is not just a streaming server, it is a personal archive.</em>
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/8">
+                            <div class="text-emerald-400 mb-2"><i class="fas fa-archive"></i></div>
+                            <div class="text-sm font-semibold mb-1">Permanent archive</div>
+                            <div class="text-xs text-text-muted">Files live on hardware you control, in open formats, indefinitely</div>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/8">
+                            <div class="text-emerald-400 mb-2"><i class="fas fa-share-nodes"></i></div>
+                            <div class="text-sm font-semibold mb-1">Distributed network</div>
+                            <div class="text-xs text-text-muted">Federation means no single point of failure across the archive</div>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/8">
+                            <div class="text-emerald-400 mb-2"><i class="fas fa-magnifying-glass"></i></div>
+                            <div class="text-sm font-semibold mb-1">Findable forever</div>
+                            <div class="text-xs text-text-muted">Full metadata, search, and a public URL that doesn't rot</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── 6. Music School / Workshop ── -->
+        <section class="mb-6" id="music-school">
+            <div class="glass-card p-8 md:p-10 flex flex-col md:flex-row gap-8 md:gap-12">
+                <div class="shrink-0 flex flex-col items-center md:items-start gap-4 md:w-56">
+                    <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500/30 to-indigo-700/40 border border-violet-500/30 flex items-center justify-center text-4xl">
+                        🎓
+                    </div>
+                    <span class="use-case-tag text-violet-400 border-violet-500/30 bg-violet-500/10">Education</span>
+                    <h2 class="font-display text-2xl font-bold text-center md:text-left leading-snug">The Music School &amp; Workshop</h2>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-text-muted leading-relaxed mb-5">
+                        You teach music production, run a songwriting residency, or organize community recording workshops. Your students make things worth sharing. Right now, their work goes into a shared Google Drive that nobody visits, or onto SoundCloud where it competes for attention with every other upload on the internet.
+                    </p>
+                    <p class="text-white/80 leading-relaxed mb-5">
+                        A Tunecamp instance becomes the school's living portfolio. Students upload their recordings with proper metadata; the instance becomes the end-of-year showcase, the proof of work, the portfolio link they send to labels and residencies. The 4-track recorder in the browser means no DAW or hardware setup is required for quick experiments. Parents, guests, and other schools can browse the catalogue freely. Nothing is locked behind a subscription.
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/8">
+                            <div class="text-violet-400 mb-2"><i class="fas fa-tape"></i></div>
+                            <div class="text-sm font-semibold mb-1">Browser recorder</div>
+                            <div class="text-xs text-text-muted">The 4-track recorder requires no software — record and publish in minutes</div>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/8">
+                            <div class="text-violet-400 mb-2"><i class="fas fa-palette"></i></div>
+                            <div class="text-sm font-semibold mb-1">Showcase-ready</div>
+                            <div class="text-xs text-text-muted">A public URL and a clean UI your students can share proudly</div>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/8">
+                            <div class="text-violet-400 mb-2"><i class="fas fa-cloud-arrow-up"></i></div>
+                            <div class="text-sm font-semibold mb-1">No platform lock-in</div>
+                            <div class="text-xs text-text-muted">Files belong to the school — migrate, export, or move at any time</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pull quote -->
+        <div class="my-16 text-center">
+            <blockquote class="pull-quote text-3xl md:text-4xl text-transparent bg-clip-text bg-gradient-to-r from-white to-white/60 max-w-2xl mx-auto">
+                "Different people. Same problem. <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-pink-400">Nobody should own your music but you.</span>"
+            </blockquote>
+        </div>
+
+        <!-- CTA -->
+        <div class="max-w-3xl mx-auto bg-gradient-to-b from-primary/10 to-transparent rounded-3xl border border-primary/20 p-10 md:p-14 text-center">
+            <h2 class="font-display text-3xl font-bold mb-4">Ready to run your instance?</h2>
+            <p class="text-text-muted text-lg mb-8 max-w-xl mx-auto">
+                Whether you're an artist, a label, a collector, or a preservationist — Tunecamp is yours to run, your way.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="run.html" class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-purple-500 text-white px-7 py-3.5 rounded-xl font-bold hover:scale-105 transition-all shadow-[0_0_20px_rgba(139,92,246,0.35)]">
+                    <i class="fas fa-server"></i> Run your instance
+                </a>
+                <a href="manifesto.html" class="inline-flex items-center justify-center gap-2 bg-white/5 border border-white/10 text-white px-7 py-3.5 rounded-xl font-semibold hover:bg-white/10 transition-all">
+                    <i class="fas fa-book-open"></i> Read the Manifesto
+                </a>
+                <a href="index.html" class="inline-flex items-center justify-center gap-2 bg-white/5 border border-white/10 text-white px-7 py-3.5 rounded-xl font-semibold hover:bg-white/10 transition-all">
+                    <i class="fas fa-headphones"></i> Explore the network
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 py-10 px-6 bg-bg-surface-alt/30">
+        <div class="max-w-6xl mx-auto flex flex-col items-center">
+            <nav class="flex gap-8 mb-6 flex-wrap justify-center">
+                <a href="https://scobru.github.io/tunecamp/" target="_blank" class="text-text-muted hover:text-white transition-colors text-sm"><i class="fas fa-book mr-2"></i>Docs</a>
+                <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors text-sm"><i class="fab fa-github mr-2"></i>GitHub</a>
+                <a href="https://web.telegram.org/a/#-1004480953180" class="text-text-muted hover:text-white transition-colors text-sm" target="_blank"><i class="fab fa-telegram mr-2"></i>Telegram</a>
+                <a href="https://buymeacoffee.com/scobru" class="text-text-muted hover:text-white transition-colors text-sm"><i class="fas fa-mug-hot mr-2"></i>Support</a>
+            </nav>
+            <p class="text-sm text-text-muted opacity-60">Tunecamp is MIT Licensed. Made with ❤️ for independent music.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
