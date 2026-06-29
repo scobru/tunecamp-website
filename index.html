@@ -540,7 +540,7 @@
             if (!directories.length) { showMsg('No directory configured. Try again later.', false); return; }
             btn.disabled = true; btn.textContent = 'Registering…'; msg.classList.add('hidden');
             // Try each configured directory in turn so one offline seed doesn't block registration.
-            let lastError = 'Could not reach any directory server. Try again later.';
+            let lastError = 'Could not reach any directory server (network/CORS error). Try again later.';
             try {
                 for (const directory of directories) {
                     let res;
@@ -559,8 +559,15 @@
                         lastError = 'Not a reachable Tunecamp instance — make sure your server is live and publicly accessible.';
                     } else if (res.status === 429) {
                         lastError = 'Too many registration requests. Please try again later.';
+                    } else if (res.status === 404) {
+                        // The directory server is missing the register endpoint — usually an
+                        // outdated deploy or a reverse proxy not routing /api/community/register.
+                        lastError = 'Directory server does not support registration (HTTP 404) — its TuneCamp deploy may be outdated.';
+                    } else if (data.error) {
+                        lastError = `${data.error} (HTTP ${res.status})`;
                     } else {
-                        lastError = data.error || 'Registration failed. Check the URL and try again.';
+                        // Non-JSON error body (e.g. gateway/proxy HTML) — surface the status to aid debugging.
+                        lastError = `Registration failed (HTTP ${res.status}). The directory server returned an unexpected response.`;
                     }
                 }
                 showMsg(lastError, false);
