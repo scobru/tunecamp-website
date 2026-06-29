@@ -137,7 +137,7 @@
                 <p class="text-text-muted text-sm">Running Tunecamp? Add your URL to appear in the network.</p>
             </div>
             <form id="registerForm" class="flex gap-2 w-full sm:w-auto" onsubmit="return false;">
-                <input id="registerUrl" type="url" required placeholder="https://your-instance.example.com"
+                <input id="registerUrl" type="text" placeholder="your-instance.example.com"
                     class="flex-1 sm:w-72 px-4 py-2 rounded-xl bg-white/10 border border-white/10 text-white placeholder-text-muted text-sm focus:outline-none focus:border-primary" />
                 <button id="registerBtn" type="submit"
                     class="shrink-0 bg-gradient-to-r from-primary to-purple-500 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:scale-105 transition-all">Register</button>
@@ -479,7 +479,17 @@
             e.preventDefault();
             const btn = document.getElementById('registerBtn');
             const msg = document.getElementById('registerMsg');
-            const url = document.getElementById('registerUrl').value.trim();
+            const input = document.getElementById('registerUrl');
+            let url = input.value.trim();
+            if (!url) return;
+            if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+            url = url.replace(/\/$/, '');
+            try { new URL(url); } catch {
+                msg.textContent = 'Enter a valid URL (e.g. mysite.example.com)';
+                msg.className = 'text-sm text-red-400';
+                msg.classList.remove('hidden');
+                return;
+            }
             const directories = Array.isArray(window.TUNECAMP_DIRECTORY) ? window.TUNECAMP_DIRECTORY : [];
             const directory = directories[0];
             if (!directory) { msg.textContent = 'No directory configured.'; msg.className = 'text-sm text-red-400'; msg.classList.remove('hidden'); return; }
@@ -489,10 +499,18 @@
                     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }),
                 });
                 const data = await res.json().catch(() => ({}));
-                msg.textContent = res.ok ? (data.message || 'Registered! You\'ll appear shortly.') : (data.error || 'Registration failed.');
-                msg.className = `text-sm ${res.ok ? 'text-green-400' : 'text-red-400'}`;
-                if (res.ok) document.getElementById('registerUrl').value = '';
-            } catch { msg.textContent = 'Could not reach the directory.'; msg.className = 'text-sm text-red-400'; }
+                if (res.ok) {
+                    msg.textContent = data.message || 'Registered! You\'ll appear shortly.';
+                    msg.className = 'text-sm text-green-400';
+                    input.value = '';
+                } else if (res.status === 422) {
+                    msg.textContent = 'Not a reachable Tunecamp instance — make sure your server is live and publicly accessible.';
+                    msg.className = 'text-sm text-red-400';
+                } else {
+                    msg.textContent = data.error || 'Registration failed. Check the URL and try again.';
+                    msg.className = 'text-sm text-red-400';
+                }
+            } catch { msg.textContent = 'Could not reach the directory server. Try again later.'; msg.className = 'text-sm text-red-400'; }
             finally { msg.classList.remove('hidden'); btn.disabled = false; btn.textContent = 'Register'; }
         });
     </script>
