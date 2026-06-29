@@ -165,6 +165,7 @@
         let allTracks = [];
         let filteredTracks = [];
         let currentTrackIndex = -1;
+        let currentTrackKey = null;
         let isPlaying = false;
         let isShuffle = false;
         let isRepeat = false;
@@ -186,6 +187,12 @@
             audio.addEventListener('ended', () => { if (isRepeat) { audio.currentTime = 0; audio.play(); } else playNext(); });
             audio.addEventListener('play', () => { isPlaying = true; updatePlayButton(); });
             audio.addEventListener('pause', () => { isPlaying = false; updatePlayButton(); });
+            audio.addEventListener('error', () => {
+                isPlaying = false;
+                updatePlayButton();
+                const title = document.getElementById('miniTitle');
+                if (title && !title.textContent.includes('—')) title.textContent += ' — unavailable';
+            });
             document.getElementById('playBtn').addEventListener('click', togglePlay);
             document.getElementById('prevBtn').addEventListener('click', playPrev);
             document.getElementById('nextBtn').addEventListener('click', playNext);
@@ -338,17 +345,22 @@
             renderTracks();
         }
 
+        function trackStableKey(t) {
+            return `${t.siteUrl}::${t.id}`;
+        }
+
         function renderTracks() {
             const grid = document.getElementById('tracksGrid');
             if (filteredTracks.length === 0) {
                 grid.innerHTML = `<div class="col-span-full py-12 text-center text-text-muted">No tracks match your search.</div>`;
                 return;
             }
-            grid.innerHTML = filteredTracks.map((t, i) => {
-                const active = currentTrackIndex === i;
+            grid.innerHTML = filteredTracks.map((t) => {
+                const key = trackStableKey(t);
+                const active = key === currentTrackKey;
                 const cover = t.coverUrl ? `<img src="${escapeHtml(t.coverUrl)}" class="w-full h-full object-cover">` : '<i class="fas fa-music"></i>';
                 return `
-                    <div class="track-tile ${active ? 'playing' : ''}" onclick="playTrackIndex(${i})">
+                    <div class="track-tile ${active ? 'playing' : ''}" onclick="playTrackByKey('${escapeHtml(key)}')">
                         <div class="cover">
                             ${cover}
                             <div class="overlay absolute inset-0 bg-black/40 flex items-center justify-center text-2xl text-white">
@@ -364,13 +376,31 @@
             }).join('');
         }
 
+        function playTrackByKey(key) {
+            const index = filteredTracks.findIndex(t => trackStableKey(t) === key);
+            if (index === -1) {
+                const globalIndex = allTracks.findIndex(t => trackStableKey(t) === key);
+                if (globalIndex !== -1) {
+                    filteredTracks = allTracks;
+                    renderTracks();
+                    playTrackIndex(filteredTracks.findIndex(t => trackStableKey(t) === key));
+                }
+                return;
+            }
+            playTrackIndex(index);
+        }
+
         function playTrackIndex(index) {
             if (index < 0 || index >= filteredTracks.length) return;
             const track = filteredTracks[index];
-            if (currentTrackIndex === index) { togglePlay(); return; }
+            if (currentTrackKey === trackStableKey(track)) { togglePlay(); return; }
             currentTrackIndex = index;
+            currentTrackKey = trackStableKey(track);
             audio.src = track.audioUrl;
-            audio.play().catch(() => {});
+            audio.play().catch((err) => {
+                console.warn('Playback failed:', track.audioUrl, err);
+                document.getElementById('miniTitle').textContent = track.title + ' — unavailable';
+            });
             const coverHtml = track.coverUrl ? `<img src="${escapeHtml(track.coverUrl)}" class="w-full h-full object-cover">` : '<i class="fas fa-music"></i>';
             document.getElementById('miniCover').innerHTML = coverHtml;
             document.getElementById('miniTitle').textContent = track.title;
@@ -418,6 +448,7 @@
 
         window.filterTracks = filterTracks;
         window.playTrackIndex = playTrackIndex;
+        window.playTrackByKey = playTrackByKey;
     </script>
 </body>
 
