@@ -63,17 +63,17 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col relative h-screen overflow-hidden">
+<body class="min-h-screen flex flex-col relative lg:h-screen lg:overflow-hidden">
     <!-- Ambient Player Glow -->
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/15 blur-[150px] rounded-full pointer-events-none -z-10" id="ambientGlow"></div>
     
     <!-- Top Header -->
     <header class="p-6 flex items-center justify-between z-10 bg-gradient-to-b from-black/80 to-transparent">
         <div class="flex items-center gap-4">
-            <a href="community.html" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors text-text-muted hover:text-white">
+            <a href="index.html" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors text-text-muted hover:text-white" title="Back to Explore">
                 <i class="fas fa-arrow-left"></i>
             </a>
-            <h1 class="font-display text-2xl font-bold hidden sm:block">Community Player</h1>
+            <h1 class="font-display text-xl sm:text-2xl font-bold">Community Player</h1>
         </div>
         
         <div class="flex items-center gap-6">
@@ -90,14 +90,14 @@
         </div>
     </header>
 
-    <div class="flex-1 flex flex-col lg:flex-row overflow-hidden max-w-[1600px] mx-auto w-full px-6 gap-8 pb-32">
+    <div class="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden max-w-[1600px] mx-auto w-full px-6 gap-8 pb-44 lg:pb-32">
         <!-- Main Player Area (Left) -->
-        <div class="lg:w-1/2 flex flex-col justify-center items-center h-full relative">
-            <div id="playerCover" class="w-[300px] h-[300px] md:w-[450px] md:h-[450px] rounded-3xl bg-white/5 border border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.6)] overflow-hidden flex items-center justify-center text-7xl text-white/20 transition-transform duration-500 relative z-10">
+        <div class="lg:w-1/2 flex flex-col justify-center items-center py-8 lg:py-0 lg:h-full relative">
+            <div id="playerCover" class="w-[220px] h-[220px] sm:w-[300px] sm:h-[300px] md:w-[450px] md:h-[450px] rounded-3xl bg-white/5 border border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.6)] overflow-hidden flex items-center justify-center text-7xl text-white/20 transition-transform duration-500 relative z-10">
                 <i class="fas fa-music"></i>
             </div>
-            
-            <div class="mt-12 text-center max-w-lg w-full z-10">
+
+            <div class="mt-8 md:mt-12 text-center max-w-lg w-full z-10">
                 <h2 id="playerTitle" class="text-3xl md:text-4xl font-bold font-display mb-2 truncate">Select a track</h2>
                 <p id="playerArtist" class="text-xl text-primary mb-1 truncate">Browse the tracks to start</p>
                 <p id="playerRelease" class="text-sm text-text-muted truncate"></p>
@@ -105,7 +105,7 @@
         </div>
 
         <!-- Track List (Right) -->
-        <div class="lg:w-1/2 flex flex-col h-full glass-panel rounded-3xl overflow-hidden mt-8 lg:mt-0">
+        <div class="lg:w-1/2 flex flex-col h-[60vh] lg:h-full glass-panel rounded-3xl overflow-hidden mt-2 lg:mt-0">
             <div class="p-6 border-b border-white/10 flex flex-col sm:flex-row gap-4 bg-black/20">
                 <div class="relative flex-1">
                     <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-text-muted"></i>
