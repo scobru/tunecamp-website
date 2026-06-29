@@ -8,6 +8,13 @@
     <link rel="icon" type="image/svg+xml" href="tunecamp.svg" />
     <meta name="description"
         content="Explore the Tunecamp network — discover instances and stream tracks published by independent artists across the open federation." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.tunecamp.org/" />
+    <meta property="og:title" content="Tunecamp — Explore the Network" />
+    <meta property="og:description" content="Explore the Tunecamp network — discover instances and stream tracks published by independent artists across the open federation." />
+    <meta property="og:image" content="https://www.tunecamp.org/tunecamp.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://www.tunecamp.org/tunecamp.jpg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -63,7 +70,8 @@
                     class="w-full bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-primary/50 placeholder-text-muted" />
             </div>
             <div class="flex items-center gap-5 text-sm font-medium ml-auto">
-                <a href="community.html" class="text-text-muted hover:text-white transition-colors">Community</a>
+                <a href="run.html" class="text-text-muted hover:text-white transition-colors">Run Instance</a>
+                <a href="manifesto.html" class="text-text-muted hover:text-white transition-colors">Manifesto</a>
                 <a href="about.html" class="text-text-muted hover:text-white transition-colors">About</a>
                 <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors"><i class="fab fa-github"></i></a>
             </div>
@@ -87,9 +95,8 @@
 
         <!-- Instances strip -->
         <section class="mb-10">
-            <div class="flex items-center justify-between mb-3">
+            <div class="mb-3">
                 <h2 class="font-display text-lg font-bold">Instances</h2>
-                <a href="community.html" class="text-sm text-primary hover:underline">View directory →</a>
             </div>
             <div id="instancesStrip" class="flex gap-3 overflow-x-auto pb-2">
                 <div class="text-text-muted text-sm py-4">Scanning the network…</div>
@@ -121,6 +128,21 @@
                     <p>Loading tracks from the community…</p>
                 </div>
             </div>
+        </section>
+
+        <!-- Register instance -->
+        <section class="mt-16 mb-4 border border-white/10 rounded-2xl p-8 flex flex-col sm:flex-row items-center gap-6 bg-white/3">
+            <div class="flex-1 min-w-0">
+                <h2 class="font-display text-lg font-bold mb-1">Register your instance</h2>
+                <p class="text-text-muted text-sm">Running Tunecamp? Add your URL to appear in the network.</p>
+            </div>
+            <form id="registerForm" class="flex gap-2 w-full sm:w-auto" onsubmit="return false;">
+                <input id="registerUrl" type="url" required placeholder="https://your-instance.example.com"
+                    class="flex-1 sm:w-72 px-4 py-2 rounded-xl bg-white/10 border border-white/10 text-white placeholder-text-muted text-sm focus:outline-none focus:border-primary" />
+                <button id="registerBtn" type="submit"
+                    class="shrink-0 bg-gradient-to-r from-primary to-purple-500 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:scale-105 transition-all">Register</button>
+            </form>
+            <p id="registerMsg" class="hidden text-sm w-full sm:w-auto"></p>
         </section>
     </main>
 
@@ -449,6 +471,27 @@
         window.filterTracks = filterTracks;
         window.playTrackIndex = playTrackIndex;
         window.playTrackByKey = playTrackByKey;
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('registerBtn');
+            const msg = document.getElementById('registerMsg');
+            const url = document.getElementById('registerUrl').value.trim();
+            const directories = Array.isArray(window.TUNECAMP_DIRECTORY) ? window.TUNECAMP_DIRECTORY : [];
+            const directory = directories[0];
+            if (!directory) { msg.textContent = 'No directory configured.'; msg.className = 'text-sm text-red-400'; msg.classList.remove('hidden'); return; }
+            btn.disabled = true; btn.textContent = 'Registering…'; msg.classList.add('hidden');
+            try {
+                const res = await fetch(`${directory.replace(/\/$/, '')}/api/community/register`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }),
+                });
+                const data = await res.json().catch(() => ({}));
+                msg.textContent = res.ok ? (data.message || 'Registered! You\'ll appear shortly.') : (data.error || 'Registration failed.');
+                msg.className = `text-sm ${res.ok ? 'text-green-400' : 'text-red-400'}`;
+                if (res.ok) document.getElementById('registerUrl').value = '';
+            } catch { msg.textContent = 'Could not reach the directory.'; msg.className = 'text-sm text-red-400'; }
+            finally { msg.classList.remove('hidden'); btn.disabled = false; btn.textContent = 'Register'; }
+        });
     </script>
 </body>
 
