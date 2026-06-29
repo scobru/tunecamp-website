@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manifesto — Tunecamp</title>
+    <link rel="icon" type="image/svg+xml" href="tunecamp.svg" />
+    <meta name="description" content="Why we built Tunecamp. Music belongs to musicians, not platforms." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.tunecamp.org/manifesto.html" />
+    <meta property="og:title" content="Manifesto — Tunecamp" />
+    <meta property="og:description" content="Music belongs to musicians, not platforms." />
+    <meta property="og:image" content="https://www.tunecamp.org/tunecamp.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://www.tunecamp.org/tunecamp.jpg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" crossorigin="anonymous" />
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <style type="text/tailwindcss">
+        @theme {
+            --color-primary: #8b5cf6;
+            --color-bg-base: #050505;
+            --color-text-base: #ffffff;
+            --color-text-muted: #a3a3a3;
+            --font-sans: "Inter", sans-serif;
+            --font-display: "Outfit", sans-serif;
+        }
+        body {
+            @apply bg-bg-base text-text-base font-sans antialiased selection:bg-primary/30;
+        }
+        .manifesto-p {
+            @apply text-lg md:text-xl leading-relaxed text-white/80 font-light;
+        }
+        .manifesto-p strong {
+            @apply text-white font-semibold;
+        }
+        .divider {
+            @apply w-12 h-px bg-primary/60 my-10;
+        }
+    </style>
+    <style>
+        @keyframes grain {
+            0%, 100% { transform: translate(0,0); }
+            10% { transform: translate(-2%,-3%); }
+            20% { transform: translate(3%,2%); }
+            30% { transform: translate(-1%,4%); }
+            40% { transform: translate(4%,-1%); }
+            50% { transform: translate(-3%,3%); }
+            60% { transform: translate(2%,-4%); }
+            70% { transform: translate(-4%,1%); }
+            80% { transform: translate(3%,3%); }
+            90% { transform: translate(-2%,-2%); }
+        }
+        .noise::after {
+            content: '';
+            position: fixed;
+            inset: -50%;
+            width: 200%;
+            height: 200%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            animation: grain 0.8s steps(1) infinite;
+            z-index: 0;
+        }
+        .pull-quote {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            line-height: 1.15;
+            color: #fff;
+            letter-spacing: -0.02em;
+        }
+        .pull-quote em {
+            font-style: normal;
+            background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .section-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(139,92,246,0.7);
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col noise">
+
+    <!-- Nav -->
+    <nav class="sticky top-0 left-0 w-full z-40 bg-black/70 backdrop-blur-lg border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center gap-6">
+            <a href="index.html" class="flex items-center gap-2 font-display font-bold text-lg shrink-0">
+                <img src="tunecamp.svg" alt="Tunecamp" class="w-7 h-7" /> Tunecamp
+            </a>
+            <div class="flex items-center gap-5 text-sm font-medium ml-auto">
+                <a href="index.html" class="text-text-muted hover:text-white transition-colors">Explore</a>
+                <a href="run.html" class="text-text-muted hover:text-white transition-colors">Run Instance</a>
+                <a href="about.html" class="text-text-muted hover:text-white transition-colors">About</a>
+                <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors"><i class="fab fa-github"></i></a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="relative overflow-hidden border-b border-white/5">
+        <div class="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-transparent pointer-events-none"></div>
+        <div class="max-w-4xl mx-auto px-6 pt-24 pb-20 relative z-10">
+            <p class="section-label mb-6">Manifesto</p>
+            <h1 class="pull-quote mb-8">
+                Music doesn't belong<br/>to <em>platforms.</em><br/>It belongs to<br/>the people who make it.
+            </h1>
+            <p class="text-text-muted text-sm mt-10 font-mono">Tunecamp · 2024</p>
+        </div>
+    </header>
+
+    <!-- Body -->
+    <main class="max-w-2xl mx-auto px-6 py-20 flex-1 relative z-10">
+
+        <!-- I -->
+        <section class="mb-16">
+            <p class="section-label mb-6">I — The problem</p>
+            <p class="manifesto-p mb-6">
+                Somewhere along the way, the music industry made peace with a new arrangement:
+                artists hand over their catalogue, their metadata, their fans' attention —
+                and in return they receive fractions of a cent per stream, delivered monthly,
+                through a dashboard they do not control, on a platform that can change the rules
+                at any moment and frequently does.
+            </p>
+            <p class="manifesto-p mb-6">
+                The platforms are not evil. They solved a real problem — distribution at scale —
+                and they solved it well. <strong>But they kept the relationship.</strong>
+                The listener subscribes to the platform. The artist gets a percentage of the remainder.
+                There is no direct line between the person who made the music and the person who loves it.
+            </p>
+            <p class="manifesto-p">
+                That missing line is not a technical accident. It is a business model.
+            </p>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- Pull -->
+        <blockquote class="my-16">
+            <p class="pull-quote">
+                "Your listeners should know<br/>your name, not your<br/><em>distributor's.</em>"
+            </p>
+        </blockquote>
+
+        <div class="divider"></div>
+
+        <!-- II -->
+        <section class="mb-16">
+            <p class="section-label mb-6">II — What we believe</p>
+            <p class="manifesto-p mb-6">
+                We believe a musician with a server and a domain should be as discoverable
+                as one with a major label deal. Not theoretically — actually, in practice,
+                on the same network, with the same tools.
+            </p>
+            <p class="manifesto-p mb-6">
+                We believe <strong>self-hosting is not for nerds.</strong>
+                It is for anyone who wants to own their relationship with their audience.
+                The email protocol proved that a decentralized communication layer can reach
+                billions of people without anyone owning the address book.
+                Music has no equivalent. We think it should.
+            </p>
+            <p class="manifesto-p">
+                We believe the right model is not subscription, not per-stream royalty,
+                not algorithmic placement. The right model is the one the artist chooses —
+                free, pay-what-you-want, fixed price, token-gated, whatever fits.
+                <strong>The infrastructure should not have an opinion about this.</strong>
+            </p>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- III -->
+        <section class="mb-16">
+            <p class="section-label mb-6">III — How it works</p>
+            <p class="manifesto-p mb-6">
+                Tunecamp is a piece of software you run on hardware you control.
+                It speaks standard protocols — Subsonic for mobile clients, ActivityPub for the Fediverse,
+                HTTP for everything else. It does not phone home. It does not aggregate your listeners'
+                data into a product someone else sells.
+            </p>
+            <p class="manifesto-p mb-6">
+                Instances find each other through HTTP gossip — no central registry,
+                no company in the middle. When you start a Tunecamp server, you join a
+                network of independent nodes. Your catalogue is yours. Your listeners
+                connect to you. If you turn the server off, your music goes offline —
+                <strong>not into someone else's archive.</strong>
+            </p>
+            <p class="manifesto-p">
+                That last sentence might sound like a downside. It is not. It means
+                no one else can monetize your back catalogue without your knowledge,
+                silence your releases for licensing reasons, or serve ads against
+                your music while you receive nothing.
+            </p>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- Pull -->
+        <blockquote class="my-16">
+            <p class="pull-quote">
+                "If you turn the server off,<br/>your music goes offline.<br/>Not into someone<br/>else's <em>archive.</em>"
+            </p>
+        </blockquote>
+
+        <div class="divider"></div>
+
+        <!-- IV -->
+        <section class="mb-16">
+            <p class="section-label mb-6">IV — What this is not</p>
+            <p class="manifesto-p mb-6">
+                This is not a Web3 pitch. You do not need a wallet to listen to music.
+                Smart contracts are optional tooling for artists who want on-chain ownership mechanics —
+                not a precondition of participation.
+            </p>
+            <p class="manifesto-p mb-6">
+                This is not a piracy tool. Every Tunecamp instance is run by the artist or
+                someone they trust. The music is there because its owner put it there.
+            </p>
+            <p class="manifesto-p">
+                This is not anti-commerce. Artists should earn money.
+                Tunecamp supports Stripe, direct payments, and cryptocurrency —
+                because we think artists should be able to sell without a platform
+                taking a percentage of a percentage of a fraction.
+            </p>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- Pull -->
+        <blockquote class="my-16">
+            <p class="pull-quote">
+                "You don't own your<br/>music collection.<br/>You own a <em>licence</em><br/>to access it."
+            </p>
+        </blockquote>
+
+        <div class="divider"></div>
+
+        <!-- V -->
+        <section class="mb-16">
+            <p class="section-label mb-6">V — The archive problem</p>
+            <p class="manifesto-p mb-6">
+                Here is a question nobody asks until it's too late:
+                <strong>where does the music go when the platform dies?</strong>
+            </p>
+            <p class="manifesto-p mb-6">
+                You do not own the music on your streaming service. You own a licence
+                to access it — revocable, tied to a subscription, governed by
+                agreements between labels and platforms that you are not party to
+                and cannot read. When those agreements end, the music disappears.
+                Not from the world, hopefully. But from your ears, immediately.
+            </p>
+            <p class="manifesto-p mb-6">
+                This has already happened hundreds of times. Stores close.
+                Catalogues move. Labels pull out. Artists get delisted for reasons
+                that are never explained. An entire generation of digital-native music —
+                netlabel releases, early Bandcamp experiments, forum-shared underground records —
+                exists today in a state of quiet emergency, scattered across dying servers
+                and unmaintained links.
+            </p>
+            <p class="manifesto-p mb-6">
+                The physical record was a terrible format for many reasons.
+                But the person who owned it <em>owned it</em>. It could be played
+                on any turntable, lent to a friend, passed to the next generation,
+                discovered in a box forty years later. The MP3 was supposed to
+                democratize that. Instead we traded physical ownership for
+                <strong>cloud dependency</strong> — and called it progress.
+            </p>
+            <p class="manifesto-p">
+                Tunecamp is not just a streaming server. It is a personal archive.
+                You seed your music as torrents. You back it up. You scan and preserve
+                files from drives, from Telegram, from anywhere they survive.
+                The library you build on your instance outlasts any platform — because
+                it lives on hardware you control, in a format that plays on anything,
+                copyable, redundant, <strong>yours</strong>.
+                Not because a corporation decided to keep the servers running this month.
+            </p>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- VI -->
+        <section class="mb-16">
+            <p class="section-label mb-6">VI — Curation is preservation</p>
+            <p class="manifesto-p mb-6">
+                Every person who runs a Tunecamp instance and fills it with music they love
+                is doing something more than organizing a personal collection.
+                They are making a curatorial decision — this matters, this deserves to exist,
+                this will be findable by the next person who looks.
+            </p>
+            <p class="manifesto-p mb-6">
+                A federated network of such decisions is, quietly, a distributed archive.
+                No single institution, no centralized catalogue, no agreement required
+                between rights holders who may not even exist anymore.
+                <strong>Just people with servers and taste.</strong>
+            </p>
+            <p class="manifesto-p">
+                Libraries have always worked this way. One copy here, one there,
+                no central authority deciding what survives. The internet was supposed
+                to make this easier, not harder. Somewhere in the rush to subscription models
+                we forgot that. Tunecamp is a reminder.
+            </p>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- VII -->
+        <section class="mb-16">
+            <p class="section-label mb-6">VII — The bet</p>
+            <p class="manifesto-p mb-6">
+                The bet is simple: <strong>most artists don't need a platform. They need infrastructure.</strong>
+                They need a server that works, a player people can use, and a way for other instances
+                to find their music. Everything else — the audience, the relationship, the money —
+                they can build themselves, the same way they always have, one listener at a time.
+            </p>
+            <p class="manifesto-p mb-6">
+                The internet was built on this idea. The web is a network of servers no one owns.
+                Email is a protocol no one controls. The phone network routes calls between
+                carriers that compete. We got used to music being different —
+                to there being one place where music lives and one company that decides
+                what gets recommended and to whom.
+            </p>
+            <p class="manifesto-p">
+                We don't think that's inevitable. We think it was a temporary state of affairs
+                produced by the technical difficulty of running a server in 2005.
+                <strong>That difficulty is gone.</strong>
+                The arrangement it justified should go with it.
+            </p>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- Close -->
+        <section class="mb-20">
+            <p class="manifesto-p mb-6">
+                Run your instance. Put your music on it. Tell your listeners where to find you.
+                That's the whole thing.
+            </p>
+            <p class="manifesto-p">
+                We'll be here, and so will every other server on the network —
+                <strong>none of us in charge of any of it.</strong>
+            </p>
+        </section>
+
+        <!-- CTA -->
+        <div class="flex flex-col sm:flex-row gap-4 mt-6">
+            <a href="run.html" class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-purple-500 text-white px-6 py-3 rounded-xl font-bold hover:scale-105 transition-all">
+                <i class="fas fa-server"></i> Run your instance
+            </a>
+            <a href="index.html" class="inline-flex items-center justify-center gap-2 bg-white/5 border border-white/10 text-white px-6 py-3 rounded-xl font-semibold hover:bg-white/10 transition-all">
+                <i class="fas fa-headphones"></i> Explore the network
+            </a>
+            <a href="https://github.com/scobru/tunecamp" target="_blank" class="inline-flex items-center justify-center gap-2 bg-white/5 border border-white/10 text-white px-6 py-3 rounded-xl font-semibold hover:bg-white/10 transition-all">
+                <i class="fab fa-github"></i> Source code
+            </a>
+        </div>
+
+    </main>
+
+    <footer class="border-t border-white/10 py-8 mt-auto bg-black/50 relative z-10">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <nav class="flex gap-6">
+                <a href="index.html" class="text-text-muted hover:text-white transition-colors text-sm">Explore</a>
+                <a href="run.html" class="text-text-muted hover:text-white transition-colors text-sm">Run Instance</a>
+                <a href="manifesto.html" class="text-white text-sm font-medium">Manifesto</a>
+                <a href="about.html" class="text-text-muted hover:text-white transition-colors text-sm">About</a>
+                <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors text-sm"><i class="fab fa-github mr-1"></i> GitHub</a>
+            </nav>
+            <p class="text-xs text-text-muted">Federated over HTTP. Made with ❤️ by scobru</p>
+        </div>
+    </footer>
+
+</body>
+</html>
