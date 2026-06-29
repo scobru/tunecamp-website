@@ -503,44 +503,69 @@
         window.playTrackIndex = playTrackIndex;
         window.playTrackByKey = playTrackByKey;
 
+        // Normalize free-form input into a clean https origin, or return null if it
+        // cannot be parsed into a real host. Mirrors the server's normalizeOrigin().
+        function normalizeInstanceUrl(raw) {
+            let url = (raw || '').trim();
+            if (!url) return null;
+            // Strip any scheme the user typed, then force https — the directory
+            // requires SSL for federation, so http:// would fail the probe anyway.
+            url = url.replace(/^[a-z]+:\/\//i, '');
+            url = url.replace(/\/+$/, '');
+            if (!url) return null;
+            let parsed;
+            try { parsed = new URL('https://' + url); } catch { return null; }
+            // A real instance needs a dotted hostname (e.g. mysite.example.com).
+            if (!parsed.hostname || !parsed.hostname.includes('.') || /\s/.test(parsed.hostname)) return null;
+            return parsed.origin;
+        }
+
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('registerBtn');
             const msg = document.getElementById('registerMsg');
             const input = document.getElementById('registerUrl');
-            let url = input.value.trim();
-            if (!url) return;
-            if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-            url = url.replace(/\/$/, '');
-            try { new URL(url); } catch {
-                msg.textContent = 'Enter a valid URL (e.g. mysite.example.com)';
-                msg.className = 'text-sm text-red-400';
+            const showMsg = (text, ok) => {
+                msg.textContent = text;
+                msg.className = 'text-sm ' + (ok ? 'text-green-400' : 'text-red-400');
                 msg.classList.remove('hidden');
+            };
+            const url = normalizeInstanceUrl(input.value);
+            if (!url) {
+                showMsg('Enter a valid instance URL, e.g. mysite.example.com', false);
                 return;
             }
-            const directories = Array.isArray(window.TUNECAMP_DIRECTORY) ? window.TUNECAMP_DIRECTORY : [];
-            const directory = directories[0];
-            if (!directory) { msg.textContent = 'No directory configured.'; msg.className = 'text-sm text-red-400'; msg.classList.remove('hidden'); return; }
+            const directories = (Array.isArray(window.TUNECAMP_DIRECTORY) ? window.TUNECAMP_DIRECTORY : [])
+                .map(d => normalizeInstanceUrl(d)).filter(Boolean);
+            if (!directories.length) { showMsg('No directory configured. Try again later.', false); return; }
             btn.disabled = true; btn.textContent = 'Registering…'; msg.classList.add('hidden');
+            // Try each configured directory in turn so one offline seed doesn't block registration.
+            let lastError = 'Could not reach any directory server. Try again later.';
             try {
-                const endpoint = `${directory.replace(/\/$/, '')}/api/community/register?url=${encodeURIComponent(url)}`;
-                const res = await fetch(endpoint, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }),
-                });
-                const data = await res.json().catch(() => ({}));
-                if (res.ok) {
-                    msg.textContent = data.message || 'Registered! You\'ll appear shortly.';
-                    msg.className = 'text-sm text-green-400';
-                    input.value = '';
-                } else if (res.status === 422) {
-                    msg.textContent = 'Not a reachable Tunecamp instance — make sure your server is live and publicly accessible.';
-                    msg.className = 'text-sm text-red-400';
-                } else {
-                    msg.textContent = data.error || 'Registration failed. Check the URL and try again.';
-                    msg.className = 'text-sm text-red-400';
+                for (const directory of directories) {
+                    let res;
+                    try {
+                        res = await fetch(`${directory}/api/community/register?url=${encodeURIComponent(url)}`, {
+                            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }),
+                        });
+                    } catch { continue; } // network/CORS error → try next directory
+                    const data = await res.json().catch(() => ({}));
+                    if (res.ok) {
+                        showMsg(data.message || 'Registered! You\'ll appear shortly.', true);
+                        input.value = '';
+                        return;
+                    }
+                    if (res.status === 422) {
+                        lastError = 'Not a reachable Tunecamp instance — make sure your server is live and publicly accessible.';
+                    } else if (res.status === 429) {
+                        lastError = 'Too many registration requests. Please try again later.';
+                    } else {
+                        lastError = data.error || 'Registration failed. Check the URL and try again.';
+                    }
                 }
-            } catch { msg.textContent = 'Could not reach the directory server. Try again later.'; msg.className = 'text-sm text-red-400'; }
-            finally { msg.classList.remove('hidden'); btn.disabled = false; btn.textContent = 'Register'; }
+                showMsg(lastError, false);
+            }
+            finally { btn.disabled = false; btn.textContent = 'Register'; }
         });
     </script>
 </body>
