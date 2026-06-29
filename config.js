@@ -14,5 +14,5 @@
 window.TUNECAMP_DIRECTORY = [
     "https://sudorecords.scobrudot.dev",
     "https://tunecamp.up.railway.app",
-    "https://tunecamp.fdalabs.net/"
+    "https://tunecamp.fdalabs.net"
 ];
