@@ -79,8 +79,14 @@
                 <a href="about.html" class="text-text-muted hover:text-white transition-colors">Overview</a>
                 <a href="index.html" class="text-text-muted hover:text-white transition-colors">Explore</a>
                 <a href="run.html" class="text-white whitespace-nowrap">Run Instance</a>
-                <a href="usecases.html" class="text-text-muted hover:text-white transition-colors whitespace-nowrap">Use Cases</a>
-                <a href="manifesto.html" class="text-text-muted hover:text-white transition-colors">Manifesto</a>
+                <div class="relative">
+                    <button id="moreBtn" class="text-text-muted hover:text-white transition-colors flex items-center gap-1">More <i class="fas fa-chevron-down text-[10px]"></i></button>
+                    <div id="moreMenu" class="hidden absolute right-0 top-full mt-2 w-44 bg-black/95 backdrop-blur-lg border border-white/10 rounded-xl py-1 z-50 shadow-xl">
+                        <a href="usecases.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Use Cases</a>
+                        <a href="manifesto.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Manifesto</a>
+                        <a href="player.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Player</a>
+                    </div>
+                </div>
                 <a href="https://scobru.github.io/tunecamp/" target="_blank" class="text-text-muted hover:text-white transition-colors">Docs</a>
                 <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors"><i class="fab fa-github"></i></a>
                 <button onclick="toggleTheme()" aria-label="Toggle theme" class="text-text-muted hover:text-white transition-colors w-8 h-8 flex items-center justify-center">
@@ -120,6 +126,12 @@
                     btn.setAttribute('aria-expanded', String(open));
                     btn.querySelector('i').className = open ? 'fas fa-times text-lg' : 'fas fa-bars text-lg';
                 });
+            }
+            const moreBtn = document.getElementById('moreBtn');
+            const moreMenu = document.getElementById('moreMenu');
+            if (moreBtn && moreMenu) {
+                moreBtn.addEventListener('click', e => { e.stopPropagation(); moreMenu.classList.toggle('hidden'); });
+                document.addEventListener('click', () => moreMenu.classList.add('hidden'));
             }
         })();
     </script>
@@ -412,18 +424,20 @@ server {
                 </div>
             </section>
 
-            <!-- CTA -->
-            <div class="bg-gradient-to-r from-primary/20 to-purple-600/20 border border-primary/30 rounded-2xl p-8 text-center">
-                <h2 class="font-display text-2xl font-bold mb-3">Instance running?</h2>
-                <p class="text-text-muted mb-6">Register it to appear in the network directory.</p>
-                <div class="flex flex-col sm:flex-row justify-center gap-3">
-                    <a href="index.html#register" class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-purple-500 text-white px-6 py-3 rounded-xl font-bold hover:scale-105 transition-all">
-                        <i class="fas fa-satellite-dish"></i> Register your instance
-                    </a>
-                    <a href="https://github.com/scobru/tunecamp" target="_blank" class="inline-flex items-center justify-center gap-2 bg-white/5 border border-white/10 text-white px-6 py-3 rounded-xl font-semibold hover:bg-white/10 transition-all">
-                        <i class="fab fa-github"></i> View on GitHub
-                    </a>
-                </div>
+            <!-- CTA + Register -->
+            <div id="register" class="bg-gradient-to-r from-primary/20 to-purple-600/20 border border-primary/30 rounded-2xl p-8">
+                <h2 class="font-display text-2xl font-bold mb-2">Instance running?</h2>
+                <p class="text-text-muted mb-5">Register it to appear in the network directory immediately.</p>
+                <form id="registerForm" class="flex gap-2 mb-3" onsubmit="return false;">
+                    <input id="registerUrl" type="text" placeholder="your-instance.example.com"
+                        class="flex-1 px-4 py-2.5 rounded-xl bg-white/10 border border-white/10 text-white placeholder-text-muted text-sm focus:outline-none focus:border-primary" />
+                    <button id="registerBtn" type="submit"
+                        class="shrink-0 bg-gradient-to-r from-primary to-purple-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:scale-105 transition-all">Register</button>
+                </form>
+                <p id="registerMsg" class="hidden text-sm mb-3"></p>
+                <a href="https://github.com/scobru/tunecamp" target="_blank" class="inline-flex items-center gap-2 text-text-muted hover:text-white transition-colors text-sm">
+                    <i class="fab fa-github"></i> View on GitHub
+                </a>
             </div>
 
         </main>
@@ -444,5 +458,55 @@ server {
         </div>
     </footer>
 
+    <script src="config.js"></script>
+    <script>
+        function normalizeInstanceUrl(raw) {
+            let url = (raw || '').trim();
+            if (!url) return null;
+            url = url.replace(/^[a-z]+:\/\//i, '');
+            url = url.replace(/\/+$/, '');
+            if (!url) return null;
+            let parsed;
+            try { parsed = new URL('https://' + url); } catch { return null; }
+            if (!parsed.hostname || !parsed.hostname.includes('.') || /\s/.test(parsed.hostname)) return null;
+            return parsed.origin;
+        }
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('registerBtn');
+            const msg = document.getElementById('registerMsg');
+            const input = document.getElementById('registerUrl');
+            const showMsg = (text, ok) => {
+                msg.textContent = text;
+                msg.className = 'text-sm ' + (ok ? 'text-green-400' : 'text-red-400');
+                msg.classList.remove('hidden');
+            };
+            const url = normalizeInstanceUrl(input.value);
+            if (!url) { showMsg('Enter a valid instance URL, e.g. mysite.example.com', false); return; }
+            const directories = (Array.isArray(window.TUNECAMP_DIRECTORY) ? window.TUNECAMP_DIRECTORY : [])
+                .map(d => normalizeInstanceUrl(d)).filter(Boolean);
+            if (!directories.length) { showMsg('No directory configured. Try again later.', false); return; }
+            btn.disabled = true; btn.textContent = 'Registering…'; msg.classList.add('hidden');
+            let lastError = 'Could not reach any directory server. Try again later.';
+            try {
+                for (const directory of directories) {
+                    let res;
+                    try {
+                        res = await fetch(`${directory}/api/community/register?url=${encodeURIComponent(url)}`, {
+                            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }),
+                        });
+                    } catch { continue; }
+                    const data = await res.json().catch(() => ({}));
+                    if (res.ok) { showMsg(data.message || "Registered! You'll appear shortly.", true); input.value = ''; return; }
+                    if (res.status === 422) lastError = 'Not a reachable Tunecamp instance — make sure your server is live and publicly accessible.';
+                    else if (res.status === 429) lastError = 'Too many registration requests. Please try again later.';
+                    else if (res.status === 404) lastError = 'Directory server does not support registration (HTTP 404).';
+                    else if (data.error) lastError = `${data.error} (HTTP ${res.status})`;
+                    else lastError = `Registration failed (HTTP ${res.status}).`;
+                }
+                showMsg(lastError, false);
+            } finally { btn.disabled = false; btn.textContent = 'Register'; }
+        });
+    </script>
 </body>
 </html>
