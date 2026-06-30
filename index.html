@@ -74,8 +74,14 @@
                 <a href="about.html" class="text-text-muted hover:text-white transition-colors">Overview</a>
                 <a href="index.html" class="text-white">Explore</a>
                 <a href="run.html" class="text-text-muted hover:text-white transition-colors whitespace-nowrap">Run Instance</a>
-                <a href="usecases.html" class="text-text-muted hover:text-white transition-colors whitespace-nowrap">Use Cases</a>
-                <a href="manifesto.html" class="text-text-muted hover:text-white transition-colors">Manifesto</a>
+                <div class="relative">
+                    <button id="moreBtn" class="text-text-muted hover:text-white transition-colors flex items-center gap-1">More <i class="fas fa-chevron-down text-[10px]"></i></button>
+                    <div id="moreMenu" class="hidden absolute right-0 top-full mt-2 w-44 bg-black/95 backdrop-blur-lg border border-white/10 rounded-xl py-1 z-50 shadow-xl">
+                        <a href="usecases.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Use Cases</a>
+                        <a href="manifesto.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Manifesto</a>
+                        <a href="player.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Player</a>
+                    </div>
+                </div>
                 <a href="https://scobru.github.io/tunecamp/" target="_blank" class="text-text-muted hover:text-white transition-colors">Docs</a>
                 <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors"><i class="fab fa-github"></i></a>
                 <button onclick="toggleTheme()" aria-label="Toggle theme" class="text-text-muted hover:text-white transition-colors w-8 h-8 flex items-center justify-center">
@@ -116,6 +122,12 @@
                     btn.querySelector('i').className = open ? 'fas fa-times text-lg' : 'fas fa-bars text-lg';
                 });
             }
+            const moreBtn = document.getElementById('moreBtn');
+            const moreMenu = document.getElementById('moreMenu');
+            if (moreBtn && moreMenu) {
+                moreBtn.addEventListener('click', e => { e.stopPropagation(); moreMenu.classList.toggle('hidden'); });
+                document.addEventListener('click', () => moreMenu.classList.add('hidden'));
+            }
         })();
     </script>
 
@@ -135,12 +147,16 @@
         </div>
 
         <!-- Status + intro -->
-        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
             <div>
                 <h1 class="font-display text-3xl md:text-4xl font-extrabold tracking-tight mb-1">Explore the network</h1>
-                <p class="text-text-muted">Tracks published across the Tunecamp federation. Click any to play.</p>
+                <p class="text-text-muted mb-3">Open-source federated streaming — tracks from independent artists hosting their own servers.</p>
+                <div class="flex gap-2">
+                    <a href="about.html" class="text-xs px-3 py-1.5 bg-white/5 border border-white/10 text-text-muted rounded-lg hover:text-white transition-colors font-medium">What is Tunecamp?</a>
+                    <a href="run.html" class="text-xs px-3 py-1.5 bg-primary/20 text-primary border border-primary/30 rounded-lg hover:bg-primary/30 transition-colors font-semibold">Run instance →</a>
+                </div>
             </div>
-            <div class="flex items-center gap-3 px-4 py-2 bg-white/5 rounded-full border border-white/10 text-xs font-medium shrink-0">
+            <div class="flex items-center gap-3 px-4 py-2 bg-white/5 rounded-full border border-white/10 text-xs font-medium shrink-0 mt-1">
                 <span id="statusDot" class="w-2 h-2 rounded-full bg-red-500"></span>
                 <span id="statusText" class="text-text-muted">Connecting…</span>
                 <span class="text-white/30">·</span>
@@ -188,18 +204,30 @@
         <!-- Register instance -->
         <section class="mt-16 mb-4 border border-white/10 rounded-2xl p-5 sm:p-8 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 bg-white/3">
             <div class="flex-1 min-w-0">
-                <h2 class="font-display text-lg font-bold mb-1">Register your instance</h2>
-                <p class="text-text-muted text-sm">Running Tunecamp? Add your URL to appear in the network.</p>
+                <h2 class="font-display text-lg font-bold mb-1">Running Tunecamp?</h2>
+                <p class="text-text-muted text-sm">Self-host in ~10 minutes and join the federated network.</p>
             </div>
-            <form id="registerForm" class="flex gap-2 w-full sm:w-auto" onsubmit="return false;">
-                <input id="registerUrl" type="text" placeholder="your-instance.example.com"
-                    class="flex-1 sm:w-72 px-4 py-2 rounded-xl bg-white/10 border border-white/10 text-white placeholder-text-muted text-sm focus:outline-none focus:border-primary" />
-                <button id="registerBtn" type="submit"
-                    class="shrink-0 bg-gradient-to-r from-primary to-purple-500 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:scale-105 transition-all">Register</button>
-            </form>
-            <p id="registerMsg" class="hidden text-sm w-full sm:w-auto"></p>
+            <div class="flex gap-3 shrink-0 flex-wrap">
+                <a href="run.html" class="bg-gradient-to-r from-primary to-purple-500 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:scale-105 transition-all">Run Instance →</a>
+                <a href="run.html#register" class="bg-white/5 border border-white/10 text-text-muted px-5 py-2 rounded-xl text-sm font-medium hover:text-white hover:border-white/20 transition-all">Register existing</a>
+            </div>
         </section>
     </main>
+
+    <footer class="border-t border-white/10 py-8 bg-black/50">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <nav class="flex gap-6 flex-wrap justify-center">
+                <a href="about.html" class="text-text-muted hover:text-white transition-colors text-sm">Overview</a>
+                <a href="index.html" class="text-white text-sm font-medium">Explore</a>
+                <a href="run.html" class="text-text-muted hover:text-white transition-colors text-sm">Run Instance</a>
+                <a href="usecases.html" class="text-text-muted hover:text-white transition-colors text-sm">Use Cases</a>
+                <a href="manifesto.html" class="text-text-muted hover:text-white transition-colors text-sm">Manifesto</a>
+                <a href="https://scobru.github.io/tunecamp/" target="_blank" class="text-text-muted hover:text-white transition-colors text-sm">Docs</a>
+                <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors text-sm"><i class="fab fa-github mr-1"></i> GitHub</a>
+            </nav>
+            <p class="text-xs text-text-muted">Federated over HTTP. Made with ❤️ by scobru</p>
+        </div>
+    </footer>
 
     <!-- Bottom Player Bar -->
     <div class="fixed bottom-0 left-0 w-full bg-black/80 backdrop-blur-2xl border-t border-white/10 px-4 sm:px-6 py-2 sm:py-3 z-50">
@@ -529,78 +557,6 @@
         window.filterTracks = filterTracks;
         window.playTrackIndex = playTrackIndex;
         window.playTrackByKey = playTrackByKey;
-
-        // Normalize free-form input into a clean https origin, or return null if it
-        // cannot be parsed into a real host. Mirrors the server's normalizeOrigin().
-        function normalizeInstanceUrl(raw) {
-            let url = (raw || '').trim();
-            if (!url) return null;
-            // Strip any scheme the user typed, then force https — the directory
-            // requires SSL for federation, so http:// would fail the probe anyway.
-            url = url.replace(/^[a-z]+:\/\//i, '');
-            url = url.replace(/\/+$/, '');
-            if (!url) return null;
-            let parsed;
-            try { parsed = new URL('https://' + url); } catch { return null; }
-            // A real instance needs a dotted hostname (e.g. mysite.example.com).
-            if (!parsed.hostname || !parsed.hostname.includes('.') || /\s/.test(parsed.hostname)) return null;
-            return parsed.origin;
-        }
-
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('registerBtn');
-            const msg = document.getElementById('registerMsg');
-            const input = document.getElementById('registerUrl');
-            const showMsg = (text, ok) => {
-                msg.textContent = text;
-                msg.className = 'text-sm ' + (ok ? 'text-green-400' : 'text-red-400');
-                msg.classList.remove('hidden');
-            };
-            const url = normalizeInstanceUrl(input.value);
-            if (!url) {
-                showMsg('Enter a valid instance URL, e.g. mysite.example.com', false);
-                return;
-            }
-            const directories = (Array.isArray(window.TUNECAMP_DIRECTORY) ? window.TUNECAMP_DIRECTORY : [])
-                .map(d => normalizeInstanceUrl(d)).filter(Boolean);
-            if (!directories.length) { showMsg('No directory configured. Try again later.', false); return; }
-            btn.disabled = true; btn.textContent = 'Registering…'; msg.classList.add('hidden');
-            // Try each configured directory in turn so one offline seed doesn't block registration.
-            let lastError = 'Could not reach any directory server (network/CORS error). Try again later.';
-            try {
-                for (const directory of directories) {
-                    let res;
-                    try {
-                        res = await fetch(`${directory}/api/community/register?url=${encodeURIComponent(url)}`, {
-                            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }),
-                        });
-                    } catch { continue; } // network/CORS error → try next directory
-                    const data = await res.json().catch(() => ({}));
-                    if (res.ok) {
-                        showMsg(data.message || 'Registered! You\'ll appear shortly.', true);
-                        input.value = '';
-                        return;
-                    }
-                    if (res.status === 422) {
-                        lastError = 'Not a reachable Tunecamp instance — make sure your server is live and publicly accessible.';
-                    } else if (res.status === 429) {
-                        lastError = 'Too many registration requests. Please try again later.';
-                    } else if (res.status === 404) {
-                        // The directory server is missing the register endpoint — usually an
-                        // outdated deploy or a reverse proxy not routing /api/community/register.
-                        lastError = 'Directory server does not support registration (HTTP 404) — its TuneCamp deploy may be outdated.';
-                    } else if (data.error) {
-                        lastError = `${data.error} (HTTP ${res.status})`;
-                    } else {
-                        // Non-JSON error body (e.g. gateway/proxy HTML) — surface the status to aid debugging.
-                        lastError = `Registration failed (HTTP ${res.status}). The directory server returned an unexpected response.`;
-                    }
-                }
-                showMsg(lastError, false);
-            }
-            finally { btn.disabled = false; btn.textContent = 'Register'; }
-        });
     </script>
 </body>
 

@@ -63,8 +63,14 @@
                 <a href="about.html" class="text-white">Overview</a>
                 <a href="index.html" class="text-text-muted hover:text-white transition-colors">Explore</a>
                 <a href="run.html" class="text-text-muted hover:text-white transition-colors whitespace-nowrap">Run Instance</a>
-                <a href="usecases.html" class="text-text-muted hover:text-white transition-colors whitespace-nowrap">Use Cases</a>
-                <a href="manifesto.html" class="text-text-muted hover:text-white transition-colors">Manifesto</a>
+                <div class="relative">
+                    <button id="moreBtn" class="text-text-muted hover:text-white transition-colors flex items-center gap-1">More <i class="fas fa-chevron-down text-[10px]"></i></button>
+                    <div id="moreMenu" class="hidden absolute right-0 top-full mt-2 w-44 bg-black/95 backdrop-blur-lg border border-white/10 rounded-xl py-1 z-50 shadow-xl">
+                        <a href="usecases.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Use Cases</a>
+                        <a href="manifesto.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Manifesto</a>
+                        <a href="player.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Player</a>
+                    </div>
+                </div>
                 <a href="https://scobru.github.io/tunecamp/" target="_blank" class="text-text-muted hover:text-white transition-colors">Docs</a>
                 <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors"><i class="fab fa-github"></i></a>
                 <button onclick="toggleTheme()" aria-label="Toggle theme" class="text-text-muted hover:text-white transition-colors w-8 h-8 flex items-center justify-center">
@@ -105,6 +111,12 @@
                     btn.querySelector('i').className = open ? 'fas fa-times text-lg' : 'fas fa-bars text-lg';
                 });
             }
+            const moreBtn = document.getElementById('moreBtn');
+            const moreMenu = document.getElementById('moreMenu');
+            if (moreBtn && moreMenu) {
+                moreBtn.addEventListener('click', e => { e.stopPropagation(); moreMenu.classList.toggle('hidden'); });
+                document.addEventListener('click', () => moreMenu.classList.add('hidden'));
+            }
         })();
     </script>
 
@@ -135,9 +147,6 @@
                 <a href="https://scobru.github.io/tunecamp/" target="_blank" class="btn-secondary">
                     <i class="fas fa-book text-xl"></i> Documentation
                 </a>
-                <a href="#how-it-works" class="btn-secondary">
-                    How it works <i class="fas fa-arrow-down ml-2"></i>
-                </a>
             </div>
 
             <div
@@ -162,7 +171,6 @@
 
     <!-- Product Screenshots -->
     <section class="py-20 px-6 relative" id="preview">
-        <div class="absolute top-0 right-[-5%] w-[500px] h-[500px] bg-pink-500/8 blur-[120px] rounded-full pointer-events-none -z-10"></div>
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-12">
                 <p class="text-xs font-semibold uppercase tracking-widest text-primary/70 mb-4">Product Preview</p>
@@ -221,9 +229,6 @@
 
     <!-- Features Section -->
     <section class="py-24 px-6 relative" id="features">
-        <div
-            class="absolute top-1/2 left-[-10%] w-[500px] h-[500px] bg-pink-500/10 blur-[100px] rounded-full pointer-events-none -z-10">
-        </div>
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-16">
                 <h2 class="font-display text-4xl md:text-5xl font-bold mb-4">
@@ -235,7 +240,8 @@
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Core protocol features -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-5">
                 <div class="glass-card group">
                     <div
                         class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
@@ -270,60 +276,43 @@
                         network.
                     </p>
                 </div>
-                <div class="glass-card group">
-                    <div
-                        class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+            </div>
+            <!-- Additional features -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 pt-5 border-t border-white/10">
+                <div class="bg-white/5 border border-white/10 rounded-xl p-5 hover:border-primary/40 transition-all">
+                    <div class="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center text-xl text-primary mb-3">
                         <i class="fas fa-water"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3 font-display">Waveforms</h3>
-                    <p class="text-text-muted text-sm leading-relaxed">
-                        Beautiful, automatically generated waveforms for every track,
-                        providing a professional streaming experience.
-                    </p>
+                    <h3 class="text-base font-bold mb-1.5 font-display">Waveforms</h3>
+                    <p class="text-text-muted text-xs leading-relaxed">Auto-generated waveforms for every track.</p>
                 </div>
-                <div class="glass-card group">
-                    <div
-                        class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+                <div class="bg-white/5 border border-white/10 rounded-xl p-5 hover:border-primary/40 transition-all">
+                    <div class="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center text-xl text-primary mb-3">
                         <i class="fas fa-box-open"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3 font-display">Distribution</h3>
-                    <p class="text-text-muted text-sm leading-relaxed">
-                        Offer free downloads, pay-what-you-want options, or protect your
-                        releases with unique unlock codes.
-                    </p>
+                    <h3 class="text-base font-bold mb-1.5 font-display">Distribution</h3>
+                    <p class="text-text-muted text-xs leading-relaxed">Free, pay-what-you-want, or unlock codes.</p>
                 </div>
-                <div class="glass-card group">
-                    <div
-                        class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+                <div class="bg-white/5 border border-white/10 rounded-xl p-5 hover:border-primary/40 transition-all">
+                    <div class="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center text-xl text-primary mb-3">
                         <i class="fas fa-brain"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3 font-display">AI Intelligence</h3>
-                    <p class="text-text-muted text-sm leading-relaxed">
-                        Automated album identification and metadata enrichment. Keep your
-                        library organized with minimal effort.
-                    </p>
+                    <h3 class="text-base font-bold mb-1.5 font-display">AI</h3>
+                    <p class="text-text-muted text-xs leading-relaxed">Auto album ID and metadata enrichment.</p>
                 </div>
-                <div class="glass-card group">
-                    <div
-                        class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+                <div class="bg-white/5 border border-white/10 rounded-xl p-5 hover:border-primary/40 transition-all">
+                    <div class="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center text-xl text-primary mb-3">
                         <i class="fas fa-wallet"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3 font-display">Monetization</h3>
-                    <p class="text-text-muted text-sm leading-relaxed">
-                        Support for Stripe. Sell your music directly to fans without
-                        platform middleman fees.
-                    </p>
+                    <h3 class="text-base font-bold mb-1.5 font-display">Monetization</h3>
+                    <p class="text-text-muted text-xs leading-relaxed">Stripe — sell direct, no middlemen.</p>
                 </div>
-                <div class="glass-card group">
-                    <div
-                        class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+                <div class="bg-white/5 border border-white/10 rounded-xl p-5 hover:border-primary/40 transition-all">
+                    <div class="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center text-xl text-primary mb-3">
                         <i class="fas fa-palette"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3 font-display">Modern UI</h3>
-                    <p class="text-text-muted text-sm leading-relaxed">
-                        A premium, responsive dashboard for you to manage your library and
-                        for your fans to enjoy your music.
-                    </p>
+                    <h3 class="text-base font-bold mb-1.5 font-display">Modern UI</h3>
+                    <p class="text-text-muted text-xs leading-relaxed">Premium responsive dashboard for you and fans.</p>
                 </div>
             </div>
         </div>
@@ -397,7 +386,7 @@
     </section>
 
     <!-- Ecosystem -->
-    <section class="py-24 px-6 bg-bg-surface-alt/50 relative" id="ecosystem">
+    <section class="py-24 px-6 relative" id="ecosystem">
         <div class="max-w-5xl mx-auto">
             <div class="text-center mb-16">
                 <h2 class="font-display text-4xl md:text-5xl font-bold mb-4">
@@ -518,7 +507,7 @@
                 <a href="https://buymeacoffee.com/scobru" class="text-text-muted hover:text-white transition-colors"><i
                         class="fas fa-mug-hot mr-2"></i>Support</a>
             </nav>
-            <p class="text-sm text-text-muted opacity-60">
+            <p class="text-sm text-text-muted">
                 Tunecamp is MIT Licensed. Made with ❤️ for independent music.
             </p>
         </div>

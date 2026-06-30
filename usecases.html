@@ -74,8 +74,14 @@
                 <a href="about.html" class="text-text-muted hover:text-white transition-colors">Overview</a>
                 <a href="index.html" class="text-text-muted hover:text-white transition-colors">Explore</a>
                 <a href="run.html" class="text-text-muted hover:text-white transition-colors whitespace-nowrap">Run Instance</a>
-                <a href="usecases.html" class="text-white">Use Cases</a>
-                <a href="manifesto.html" class="text-text-muted hover:text-white transition-colors">Manifesto</a>
+                <div class="relative">
+                    <button id="moreBtn" class="text-white flex items-center gap-1">More <i class="fas fa-chevron-down text-[10px]"></i></button>
+                    <div id="moreMenu" class="hidden absolute right-0 top-full mt-2 w-44 bg-black/95 backdrop-blur-lg border border-white/10 rounded-xl py-1 z-50 shadow-xl">
+                        <a href="usecases.html" class="block px-4 py-2.5 text-white font-semibold hover:bg-white/5 transition-colors">Use Cases</a>
+                        <a href="manifesto.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Manifesto</a>
+                        <a href="player.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Player</a>
+                    </div>
+                </div>
                 <a href="https://scobru.github.io/tunecamp/" target="_blank" class="text-text-muted hover:text-white transition-colors">Docs</a>
                 <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors"><i class="fab fa-github"></i></a>
                 <button onclick="toggleTheme()" aria-label="Toggle theme" class="text-text-muted hover:text-white transition-colors w-8 h-8 flex items-center justify-center">
@@ -114,6 +120,12 @@
                     btn.setAttribute('aria-expanded', String(open));
                     btn.querySelector('i').className = open ? 'fas fa-times text-lg' : 'fas fa-bars text-lg';
                 });
+            }
+            const moreBtn = document.getElementById('moreBtn');
+            const moreMenu = document.getElementById('moreMenu');
+            if (moreBtn && moreMenu) {
+                moreBtn.addEventListener('click', e => { e.stopPropagation(); moreMenu.classList.toggle('hidden'); });
+                document.addEventListener('click', () => moreMenu.classList.add('hidden'));
             }
         })();
     </script>
@@ -404,7 +416,7 @@
                 <a href="https://web.telegram.org/a/#-1004480953180" class="text-text-muted hover:text-white transition-colors text-sm" target="_blank"><i class="fab fa-telegram mr-2"></i>Telegram</a>
                 <a href="https://buymeacoffee.com/scobru" class="text-text-muted hover:text-white transition-colors text-sm"><i class="fas fa-mug-hot mr-2"></i>Support</a>
             </nav>
-            <p class="text-sm text-text-muted opacity-60">Tunecamp is MIT Licensed. Made with ❤️ for independent music.</p>
+            <p class="text-sm text-text-muted">Tunecamp is MIT Licensed. Made with ❤️ for independent music.</p>
         </div>
     </footer>
 
