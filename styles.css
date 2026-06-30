@@ -85,9 +85,10 @@
 [data-theme="light"] .text-white { color: var(--color-text-base) !important; }
 
 /* Restore white on gradient/colored backgrounds — must come AFTER .text-white rule */
-[data-theme="light"] [class*="from-primary"]  { color: #ffffff !important; }
+/* ~= exact word: "from-primary" yes, "from-primary/10" no (faint section bg stays dark) */
+[data-theme="light"] [class~="from-primary"]  { color: #ffffff !important; }
 [data-theme="light"] [class*="from-purple"]   { color: #ffffff !important; }
-[data-theme="light"] [class*="from-primary"] * { color: #ffffff !important; }
+[data-theme="light"] [class~="from-primary"] * { color: #ffffff !important; }
 
 /* Opacity-based text: white → black equivalents */
 [data-theme="light"] .text-white\/5  { color: rgba(0, 0, 0, 0.05)  !important; }
@@ -113,6 +114,34 @@
 /* Soften heavy shadows */
 [data-theme="light"] .shadow-\[0_30px_80px_rgba\(0\,0\,0\,0\.5\)\] {
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* manifesto.html: classes built via @apply, no separate utility class on element to target */
+[data-theme="light"] .pull-quote { color: var(--color-text-base) !important; }
+[data-theme="light"] .manifesto-p { color: rgba(0, 0, 0, 0.75) !important; }
+[data-theme="light"] .manifesto-p strong { color: var(--color-text-base) !important; }
+
+/* run.html: warn-box uses @apply text-amber-200, illegible on light bg */
+[data-theme="light"] .warn-box {
+  background-color: rgba(245, 158, 11, 0.08) !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+  color: #92400e !important;
+}
+
+/* run.html: info-box uses @apply text-purple-200, illegible on light bg */
+[data-theme="light"] .info-box {
+  background-color: rgba(139, 92, 246, 0.08) !important;
+  border-color: rgba(139, 92, 246, 0.25) !important;
+  color: #5b21b6 !important;
+}
+[data-theme="light"] .info-box a {
+  color: #6d28d9 !important;
+}
+
+/* run.html: #railway card is a dark violet gradient at low opacity — washes out to low-contrast lavender in light mode */
+[data-theme="light"] #railway {
+  background-image: linear-gradient(to right, rgba(139, 92, 246, 0.10), rgba(168, 85, 247, 0.05)) !important;
+  border-color: rgba(139, 92, 246, 0.25) !important;
 }
 
 /* Code elements in run.html */
