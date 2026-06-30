@@ -70,12 +70,12 @@
                     class="w-full bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-primary/50 placeholder-text-muted" />
             </div>
             <div class="hidden sm:flex items-center gap-5 text-sm font-medium ml-auto">
+                <a href="about.html" class="text-text-muted hover:text-white transition-colors">Overview</a>
                 <a href="index.html" class="text-white">Explore</a>
                 <a href="run.html" class="text-text-muted hover:text-white transition-colors whitespace-nowrap">Run Instance</a>
                 <a href="usecases.html" class="text-text-muted hover:text-white transition-colors whitespace-nowrap">Use Cases</a>
                 <a href="manifesto.html" class="text-text-muted hover:text-white transition-colors">Manifesto</a>
                 <a href="https://scobru.github.io/tunecamp/" target="_blank" class="text-text-muted hover:text-white transition-colors">Docs</a>
-                <a href="about.html" class="text-text-muted hover:text-white transition-colors">About</a>
                 <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors"><i class="fab fa-github"></i></a>
             </div>
             <!-- Mobile hamburger -->
@@ -86,13 +86,13 @@
         <!-- Mobile menu panel -->
         <div id="mobileMenu" class="hidden sm:hidden border-t border-white/10 bg-black/90 backdrop-blur-lg">
             <div class="px-6 py-4 flex flex-col gap-1 text-sm font-medium">
+                <a href="about.html" class="py-2 text-text-muted hover:text-white transition-colors">Overview</a>
                 <a href="index.html" class="py-2 text-white">Explore</a>
                 <a href="player.html" class="py-2 text-text-muted hover:text-white transition-colors">Player</a>
                 <a href="run.html" class="py-2 text-text-muted hover:text-white transition-colors">Run Instance</a>
                 <a href="usecases.html" class="py-2 text-text-muted hover:text-white transition-colors">Use Cases</a>
                 <a href="manifesto.html" class="py-2 text-text-muted hover:text-white transition-colors">Manifesto</a>
                 <a href="https://scobru.github.io/tunecamp/" target="_blank" class="py-2 text-text-muted hover:text-white transition-colors">Docs</a>
-                <a href="about.html" class="py-2 text-text-muted hover:text-white transition-colors">About</a>
                 <a href="https://github.com/scobru/tunecamp" class="py-2 text-text-muted hover:text-white transition-colors"><i class="fab fa-github mr-2"></i>GitHub</a>
             </div>
         </div>
@@ -112,6 +112,20 @@
     </script>
 
     <main class="max-w-7xl mx-auto w-full px-6 py-8 flex-1">
+
+        <!-- First-visit intro banner -->
+        <div id="introBar" class="mb-8 flex items-start gap-4 p-4 sm:p-5 rounded-2xl border border-primary/25 bg-gradient-to-r from-primary/10 to-transparent">
+            <img src="tunecamp.svg" alt="" class="w-8 h-8 shrink-0 mt-0.5 hidden sm:block opacity-70" />
+            <div class="flex-1 min-w-0">
+                <p class="font-semibold text-sm mb-0.5">New to Tunecamp?</p>
+                <p class="text-sm text-text-muted">You're looking at live tracks from independent artists across the federated network. Each card plays directly from the artist's own server.
+                    <a href="about.html" class="text-primary hover:underline ml-1">Learn what Tunecamp is →</a></p>
+            </div>
+            <button onclick="this.parentElement.remove()" class="shrink-0 text-text-muted hover:text-white transition-colors mt-0.5" aria-label="Dismiss">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+
         <!-- Status + intro -->
         <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
             <div>
