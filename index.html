@@ -24,6 +24,7 @@
         crossorigin="anonymous" />
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="styles.css" />
+    <script src="theme.js"></script>
     <style type="text/tailwindcss">
         @theme {
         --color-primary: #8b5cf6;
@@ -77,6 +78,9 @@
                 <a href="manifesto.html" class="text-text-muted hover:text-white transition-colors">Manifesto</a>
                 <a href="https://scobru.github.io/tunecamp/" target="_blank" class="text-text-muted hover:text-white transition-colors">Docs</a>
                 <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors"><i class="fab fa-github"></i></a>
+                <button onclick="toggleTheme()" aria-label="Toggle theme" class="text-text-muted hover:text-white transition-colors w-8 h-8 flex items-center justify-center">
+                    <i data-theme-icon class="fas fa-sun text-sm"></i>
+                </button>
             </div>
             <!-- Mobile hamburger -->
             <button id="menuToggle" aria-label="Menu" aria-expanded="false" class="sm:hidden ml-auto w-10 h-10 -mr-2 flex items-center justify-center text-text-muted hover:text-white transition-colors">
@@ -94,6 +98,10 @@
                 <a href="manifesto.html" class="py-2 text-text-muted hover:text-white transition-colors">Manifesto</a>
                 <a href="https://scobru.github.io/tunecamp/" target="_blank" class="py-2 text-text-muted hover:text-white transition-colors">Docs</a>
                 <a href="https://github.com/scobru/tunecamp" class="py-2 text-text-muted hover:text-white transition-colors"><i class="fab fa-github mr-2"></i>GitHub</a>
+                <button onclick="toggleTheme()" class="py-2 flex items-center gap-2 text-text-muted hover:text-white transition-colors">
+                    <i data-theme-icon class="fas fa-sun text-sm w-4 text-center"></i>
+                    <span>Toggle theme</span>
+                </button>
             </div>
         </div>
     </nav>
