@@ -131,7 +131,7 @@
         })();
     </script>
 
-    <main class="max-w-7xl mx-auto w-full px-6 py-8 flex-1">
+    <main class="max-w-7xl mx-auto w-full px-6 py-8 pb-32 flex-1">
 
         <!-- First-visit intro banner -->
         <div id="introBar" class="mb-8 flex items-start gap-4 p-4 sm:p-5 rounded-2xl border border-primary/25 bg-gradient-to-r from-primary/10 to-transparent">
@@ -163,6 +163,35 @@
                 <span id="trackCount" class="text-white">-</span> tracks
             </div>
         </div>
+
+        <!-- Protocol stats -->
+        <section class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
+            <div class="bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-center">
+                <div id="statInstances" class="font-display text-3xl font-extrabold text-white">-</div>
+                <div class="text-xs text-text-muted mt-1 uppercase tracking-wide">Instances</div>
+            </div>
+            <div class="bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-center">
+                <div id="statArtists" class="font-display text-3xl font-extrabold text-white">-</div>
+                <div class="text-xs text-text-muted mt-1 uppercase tracking-wide">Artists</div>
+            </div>
+            <div class="bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-center">
+                <div id="statTracks" class="font-display text-3xl font-extrabold text-white">-</div>
+                <div class="text-xs text-text-muted mt-1 uppercase tracking-wide">Tracks</div>
+            </div>
+            <div class="bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-center">
+                <div id="statGenres" class="font-display text-3xl font-extrabold text-white">-</div>
+                <div class="text-xs text-text-muted mt-1 uppercase tracking-wide">Genres</div>
+            </div>
+        </section>
+
+        <!-- Now spinning across the network (live) -->
+        <section id="nowSpinningSection" class="mb-10 hidden">
+            <div class="mb-3 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                <h2 class="font-display text-lg font-bold">Now spinning across the network</h2>
+            </div>
+            <div id="nowSpinningStrip" class="flex gap-3 overflow-x-auto pb-2"></div>
+        </section>
 
         <!-- Instances strip -->
         <section class="mb-10">
@@ -213,21 +242,6 @@
             </div>
         </section>
     </main>
-
-    <footer class="border-t border-white/10 py-8 bg-black/50">
-        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
-            <nav class="flex gap-6 flex-wrap justify-center">
-                <a href="about.html" class="text-text-muted hover:text-white transition-colors text-sm">Overview</a>
-                <a href="index.html" class="text-white text-sm font-medium">Explore</a>
-                <a href="run.html" class="text-text-muted hover:text-white transition-colors text-sm">Run Instance</a>
-                <a href="usecases.html" class="text-text-muted hover:text-white transition-colors text-sm">Use Cases</a>
-                <a href="manifesto.html" class="text-text-muted hover:text-white transition-colors text-sm">Manifesto</a>
-                <a href="https://scobru.github.io/tunecamp/" target="_blank" class="text-text-muted hover:text-white transition-colors text-sm">Docs</a>
-                <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors text-sm"><i class="fab fa-github mr-1"></i> GitHub</a>
-            </nav>
-            <p class="text-xs text-text-muted">Federated over HTTP. Made with ❤️ by scobru</p>
-        </div>
-    </footer>
 
     <!-- Bottom Player Bar -->
     <div class="fixed bottom-0 left-0 w-full bg-black/80 backdrop-blur-2xl border-t border-white/10 px-4 sm:px-6 py-2 sm:py-3 z-50">
@@ -387,12 +401,56 @@
             }));
             setStatus(reached > 0 ? 'live' : 'offline');
 
+            // Live "now spinning" feed: poll each known instance's public presence endpoint.
+            const origins = Array.from(processedSites);
+            if (origins.length > 0) {
+                pollNowSpinning(origins);
+                setInterval(() => pollNowSpinning(origins), 20000);
+            }
+
             setTimeout(() => {
                 if (allTracks.length === 0) {
                     document.getElementById('tracksGrid').innerHTML =
                         `<div class="col-span-full py-20 text-center text-text-muted"><i class="fas fa-music text-3xl text-white/20 mb-3"></i><p>No tracks found yet. Join the network!</p></div>`;
                 }
             }, 5000);
+        }
+
+        async function pollNowSpinning(origins) {
+            const results = await Promise.all(origins.map(async (siteUrl) => {
+                try {
+                    const res = await fetch(`${siteUrl}/api/now-playing/public`, { headers: { 'Accept': 'application/json' } });
+                    if (!res.ok) return [];
+                    const data = await res.json();
+                    return Array.isArray(data.listeners) ? data.listeners : [];
+                } catch { return []; }
+            }));
+            const listeners = results.flat().sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+            renderNowSpinning(listeners);
+        }
+
+        function renderNowSpinning(listeners) {
+            const section = document.getElementById('nowSpinningSection');
+            const strip = document.getElementById('nowSpinningStrip');
+            if (!listeners || listeners.length === 0) { section.classList.add('hidden'); return; }
+            section.classList.remove('hidden');
+            strip.innerHTML = listeners.map(l => {
+                const who = escapeHtml(l.alias || l.username || 'Someone');
+                const instName = escapeHtml(l.instance?.name || '');
+                const instUrl = l.instance?.url ? escapeHtml(l.instance.url) : '#';
+                const avatar = l.avatar
+                    ? `<img src="${escapeHtml(l.avatar)}" class="w-full h-full object-cover">`
+                    : `<i class="fas fa-user text-white/40"></i>`;
+                return `
+                    <a href="${instUrl}" target="_blank" class="shrink-0 w-56 bg-white/5 border border-white/10 rounded-xl p-3 flex items-center gap-3 hover:border-primary/50 transition-all group">
+                        <div class="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-primary/40 to-purple-800 flex items-center justify-center shrink-0">${avatar}</div>
+                        <div class="min-w-0">
+                            <div class="text-sm font-semibold truncate group-hover:text-primary transition-colors">${who}</div>
+                            <div class="text-xs text-text-muted truncate"><i class="fas fa-music mr-1 text-primary/70"></i>${escapeHtml(l.title || '')}${l.artist ? ' — ' + escapeHtml(l.artist) : ''}</div>
+                            <div class="text-[10px] text-text-muted/70 truncate mt-0.5">${instName}</div>
+                        </div>
+                    </a>`;
+            }).join('');
         }
 
         function resolveCover(cover, siteUrl) {
@@ -405,6 +463,7 @@
         function renderInstances(sitesMap) {
             const sites = Array.from(sitesMap.values());
             const strip = document.getElementById('instancesStrip');
+            document.getElementById('statInstances').textContent = sites.length;
             if (sites.length === 0) return;
             strip.innerHTML = sites.map(s => {
                 const cover = s.coverImage ? `<img src="${escapeHtml(s.coverImage)}" class="w-full h-full object-cover">` : '<i class="fas fa-compact-disc text-white/40"></i>';
@@ -424,6 +483,9 @@
             });
             allTracks = Array.from(deduped.values()).sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0));
             document.getElementById('trackCount').textContent = allTracks.length;
+            document.getElementById('statTracks').textContent = allTracks.length;
+            document.getElementById('statArtists').textContent = artistsSet.size;
+            document.getElementById('statGenres').textContent = genresSet.size;
 
             const select = document.getElementById('artistFilter');
             const current = select.value;
