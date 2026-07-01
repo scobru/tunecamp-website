@@ -193,6 +193,15 @@
             <div id="nowSpinningStrip" class="flex gap-3 overflow-x-auto pb-2"></div>
         </section>
 
+        <!-- Live on the network (likes / purchases / playlists / releases) -->
+        <section id="activitySection" class="mb-10 hidden">
+            <div class="mb-3 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                <h2 class="font-display text-lg font-bold">Live on the network</h2>
+            </div>
+            <div id="activityStrip" class="flex gap-3 overflow-x-auto pb-2"></div>
+        </section>
+
         <!-- Instances strip -->
         <section class="mb-10">
             <div class="mb-3">
@@ -406,6 +415,8 @@
             if (origins.length > 0) {
                 pollNowSpinning(origins);
                 setInterval(() => pollNowSpinning(origins), 20000);
+                pollActivity(origins);
+                setInterval(() => pollActivity(origins), 60000);
             }
 
             setTimeout(() => {
@@ -448,6 +459,69 @@
                             <div class="text-sm font-semibold truncate group-hover:text-primary transition-colors">${who}</div>
                             <div class="text-xs text-text-muted truncate"><i class="fas fa-music mr-1 text-primary/70"></i>${escapeHtml(l.title || '')}${l.artist ? ' — ' + escapeHtml(l.artist) : ''}</div>
                             <div class="text-[10px] text-text-muted/70 truncate mt-0.5">${instName}</div>
+                        </div>
+                    </a>`;
+            }).join('');
+        }
+
+        // Live activity feed: poll each instance's public activity endpoint and merge.
+        async function pollActivity(origins) {
+            const results = await Promise.all(origins.map(async (siteUrl) => {
+                try {
+                    const res = await fetch(`${siteUrl}/api/community/activity?limit=15`, { headers: { 'Accept': 'application/json' } });
+                    if (!res.ok) return [];
+                    const data = await res.json();
+                    const inst = data.instance || {};
+                    return (Array.isArray(data.events) ? data.events : []).map(e => ({ ...e, instance: inst }));
+                } catch { return []; }
+            }));
+            const events = results.flat()
+                .sort((a, b) => String(b.ts || '').localeCompare(String(a.ts || '')))
+                .slice(0, 24);
+            renderActivity(events);
+        }
+
+        const ACTIVITY_META = {
+            like:     { icon: 'fa-heart',        color: 'text-pink-400',   label: 'liked' },
+            purchase: { icon: 'fa-bag-shopping', color: 'text-emerald-400', label: 'purchased' },
+            playlist: { icon: 'fa-list-ul',      color: 'text-sky-400',    label: 'new public playlist' },
+            release:  { icon: 'fa-compact-disc', color: 'text-primary',    label: 'new release' },
+        };
+
+        function timeAgo(ts) {
+            // SQLite CURRENT_TIMESTAMP is UTC without timezone marker.
+            const t = Date.parse(String(ts).replace(' ', 'T') + (String(ts).includes('T') ? '' : 'Z'));
+            if (isNaN(t)) return '';
+            const s = Math.max(0, (Date.now() - t) / 1000);
+            if (s < 90) return 'just now';
+            if (s < 3600) return `${Math.round(s / 60)}m ago`;
+            if (s < 86400) return `${Math.round(s / 3600)}h ago`;
+            return `${Math.round(s / 86400)}d ago`;
+        }
+
+        function renderActivity(events) {
+            const section = document.getElementById('activitySection');
+            const strip = document.getElementById('activityStrip');
+            if (!events || events.length === 0) { section.classList.add('hidden'); return; }
+            section.classList.remove('hidden');
+            strip.innerHTML = events.map(e => {
+                const meta = ACTIVITY_META[e.type] || { icon: 'fa-bolt', color: 'text-white/60', label: e.type };
+                const obj = e.object || {};
+                const url = obj.url ? escapeHtml(obj.url) : '#';
+                const cover = obj.cover
+                    ? `<img src="${escapeHtml(obj.cover)}" class="w-full h-full object-cover">`
+                    : `<i class="fas ${meta.icon} ${meta.color}"></i>`;
+                const who = e.user ? `${escapeHtml(e.user)} — ` : '';
+                const line = e.type === 'playlist'
+                    ? `${who}${escapeHtml(obj.title || '')}`
+                    : `${escapeHtml(obj.title || '')}${obj.artist ? ' — ' + escapeHtml(obj.artist) : ''}`;
+                return `
+                    <a href="${url}" target="_blank" class="shrink-0 w-64 bg-white/5 border border-white/10 rounded-xl p-3 flex items-center gap-3 hover:border-primary/50 transition-all group">
+                        <div class="w-10 h-10 rounded-lg overflow-hidden bg-gradient-to-br from-primary/30 to-purple-800/60 flex items-center justify-center shrink-0">${cover}</div>
+                        <div class="min-w-0">
+                            <div class="text-xs text-text-muted"><i class="fas ${meta.icon} ${meta.color} mr-1"></i>${meta.label} · ${timeAgo(e.ts)}</div>
+                            <div class="text-sm font-semibold truncate group-hover:text-primary transition-colors">${line}</div>
+                            <div class="text-[10px] text-text-muted/70 truncate mt-0.5">${escapeHtml(e.instance?.name || '')}</div>
                         </div>
                     </a>`;
             }).join('');
