@@ -507,7 +507,11 @@
             strip.innerHTML = events.map(e => {
                 const meta = ACTIVITY_META[e.type] || { icon: 'fa-bolt', color: 'text-white/60', label: e.type };
                 const obj = e.object || {};
-                const url = obj.url ? escapeHtml(obj.url) : '#';
+                // A named actor (currently only public-playlist creators) links to their
+                // public profile on the origin instance; everything else opens the object.
+                const instUrl = (e.instance?.url || '').replace(/\/$/, '');
+                const profileUrl = e.user && instUrl ? `${instUrl}/u/${encodeURIComponent(e.user)}` : null;
+                const url = escapeHtml((e.type === 'playlist' && profileUrl) ? profileUrl : (obj.url || '#'));
                 const cover = obj.cover
                     ? `<img src="${escapeHtml(obj.cover)}" class="w-full h-full object-cover">`
                     : `<i class="fas ${meta.icon} ${meta.color}"></i>`;
