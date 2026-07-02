@@ -507,19 +507,26 @@
             strip.innerHTML = events.map(e => {
                 const meta = ACTIVITY_META[e.type] || { icon: 'fa-bolt', color: 'text-white/60', label: e.type };
                 const obj = e.object || {};
-                const url = obj.url ? escapeHtml(obj.url) : '#';
+                // A named actor (currently only public-playlist creators) links to their
+                // public profile on the origin instance; everything else opens the object.
+                const instUrl = (e.instance?.url || '').replace(/\/$/, '');
+                const profileUrl = e.user && instUrl ? `${instUrl}/u/${encodeURIComponent(e.user)}` : null;
+                const url = escapeHtml((e.type === 'playlist' && profileUrl) ? profileUrl : (obj.url || '#'));
                 const cover = obj.cover
                     ? `<img src="${escapeHtml(obj.cover)}" class="w-full h-full object-cover">`
                     : `<i class="fas ${meta.icon} ${meta.color}"></i>`;
-                const who = e.user ? `${escapeHtml(e.user)} — ` : '';
+                // Likes carry a user only when that user opted in server-side.
+                const label = e.user && (e.type === 'like' || e.type === 'playlist')
+                    ? `${escapeHtml(e.user)} ${e.type === 'like' ? 'liked' : '· playlist'}`
+                    : meta.label;
                 const line = e.type === 'playlist'
-                    ? `${who}${escapeHtml(obj.title || '')}`
+                    ? escapeHtml(obj.title || '')
                     : `${escapeHtml(obj.title || '')}${obj.artist ? ' — ' + escapeHtml(obj.artist) : ''}`;
                 return `
                     <a href="${url}" target="_blank" class="shrink-0 w-64 bg-white/5 border border-white/10 rounded-xl p-3 flex items-center gap-3 hover:border-primary/50 transition-all group">
                         <div class="w-10 h-10 rounded-lg overflow-hidden bg-gradient-to-br from-primary/30 to-purple-800/60 flex items-center justify-center shrink-0">${cover}</div>
                         <div class="min-w-0">
-                            <div class="text-xs text-text-muted"><i class="fas ${meta.icon} ${meta.color} mr-1"></i>${meta.label} · ${timeAgo(e.ts)}</div>
+                            <div class="text-xs text-text-muted"><i class="fas ${meta.icon} ${meta.color} mr-1"></i>${label} · ${timeAgo(e.ts)}</div>
                             <div class="text-sm font-semibold truncate group-hover:text-primary transition-colors">${line}</div>
                             <div class="text-[10px] text-text-muted/70 truncate mt-0.5">${escapeHtml(e.instance?.name || '')}</div>
                         </div>
