@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tunecamp — Legal Notice</title>
+    <link rel="icon" type="image/svg+xml" href="tunecamp.svg" />
+    <meta name="description"
+        content="Legal notice for the Tunecamp project website: license, responsibility of independent instances, and privacy information." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.tunecamp.org/legal.html" />
+    <meta property="og:title" content="Tunecamp — Legal Notice" />
+    <meta property="og:description" content="Legal notice for the Tunecamp project website: license, responsibility of independent instances, and privacy information." />
+    <meta property="og:image" content="https://www.tunecamp.org/tunecamp.jpg" />
+    <link rel="stylesheet" href="fonts/fonts.css" />
+    <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css" />
+    <script src="vendor/tailwind.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="theme.js"></script>
+    <style type="text/tailwindcss">
+        @theme {
+        --color-primary: #8b5cf6;
+        --color-primary-hover: #a78bfa;
+        --color-bg-base: #050505;
+        --color-bg-surface: #111111;
+        --color-bg-surface-alt: #1a1a1a;
+        --color-text-base: #ffffff;
+        --color-text-muted: #a3a3a3;
+        --font-sans: "Inter", sans-serif;
+        --font-display: "Outfit", sans-serif;
+      }
+      body {
+        @apply bg-bg-base text-text-base font-sans antialiased selection:bg-primary/30 overflow-x-hidden;
+      }
+      .legal-card {
+        @apply bg-white/5 border border-white/10 rounded-2xl p-8;
+      }
+      .legal-card h2 {
+        @apply font-display font-bold text-xl mb-4 flex items-center gap-3;
+      }
+      .legal-card p, .legal-card li {
+        @apply text-text-muted leading-relaxed;
+      }
+      .legal-card p + p {
+        @apply mt-3;
+      }
+      .legal-card ul {
+        @apply list-disc pl-5 mt-3 space-y-2;
+      }
+      .legal-card a {
+        @apply text-primary hover:text-primary-hover transition-colors;
+      }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col relative">
+    <!-- Top Nav -->
+    <nav class="fixed top-0 left-0 w-full z-50 bg-black/60 backdrop-blur-lg border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-2 font-display font-bold text-lg">
+                <img src="tunecamp.svg" alt="Tunecamp" class="w-7 h-7" /> Tunecamp
+            </a>
+            <div class="hidden sm:flex items-center gap-6 text-sm font-medium">
+                <a href="about.html" class="text-text-muted hover:text-white transition-colors">Overview</a>
+                <a href="index.html" class="text-text-muted hover:text-white transition-colors">Explore</a>
+                <a href="run.html" class="text-text-muted hover:text-white transition-colors whitespace-nowrap">Run Instance</a>
+                <div class="relative">
+                    <button id="moreBtn" class="text-text-muted hover:text-white transition-colors flex items-center gap-1">More <i class="fas fa-chevron-down text-[10px]"></i></button>
+                    <div id="moreMenu" class="hidden absolute right-0 top-full mt-2 w-44 bg-black/95 backdrop-blur-lg border border-white/10 rounded-xl py-1 z-50 shadow-xl">
+                        <a href="usecases.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Use Cases</a>
+                        <a href="manifesto.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Manifesto</a>
+                        <a href="player.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Player</a>
+                        <a href="legal.html" class="block px-4 py-2.5 text-white hover:bg-white/5 transition-colors">Legal</a>
+                    </div>
+                </div>
+                <a href="https://scobru.github.io/tunecamp/" target="_blank" class="text-text-muted hover:text-white transition-colors">Docs</a>
+                <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors"><i class="fab fa-github"></i></a>
+                <button onclick="toggleTheme()" aria-label="Toggle theme" class="text-text-muted hover:text-white transition-colors w-8 h-8 flex items-center justify-center">
+                    <i data-theme-icon class="fas fa-sun text-sm"></i>
+                </button>
+            </div>
+            <!-- Mobile hamburger -->
+            <button id="menuToggle" aria-label="Menu" aria-expanded="false" class="sm:hidden w-10 h-10 -mr-2 flex items-center justify-center text-text-muted hover:text-white transition-colors">
+                <i class="fas fa-bars text-lg"></i>
+            </button>
+        </div>
+        <!-- Mobile menu panel -->
+        <div id="mobileMenu" class="hidden sm:hidden border-t border-white/10 bg-black/90 backdrop-blur-lg">
+            <div class="px-6 py-4 flex flex-col gap-1 text-sm font-medium">
+                <a href="about.html" class="py-2 text-text-muted hover:text-white transition-colors">Overview</a>
+                <a href="index.html" class="py-2 text-text-muted hover:text-white transition-colors">Explore</a>
+                <a href="player.html" class="py-2 text-text-muted hover:text-white transition-colors">Player</a>
+                <a href="run.html" class="py-2 text-text-muted hover:text-white transition-colors">Run Instance</a>
+                <a href="usecases.html" class="py-2 text-text-muted hover:text-white transition-colors">Use Cases</a>
+                <a href="manifesto.html" class="py-2 text-text-muted hover:text-white transition-colors">Manifesto</a>
+                <a href="legal.html" class="py-2 text-white">Legal</a>
+                <a href="https://scobru.github.io/tunecamp/" target="_blank" class="py-2 text-text-muted hover:text-white transition-colors">Docs</a>
+                <a href="https://github.com/scobru/tunecamp" class="py-2 text-text-muted hover:text-white transition-colors"><i class="fab fa-github mr-2"></i>GitHub</a>
+                <button onclick="toggleTheme()" class="py-2 flex items-center gap-2 text-text-muted hover:text-white transition-colors">
+                    <i data-theme-icon class="fas fa-sun text-sm w-4 text-center"></i>
+                    <span>Toggle theme</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+    <script>
+        (function () {
+            const btn = document.getElementById('menuToggle');
+            const menu = document.getElementById('mobileMenu');
+            if (btn && menu) {
+                btn.addEventListener('click', () => {
+                    const open = menu.classList.toggle('hidden') === false;
+                    btn.setAttribute('aria-expanded', String(open));
+                    btn.querySelector('i').className = open ? 'fas fa-times text-lg' : 'fas fa-bars text-lg';
+                });
+            }
+            const moreBtn = document.getElementById('moreBtn');
+            const moreMenu = document.getElementById('moreMenu');
+            if (moreBtn && moreMenu) {
+                moreBtn.addEventListener('click', e => { e.stopPropagation(); moreMenu.classList.toggle('hidden'); });
+                document.addEventListener('click', () => moreMenu.classList.add('hidden'));
+            }
+        })();
+    </script>
+
+    <main class="flex-1 pt-28 pb-20 px-6">
+        <div class="max-w-3xl mx-auto space-y-8">
+            <header class="text-center mb-12">
+                <h1 class="font-display font-extrabold text-4xl sm:text-5xl mb-4">Legal Notice</h1>
+                <p class="text-text-muted text-lg">What Tunecamp is — and isn't — responsible for.</p>
+            </header>
+
+            <section class="legal-card">
+                <h2><i class="fas fa-diagram-project text-primary"></i>The Project vs. the Instances</h2>
+                <p>
+                    Tunecamp is <strong class="text-white">open-source software</strong>, not a service. Every Tunecamp
+                    server ("instance") you can reach on the network — including the ones listed and previewed on this
+                    website — is installed and operated <strong class="text-white">independently</strong> by its own
+                    operator, on their own infrastructure.
+                </p>
+                <p>
+                    The Tunecamp project and its contributors do not host, upload, sell, moderate, or control any music
+                    or other content on those instances, and are not a party to any purchase made on them. Each
+                    instance operator is solely responsible for the content they host, the sales they conclude, their
+                    terms of service, and their privacy practices.
+                </p>
+                <p>
+                    If you believe content on an instance infringes your rights, contact that instance's operator
+                    directly — every instance ships with a built-in report function and legal contact page
+                    (<code class="text-white/80">/terms</code> on the instance).
+                </p>
+            </section>
+
+            <section class="legal-card">
+                <h2><i class="fas fa-scale-balanced text-primary"></i>Software License</h2>
+                <p>
+                    The Tunecamp software is released under the
+                    <a href="https://github.com/scobru/tunecamp/blob/main/LICENSE" target="_blank" rel="noopener">MIT
+                        License</a>. It is provided <strong class="text-white">"as is", without warranty of any
+                        kind</strong>, express or implied. In no event shall the authors or copyright holders be liable
+                    for any claim, damages, or other liability arising from the software or its use.
+                </p>
+                <p>
+                    Running a public instance may subject you to legal obligations in your jurisdiction (hosting
+                    liability, consumer protection, data protection, tax). Understanding and meeting those obligations
+                    is the operator's responsibility.
+                </p>
+            </section>
+
+            <section class="legal-card">
+                <h2><i class="fas fa-shield-halved text-primary"></i>Privacy on This Website</h2>
+                <p>This website is a static informational site. It keeps your visit to itself:</p>
+                <ul>
+                    <li><strong class="text-white">No cookies, no analytics, no trackers.</strong> Your theme
+                        preference is stored locally in your browser (<code class="text-white/80">localStorage</code>)
+                        and never leaves it.</li>
+                    <li><strong class="text-white">Fonts and scripts are self-hosted.</strong> No requests are made to
+                        Google Fonts or other third-party CDNs when loading the site.</li>
+                    <li><strong class="text-white">Live previews contact instances directly.</strong> The Explore page
+                        and the Player fetch public catalog and activity data from independent Tunecamp instances:
+                        when they load, your browser sends a normal HTTP request (including your IP address) to those
+                        third-party servers, each governed by its own operator's privacy policy.</li>
+                </ul>
+                <p>
+                    Since no personal data is collected by this website itself, no further GDPR notice is required for
+                    browsing it. For anything else, reach us via
+                    <a href="https://github.com/scobru/tunecamp" target="_blank" rel="noopener">GitHub</a>.
+                </p>
+            </section>
+
+            <section class="legal-card">
+                <h2><i class="fas fa-link text-primary"></i>External Links &amp; Trademarks</h2>
+                <p>
+                    Links to instances, documentation, and community channels point to resources operated by third
+                    parties; the project is not responsible for their content. Names and logos of third-party services
+                    mentioned on this site belong to their respective owners.
+                </p>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 py-10 px-6 bg-bg-surface-alt/30">
+        <div class="max-w-6xl mx-auto flex flex-col items-center">
+            <nav class="flex gap-8 mb-6 flex-wrap justify-center">
+                <a href="https://scobru.github.io/tunecamp/" target="_blank" class="text-text-muted hover:text-white transition-colors text-sm"><i class="fas fa-book mr-2"></i>Docs</a>
+                <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors text-sm"><i class="fab fa-github mr-2"></i>GitHub</a>
+                <a href="https://web.telegram.org/a/#-1004480953180" class="text-text-muted hover:text-white transition-colors text-sm" target="_blank"><i class="fab fa-telegram mr-2"></i>Telegram</a>
+                <a href="https://buymeacoffee.com/scobru" class="text-text-muted hover:text-white transition-colors text-sm"><i class="fas fa-mug-hot mr-2"></i>Support</a>
+                <a href="legal.html" class="text-white text-sm"><i class="fas fa-scale-balanced mr-2"></i>Legal</a>
+            </nav>
+            <p class="text-sm text-text-muted">Tunecamp is MIT Licensed. Made with ❤️ for independent music.</p>
+        </div>
+    </footer>
+</body>
+
+</html>
