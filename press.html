@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tunecamp — Press Kit</title>
+    <link rel="icon" type="image/svg+xml" href="tunecamp.svg" />
+    <meta name="description"
+        content="Tunecamp logos, brand assets and usage guidelines. Download the official press kit." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.tunecamp.org/press.html" />
+    <meta property="og:title" content="Tunecamp — Press Kit" />
+    <meta property="og:description" content="Tunecamp logos, brand assets and usage guidelines. Download the official press kit." />
+    <meta property="og:image" content="https://www.tunecamp.org/tunecamp.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://www.tunecamp.org/tunecamp.jpg" />
+    <link rel="stylesheet" href="fonts/fonts.css" />
+    <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css" />
+    <script src="vendor/tailwind.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="theme.js"></script>
+    <style type="text/tailwindcss">
+        @theme {
+        --color-primary: #8b5cf6;
+        --color-primary-hover: #a78bfa;
+        --color-bg-base: #050505;
+        --color-bg-surface: #111111;
+        --color-bg-surface-alt: #1a1a1a;
+        --color-text-base: #ffffff;
+        --color-text-muted: #a3a3a3;
+        --font-sans: "Inter", sans-serif;
+        --font-display: "Outfit", sans-serif;
+      }
+      body {
+        @apply bg-bg-base text-text-base font-sans antialiased selection:bg-primary/30 overflow-x-hidden;
+      }
+      .btn-primary {
+        @apply bg-gradient-to-r from-primary to-purple-500 text-white px-8 py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(139,92,246,0.5)];
+      }
+      .btn-secondary {
+        @apply bg-white/5 backdrop-blur-sm border border-white/10 text-white px-8 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 hover:bg-white/10 hover:scale-105 hover:border-white/20;
+      }
+      .checker {
+        background-image: linear-gradient(45deg, rgba(255,255,255,.06) 25%, transparent 25%, transparent 75%, rgba(255,255,255,.06) 75%),
+                          linear-gradient(45deg, rgba(255,255,255,.06) 25%, transparent 25%, transparent 75%, rgba(255,255,255,.06) 75%);
+        background-size: 20px 20px;
+        background-position: 0 0, 10px 10px;
+      }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col relative">
+    <!-- Top Nav -->
+    <nav class="fixed top-0 left-0 w-full z-50 bg-black/60 backdrop-blur-lg border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-2 font-display font-bold text-lg">
+                <img src="tunecamp.svg" alt="Tunecamp" class="w-7 h-7" /> Tunecamp
+            </a>
+            <div class="hidden sm:flex items-center gap-6 text-sm font-medium">
+                <a href="about.html" class="text-text-muted hover:text-white transition-colors">Overview</a>
+                <a href="index.html" class="text-text-muted hover:text-white transition-colors">Explore</a>
+                <a href="run.html" class="text-text-muted hover:text-white transition-colors whitespace-nowrap">Run Instance</a>
+                <div class="relative">
+                    <button id="moreBtn" class="text-text-muted hover:text-white transition-colors flex items-center gap-1">More <i class="fas fa-chevron-down text-[10px]"></i></button>
+                    <div id="moreMenu" class="hidden absolute right-0 top-full mt-2 w-44 bg-black/95 backdrop-blur-lg border border-white/10 rounded-xl py-1 z-50 shadow-xl">
+                        <a href="usecases.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Use Cases</a>
+                        <a href="manifesto.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Manifesto</a>
+                        <a href="player.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Player</a>
+                        <a href="press.html" class="block px-4 py-2.5 text-white hover:bg-white/5 transition-colors">Press Kit</a>
+                        <a href="legal.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Legal</a>
+                    </div>
+                </div>
+                <a href="https://scobru.github.io/tunecamp/" target="_blank" class="text-text-muted hover:text-white transition-colors">Docs</a>
+                <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors"><i class="fab fa-github"></i></a>
+                <button onclick="toggleTheme()" aria-label="Toggle theme" class="text-text-muted hover:text-white transition-colors w-8 h-8 flex items-center justify-center">
+                    <i data-theme-icon class="fas fa-sun text-sm"></i>
+                </button>
+            </div>
+            <!-- Mobile hamburger -->
+            <button id="menuToggle" aria-label="Menu" aria-expanded="false" class="sm:hidden w-10 h-10 -mr-2 flex items-center justify-center text-text-muted hover:text-white transition-colors">
+                <i class="fas fa-bars text-lg"></i>
+            </button>
+        </div>
+        <!-- Mobile menu panel -->
+        <div id="mobileMenu" class="hidden sm:hidden border-t border-white/10 bg-black/90 backdrop-blur-lg">
+            <div class="px-6 py-4 flex flex-col gap-1 text-sm font-medium">
+                <a href="about.html" class="py-2 text-text-muted hover:text-white transition-colors">Overview</a>
+                <a href="index.html" class="py-2 text-text-muted hover:text-white transition-colors">Explore</a>
+                <a href="player.html" class="py-2 text-text-muted hover:text-white transition-colors">Player</a>
+                <a href="run.html" class="py-2 text-text-muted hover:text-white transition-colors">Run Instance</a>
+                <a href="usecases.html" class="py-2 text-text-muted hover:text-white transition-colors">Use Cases</a>
+                <a href="manifesto.html" class="py-2 text-text-muted hover:text-white transition-colors">Manifesto</a>
+                <a href="press.html" class="py-2 text-white">Press Kit</a>
+                <a href="legal.html" class="py-2 text-text-muted hover:text-white transition-colors">Legal</a>
+                <a href="https://scobru.github.io/tunecamp/" target="_blank" class="py-2 text-text-muted hover:text-white transition-colors">Docs</a>
+                <a href="https://github.com/scobru/tunecamp" class="py-2 text-text-muted hover:text-white transition-colors"><i class="fab fa-github mr-2"></i>GitHub</a>
+                <button onclick="toggleTheme()" class="py-2 flex items-center gap-2 text-text-muted hover:text-white transition-colors">
+                    <i data-theme-icon class="fas fa-sun text-sm w-4 text-center"></i>
+                    <span>Toggle theme</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+    <script>
+        (function () {
+            const btn = document.getElementById('menuToggle');
+            const menu = document.getElementById('mobileMenu');
+            if (btn && menu) {
+                btn.addEventListener('click', () => {
+                    const open = menu.classList.toggle('hidden') === false;
+                    btn.setAttribute('aria-expanded', String(open));
+                    btn.querySelector('i').className = open ? 'fas fa-times text-lg' : 'fas fa-bars text-lg';
+                });
+            }
+            const moreBtn = document.getElementById('moreBtn');
+            const moreMenu = document.getElementById('moreMenu');
+            if (moreBtn && moreMenu) {
+                moreBtn.addEventListener('click', e => { e.stopPropagation(); moreMenu.classList.toggle('hidden'); });
+                document.addEventListener('click', () => moreMenu.classList.add('hidden'));
+            }
+        })();
+    </script>
+
+    <!-- Ambient Glow -->
+    <div
+        class="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/20 blur-[120px] rounded-full pointer-events-none -z-10">
+    </div>
+
+    <!-- Hero -->
+    <section class="pt-32 pb-12 px-6 text-center">
+        <div class="max-w-3xl mx-auto flex flex-col items-center">
+            <img src="tunecamp.svg" alt="Tunecamp Logo" class="w-24 h-24 mb-8" />
+            <h1 class="font-display text-5xl md:text-6xl font-extrabold tracking-tight mb-6">Press Kit</h1>
+            <p class="text-lg text-text-muted max-w-xl mx-auto mb-10">
+                Official Tunecamp logos and brand assets. Use them to link to Tunecamp,
+                write about the project, or brand your own instance.
+            </p>
+            <a href="press-kit.zip" download class="btn-primary">
+                <i class="fas fa-download text-xl"></i> Download full kit (.zip)
+            </a>
+        </div>
+    </section>
+
+    <!-- Assets grid -->
+    <section class="pb-16 px-6">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="font-display text-2xl font-bold mb-6">Icon</h2>
+            <div id="iconGrid" class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-14"></div>
+
+            <h2 class="font-display text-2xl font-bold mb-6">Logo</h2>
+            <div id="logoGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-14"></div>
+
+            <h2 class="font-display text-2xl font-bold mb-6">Colors</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-14">
+                <div class="rounded-2xl border border-white/10 overflow-hidden">
+                    <div class="h-24" style="background:#e0793c"></div>
+                    <div class="p-4 text-sm"><div class="font-bold">Camp Orange</div><div class="text-text-muted font-mono">#E0793C</div></div>
+                </div>
+                <div class="rounded-2xl border border-white/10 overflow-hidden">
+                    <div class="h-24" style="background:#000000"></div>
+                    <div class="p-4 text-sm"><div class="font-bold">Black</div><div class="text-text-muted font-mono">#000000</div></div>
+                </div>
+                <div class="rounded-2xl border border-white/10 overflow-hidden">
+                    <div class="h-24" style="background:#ffffff"></div>
+                    <div class="p-4 text-sm"><div class="font-bold">White</div><div class="text-text-muted font-mono">#FFFFFF</div></div>
+                </div>
+                <div class="rounded-2xl border border-white/10 overflow-hidden">
+                    <div class="h-24" style="background:#8b5cf6"></div>
+                    <div class="p-4 text-sm"><div class="font-bold">Web Violet</div><div class="text-text-muted font-mono">#8B5CF6</div></div>
+                </div>
+            </div>
+
+            <h2 class="font-display text-2xl font-bold mb-6">Usage</h2>
+            <ul class="text-text-muted space-y-2 max-w-2xl list-disc list-inside">
+                <li>Use the assets as-is: don't recolor, distort, rotate, or add effects.</li>
+                <li>Prefer SVG wherever possible; PNGs are provided for contexts that need raster.</li>
+                <li>Use the circle variants on busy backgrounds, transparent variants on flat ones.</li>
+                <li>Don't use the Tunecamp name or logo to imply endorsement of your product or instance.</li>
+            </ul>
+        </div>
+    </section>
+
+    <script>
+        (function () {
+            const base = 'press-kit/tunecamp-brand-kit/';
+            const icons = [
+                ['01-bw-transparent', 'B/W transparent', 'checker'],
+                ['02-color-transparent', 'Color transparent', 'checker'],
+                ['03-bw-white-circle', 'B/W on white', 'checker'],
+                ['04-color-white-circle', 'Color on white', 'checker'],
+                ['05-bw-black-circle', 'B/W on black', 'checker'],
+                ['06-color-black-circle', 'Color on black', 'checker'],
+                ['07-bw-outline', 'B/W outline', 'checker'],
+                ['08-color-outline', 'Color outline', 'checker'],
+            ];
+            const logos = [
+                ['09-logo-bw', 'Logo B/W', 'bg-white'],
+                ['10-logo-color', 'Logo color', 'bg-white'],
+            ];
+            function card([file, label, bg], tall) {
+                return `<div class="rounded-2xl border border-white/10 bg-white/5 overflow-hidden transition-colors hover:border-primary/50">
+                    <div class="${bg} ${tall ? 'h-40' : 'h-40'} flex items-center justify-center p-6">
+                        <img src="${base}${file}.png" alt="${label}" class="max-h-full max-w-full" loading="lazy" />
+                    </div>
+                    <div class="p-4 flex items-center justify-between gap-2">
+                        <span class="text-sm font-semibold">${label}</span>
+                        <span class="text-xs font-mono shrink-0">
+                            <a href="${base}${file}.svg" download class="text-text-muted hover:text-white transition-colors">SVG</a>
+                            <span class="text-white/20 mx-1">/</span>
+                            <a href="${base}${file}.png" download class="text-text-muted hover:text-white transition-colors">PNG</a>
+                        </span>
+                    </div>
+                </div>`;
+            }
+            document.getElementById('iconGrid').innerHTML = icons.map(v => card(v)).join('');
+            document.getElementById('logoGrid').innerHTML = logos.map(v => card(v, true)).join('');
+        })();
+    </script>
+</body>
+
+</html>
