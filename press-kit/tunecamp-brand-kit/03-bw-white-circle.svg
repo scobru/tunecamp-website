@@ -12,6 +12,6 @@
 </g>
 </mask>
 </defs>
-<circle cx="340" cy="340" r="320" fill="#000000"/>
-<rect x="0" y="0" width="680" height="680" fill="#e0793c" mask="url(#tentMask)"/>
+<circle cx="340" cy="340" r="320" fill="#ffffff"/>
+<rect x="0" y="0" width="680" height="680" fill="#000000" mask="url(#tentMask)"/>
 </svg>
