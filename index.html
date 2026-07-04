@@ -68,6 +68,7 @@
             <div class="hidden sm:flex items-center gap-5 text-sm font-medium ml-auto">
                 <a href="about.html" class="text-text-muted hover:text-white transition-colors">Overview</a>
                 <a href="index.html" class="text-white">Explore</a>
+                <a href="peer.html" class="text-text-muted hover:text-white transition-colors whitespace-nowrap">Peer Share</a>
                 <a href="run.html" class="text-text-muted hover:text-white transition-colors whitespace-nowrap">Run Instance</a>
                 <div class="relative">
                     <button id="moreBtn" class="text-text-muted hover:text-white transition-colors flex items-center gap-1">More <i class="fas fa-chevron-down text-[10px]"></i></button>
@@ -95,6 +96,7 @@
             <div class="px-6 py-4 flex flex-col gap-1 text-sm font-medium">
                 <a href="about.html" class="py-2 text-text-muted hover:text-white transition-colors">Overview</a>
                 <a href="index.html" class="py-2 text-white">Explore</a>
+                <a href="peer.html" class="py-2 text-text-muted hover:text-white transition-colors">Peer Share</a>
                 <a href="player.html" class="py-2 text-text-muted hover:text-white transition-colors">Player</a>
                 <a href="run.html" class="py-2 text-text-muted hover:text-white transition-colors">Run Instance</a>
                 <a href="usecases.html" class="py-2 text-text-muted hover:text-white transition-colors">Use Cases</a>
@@ -238,15 +240,32 @@
             </div>
         </section>
 
-        <!-- Register instance -->
-        <section class="mt-16 mb-4 border border-white/10 rounded-2xl p-5 sm:p-8 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 bg-white/3">
-            <div class="flex-1 min-w-0">
-                <h2 class="font-display text-lg font-bold mb-1">Running Tunecamp?</h2>
-                <p class="text-text-muted text-sm">Self-host in ~10 minutes and join the federated network.</p>
+        <!-- Share & Host options -->
+        <section class="mt-16 mb-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="border border-white/10 rounded-2xl p-6 bg-white/3 flex flex-col justify-between">
+                <div>
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary/10 border border-primary/20 rounded-full text-[10px] font-bold text-primary uppercase tracking-wider mb-3">
+                        <i class="fas fa-bolt"></i> Instant Sharing
+                    </div>
+                    <h3 class="font-display text-lg font-bold mb-1">Share Your Local Music</h3>
+                    <p class="text-text-muted text-sm mb-4">Run the lightweight desktop peer daemon or GUI to stream folders from your local drive in real-time.</p>
+                </div>
+                <div>
+                    <a href="peer.html" class="inline-flex items-center gap-1.5 bg-primary/20 text-primary border border-primary/30 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-primary/30 transition-all">Start Peer Share →</a>
+                </div>
             </div>
-            <div class="flex gap-3 shrink-0 flex-wrap">
-                <a href="run.html" class="bg-gradient-to-r from-primary to-purple-500 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:scale-105 transition-all">Run Instance →</a>
-                <a href="run.html#register" class="bg-white/5 border border-white/10 text-text-muted px-5 py-2 rounded-xl text-sm font-medium hover:text-white hover:border-white/20 transition-all">Register existing</a>
+            <div class="border border-white/10 rounded-2xl p-6 bg-white/3 flex flex-col justify-between">
+                <div>
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full text-[10px] font-bold text-purple-400 uppercase tracking-wider mb-3">
+                        <i class="fas fa-server"></i> Permanent Server
+                    </div>
+                    <h3 class="font-display text-lg font-bold mb-1">Host a Server Instance</h3>
+                    <p class="text-text-muted text-sm mb-4">Deploy a continuous, federated node to host, publish, and monetize music permanently on the network.</p>
+                </div>
+                <div class="flex gap-2">
+                    <a href="run.html" class="inline-flex items-center gap-1.5 bg-gradient-to-r from-primary to-purple-500 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:scale-105 transition-all">Deploy Server →</a>
+                    <a href="run.html#register" class="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 text-text-muted px-4 py-2 rounded-xl text-xs font-medium hover:text-white transition-all">Register existing</a>
+                </div>
             </div>
         </section>
     </main>

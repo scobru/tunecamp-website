@@ -57,6 +57,7 @@
             <div class="hidden sm:flex items-center gap-6 text-sm font-medium">
                 <a href="about.html" class="text-white">Overview</a>
                 <a href="index.html" class="text-text-muted hover:text-white transition-colors">Explore</a>
+                <a href="peer.html" class="text-text-muted hover:text-white transition-colors whitespace-nowrap">Peer Share</a>
                 <a href="run.html" class="text-text-muted hover:text-white transition-colors whitespace-nowrap">Run Instance</a>
                 <div class="relative">
                     <button id="moreBtn" class="text-text-muted hover:text-white transition-colors flex items-center gap-1">More <i class="fas fa-chevron-down text-[10px]"></i></button>
@@ -82,8 +83,9 @@
         <!-- Mobile menu panel -->
         <div id="mobileMenu" class="hidden sm:hidden border-t border-white/10 bg-black/90 backdrop-blur-lg">
             <div class="px-6 py-4 flex flex-col gap-1 text-sm font-medium">
-                <a href="about.html" class="py-2 text-white">Overview</a>
+                <a href="about.html" class="py-2 text-text-muted hover:text-white transition-colors">Overview</a>
                 <a href="index.html" class="py-2 text-text-muted hover:text-white transition-colors">Explore</a>
+                <a href="peer.html" class="py-2 text-text-muted hover:text-white transition-colors">Peer Share</a>
                 <a href="player.html" class="py-2 text-text-muted hover:text-white transition-colors">Player</a>
                 <a href="run.html" class="py-2 text-text-muted hover:text-white transition-colors">Run Instance</a>
                 <a href="usecases.html" class="py-2 text-text-muted hover:text-white transition-colors">Use Cases</a>
@@ -416,8 +418,10 @@
                         port-forwarding, no static IP. Disconnect and all index rows
                         vanish instantly.
                     </p>
-                    <a href="https://github.com/scobru/tunecamp-peer" target="_blank"
-                        class="btn-secondary text-sm !py-2 !px-4"><i class="fab fa-github mr-2"></i>View on GitHub</a>
+                    <div class="flex gap-2">
+                        <a href="peer.html" class="btn-primary text-sm !py-2 !px-4 flex-1"><i class="fas fa-info-circle mr-2"></i>Learn More</a>
+                        <a href="https://github.com/scobru/tunecamp-peer" target="_blank" class="btn-secondary text-sm !py-2 !px-2"><i class="fab fa-github"></i></a>
+                    </div>
                 </div>
                 <div class="glass-card group flex flex-col gap-4">
                     <div class="flex items-center gap-4">
