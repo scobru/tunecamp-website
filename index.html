@@ -294,11 +294,11 @@
             <!-- Controls -->
             <div class="flex flex-col items-center flex-1 min-w-0">
                 <div class="flex items-center gap-3 sm:gap-4 mb-1.5">
-                    <button class="hidden sm:block text-text-muted hover:text-white transition-colors" id="toggleShuffle" title="Shuffle"><i class="fas fa-random text-sm"></i></button>
-                    <button class="text-text-muted hover:text-white transition-colors" id="prevBtn"><i class="fas fa-step-backward"></i></button>
-                    <button id="playBtn" class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gradient-to-r from-primary to-purple-500 flex items-center justify-center text-base sm:text-lg hover:scale-105 transition-transform"><i class="fas fa-play" id="playIcon"></i></button>
-                    <button class="text-text-muted hover:text-white transition-colors" id="nextBtn"><i class="fas fa-step-forward"></i></button>
-                    <button class="hidden sm:block text-text-muted hover:text-white transition-colors" id="toggleRepeat" title="Repeat"><i class="fas fa-redo text-sm"></i></button>
+                    <button class="hidden sm:block text-text-muted hover:text-white transition-colors" id="toggleShuffle" title="Shuffle" aria-label="Shuffle"><i class="fas fa-random text-sm"></i></button>
+                    <button class="text-text-muted hover:text-white transition-colors" id="prevBtn" aria-label="Previous track"><i class="fas fa-step-backward"></i></button>
+                    <button id="playBtn" class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gradient-to-r from-primary to-purple-500 flex items-center justify-center text-base sm:text-lg hover:scale-105 transition-transform" aria-label="Play or pause"><i class="fas fa-play" id="playIcon"></i></button>
+                    <button class="text-text-muted hover:text-white transition-colors" id="nextBtn" aria-label="Next track"><i class="fas fa-step-forward"></i></button>
+                    <button class="hidden sm:block text-text-muted hover:text-white transition-colors" id="toggleRepeat" title="Repeat" aria-label="Repeat"><i class="fas fa-redo text-sm"></i></button>
                 </div>
                 <div class="w-full flex items-center gap-1.5 sm:gap-2">
                     <span id="currentTime" class="text-[10px] sm:text-[11px] text-text-muted font-mono w-7 sm:w-9 text-right">0:00</span>
