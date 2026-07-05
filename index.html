@@ -651,7 +651,7 @@
                 const active = key === currentTrackKey;
                 const cover = t.coverUrl ? `<img src="${escapeHtml(t.coverUrl)}" class="w-full h-full object-cover">` : '<i class="fas fa-music"></i>';
                 return `
-                    <div class="track-tile ${active ? 'playing' : ''}" onclick="playTrackByKey('${escapeHtml(key)}')">
+                    <div class="track-tile ${active ? 'playing' : ''}" data-track-key="${escapeHtml(key)}" onclick="playTrackByKey(this.getAttribute('data-track-key'))">
                         <div class="cover">
                             ${cover}
                             <div class="overlay absolute inset-0 bg-black/40 flex items-center justify-center text-2xl text-white">
