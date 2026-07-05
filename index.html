@@ -651,7 +651,7 @@
                 const active = key === currentTrackKey;
                 const cover = t.coverUrl ? `<img src="${escapeHtml(t.coverUrl)}" class="w-full h-full object-cover">` : '<i class="fas fa-music"></i>';
                 return `
-                    <div class="track-tile ${active ? 'playing' : ''}" onclick="playTrackByKey('${escapeHtml(key)}')">
+                    <div class="track-tile ${active ? 'playing' : ''}" data-key="${escapeHtml(key)}" onclick="playTrackByKey('${escapeHtml(key)}')">
                         <div class="cover">
                             ${cover}
                             <div class="overlay absolute inset-0 bg-black/40 flex items-center justify-center text-2xl text-white">
@@ -696,7 +696,7 @@
             document.getElementById('miniCover').innerHTML = coverHtml;
             document.getElementById('miniTitle').textContent = track.title;
             document.getElementById('miniArtist').textContent = track.artistName;
-            renderTracks();
+            updatePlayButton();
         }
 
         function togglePlay() {
@@ -705,7 +705,18 @@
         }
         function updatePlayButton() {
             document.getElementById('playIcon').className = isPlaying ? 'fas fa-pause' : 'fas fa-play';
-            renderTracks();
+            document.querySelectorAll('.track-tile').forEach(el => {
+                const isCurrent = el.getAttribute('data-key') === currentTrackKey;
+                if (isCurrent) {
+                    el.classList.add('playing');
+                    const icon = el.querySelector('.overlay i');
+                    if (icon) icon.className = 'fas ' + (isPlaying ? 'fa-pause' : 'fa-play');
+                } else {
+                    el.classList.remove('playing');
+                    const icon = el.querySelector('.overlay i');
+                    if (icon) icon.className = 'fas fa-play';
+                }
+            });
         }
         function playNext() {
             if (filteredTracks.length === 0) return;

@@ -375,7 +375,7 @@
                 const cover = t.coverUrl ? `<img src="${escapeHtml(t.coverUrl)}" class="w-full h-full object-cover">` : '<i class="fas fa-music text-xs"></i>';
                 const time = t.duration ? `${Math.floor(t.duration/60)}:${Math.floor(t.duration%60).toString().padStart(2,'0')}` : '';
                 return `
-                    <div class="track-row group ${active ? 'playing' : ''}" onclick="playTrackIndex(${i})">
+                    <div class="track-row group ${active ? 'playing' : ''}" data-index="${i}" onclick="playTrackIndex(${i})">
                         <div class="w-10 h-10 bg-white/10 rounded-lg overflow-hidden flex items-center justify-center text-white/50 relative flex-shrink-0">
                             ${cover}
                             <div class="absolute inset-0 bg-black/40 hidden group-hover:flex items-center justify-center text-white text-xs">
@@ -418,7 +418,7 @@
             const cIdx = track.title.length % colors.length;
             document.getElementById('ambientGlow').style.backgroundColor = colors[cIdx];
 
-            renderTracks();
+            updatePlayButton();
         }
 
         function togglePlay() {
@@ -428,7 +428,18 @@
 
         function updatePlayButton() {
             document.getElementById('playIcon').className = isPlaying ? 'fas fa-pause' : 'fas fa-play';
-            renderTracks(); // Update the tiny icon in the list too
+            document.querySelectorAll('.track-row').forEach(el => {
+                const isCurrent = parseInt(el.getAttribute('data-index'), 10) === currentTrackIndex;
+                if (isCurrent) {
+                    el.classList.add('playing');
+                    const icon = el.querySelector('.absolute i');
+                    if (icon) icon.className = 'fas ' + (isPlaying ? 'fa-pause' : 'fa-play');
+                } else {
+                    el.classList.remove('playing');
+                    const icon = el.querySelector('.absolute i');
+                    if (icon) icon.className = 'fas fa-play';
+                }
+            });
         }
 
         function updateVisuals() {

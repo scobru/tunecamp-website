@@ -1,0 +1,3 @@
+## 2024-05-24 - Vanilla JS DOM Re-rendering Anti-pattern
+**Learning:** In Vanilla JS applications, using `.innerHTML` to recreate an entire list of DOM elements (O(N) operation) just to update a small state change like a play/pause button on a single item causes unnecessary browser reflows and repaints, severely impacting performance especially on low-end devices and long lists.
+**Action:** Instead of calling the full `renderTracks()` function when a track is paused/played, use direct DOM traversal (e.g. `document.querySelectorAll`) to toggle classes and update specific icons based on data attributes (like `data-key` or `data-index`), transforming an O(N) DOM recreation into an O(N) DOM query and an O(1) DOM update.
