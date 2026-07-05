@@ -9,6 +9,15 @@
     HTML headers (index.html, community.html, player.html).
 */
 
+/* Decorative background glows (w-[800px] etc.) are wider than the mobile
+   viewport and would otherwise create horizontal overflow, dragging the
+   sticky nav (and its hamburger button) off-screen when the page scrolls
+   sideways. */
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 /* Example custom animation not natively supported by Tailwind standard preset without plugin */
 @keyframes pulse-slow {
     0%, 100% { transform: scale(1); opacity: 1; }
