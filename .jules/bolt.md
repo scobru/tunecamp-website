@@ -1,0 +1,3 @@
+## 2024-05-18 - Missing Image Lazy Loading Bottleneck
+**Learning:** The frontend dynamically renders large lists of federated tracks and activities. Because these lists can grow very large and all `<img>` tags are injected synchronously without `loading="lazy"`, it creates a massive bottleneck of simultaneous network requests, blocking the main thread and wasting bandwidth for off-screen elements.
+**Action:** Always verify dynamically generated HTML in grid structures for missing `loading="lazy"` on images, especially in federated or content-heavy applications without pagination.

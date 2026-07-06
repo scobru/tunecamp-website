@@ -372,7 +372,8 @@
             }
             container.innerHTML = filteredTracks.map((t, i) => {
                 const active = currentTrackIndex === i;
-                const cover = t.coverUrl ? `<img src="${escapeHtml(t.coverUrl)}" class="w-full h-full object-cover">` : '<i class="fas fa-music text-xs"></i>';
+                // ⚡ Bolt: Added loading="lazy" to track row images to defer large playlist loading
+                const cover = t.coverUrl ? `<img src="${escapeHtml(t.coverUrl)}" class="w-full h-full object-cover" loading="lazy">` : '<i class="fas fa-music text-xs"></i>';
                 const time = t.duration ? `${Math.floor(t.duration/60)}:${Math.floor(t.duration%60).toString().padStart(2,'0')}` : '';
                 return `
                     <div class="track-row group ${active ? 'playing' : ''}" onclick="playTrackIndex(${i})">
@@ -404,7 +405,8 @@
             audio.play().catch(()=>{});
             
             // Update UI
-            const coverHtml = track.coverUrl ? `<img src="${escapeHtml(track.coverUrl)}" class="w-full h-full object-cover shadow-2xl">` : '<i class="fas fa-music"></i>';
+            // ⚡ Bolt: Lazy load main player cover art
+            const coverHtml = track.coverUrl ? `<img src="${escapeHtml(track.coverUrl)}" class="w-full h-full object-cover shadow-2xl" loading="lazy">` : '<i class="fas fa-music"></i>';
             document.getElementById('playerCover').innerHTML = coverHtml;
             document.getElementById('miniCover').innerHTML = coverHtml;
             document.getElementById('playerTitle').textContent = track.title;
