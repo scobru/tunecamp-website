@@ -474,7 +474,7 @@
             strip.innerHTML = listeners.map(l => {
                 const who = escapeHtml(l.alias || l.username || 'Someone');
                 const instName = escapeHtml(l.instance?.name || '');
-                const instUrl = l.instance?.url ? escapeHtml(l.instance.url) : '#';
+                const instUrl = l.instance?.url ? sanitizeUrl(l.instance.url) : '#';
                 const avatar = l.avatar
                     ? `<img src="${escapeHtml(l.avatar)}" class="w-full h-full object-cover">`
                     : `<i class="fas fa-user text-white/40"></i>`;
@@ -531,13 +531,13 @@
             if (!events || events.length === 0) { section.classList.add('hidden'); return; }
             section.classList.remove('hidden');
             strip.innerHTML = events.map(e => {
-                const meta = ACTIVITY_META[e.type] || { icon: 'fa-bolt', color: 'text-white/60', label: e.type };
+                const meta = ACTIVITY_META[e.type] || { icon: 'fa-bolt', color: 'text-white/60', label: escapeHtml(e.type) };
                 const obj = e.object || {};
                 // A named actor (currently only public-playlist creators) links to their
                 // public profile on the origin instance; everything else opens the object.
                 const instUrl = (e.instance?.url || '').replace(/\/$/, '');
                 const profileUrl = e.user && instUrl ? `${instUrl}/u/${encodeURIComponent(e.user)}` : null;
-                const url = escapeHtml((e.type === 'playlist' && profileUrl) ? profileUrl : (obj.url || '#'));
+                const url = sanitizeUrl((e.type === 'playlist' && profileUrl) ? profileUrl : (obj.url || '#'));
                 const cover = obj.cover
                     ? `<img src="${escapeHtml(obj.cover)}" class="w-full h-full object-cover">`
                     : `<i class="fas ${meta.icon} ${meta.color}"></i>`;
@@ -575,7 +575,7 @@
             strip.innerHTML = sites.map(s => {
                 const cover = s.coverImage ? `<img src="${escapeHtml(s.coverImage)}" class="w-full h-full object-cover">` : '<i class="fas fa-compact-disc text-white/40"></i>';
                 return `
-                    <a href="${escapeHtml(s.url)}" target="_blank" class="shrink-0 w-40 group">
+                    <a href="${sanitizeUrl(s.url)}" target="_blank" class="shrink-0 w-40 group">
                         <div class="aspect-square w-full rounded-xl overflow-hidden bg-gradient-to-br from-primary/40 to-purple-800 flex items-center justify-center text-2xl border border-white/10 group-hover:border-primary/50 transition-all">${cover}</div>
                         <div class="mt-2 text-sm font-semibold truncate group-hover:text-primary transition-colors">${escapeHtml(s.title)}</div>
                     </a>`;
@@ -736,6 +736,18 @@
             return `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
         }
         function escapeHtml(s) { return s ? s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;') : ''; }
+        function sanitizeUrl(url) {
+            if (!url) return '#';
+            try {
+                const parsed = new URL(url, window.location.origin);
+                if (['javascript:', 'data:', 'vbscript:'].includes(parsed.protocol)) {
+                    return '#';
+                }
+                return escapeHtml(url);
+            } catch (e) {
+                return escapeHtml(url); // Fallback to escapeHtml for relative or invalid URLs
+            }
+        }
 
         window.filterTracks = filterTracks;
         window.playTrackIndex = playTrackIndex;
