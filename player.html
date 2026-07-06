@@ -247,7 +247,7 @@
                 processedSites.add(siteUrl);
                 const siteId = siteUrl;
 
-                fetch(`${siteUrl}/api/catalog`, { headers: { 'Accept': 'application/json' } })
+                fetch(`${siteUrl}/api/catalog/full`, { headers: { 'Accept': 'application/json' } })
                 .then(res => res.ok ? res.json() : Promise.reject())
                 .then(catalog => {
                     const process = (t, r) => {
