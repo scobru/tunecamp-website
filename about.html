@@ -326,12 +326,12 @@
         
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-8">
-                <p class="text-xs font-semibold uppercase tracking-widest text-primary/70 mb-4">L'Architettura del Network</p>
+                <p class="text-xs font-semibold uppercase tracking-widest text-primary/70 mb-4">Network Architecture</p>
                 <h2 class="font-display text-4xl md:text-5xl font-bold mb-4">
-                    Come funziona TuneCamp?
+                    How does TuneCamp work?
                 </h2>
                 <p class="text-text-muted text-lg max-w-2xl mx-auto">
-                    TuneCamp non è una piattaforma centralizzata, ma una rete distribuita di nodi sovrani. Esplora le connessioni che danno vita al network.
+                    TuneCamp is not a centralized platform, but a distributed network of sovereign nodes. Explore the connections that power the network.
                 </p>
             </div>
 
@@ -339,10 +339,10 @@
             <div class="flex justify-center mb-12 relative z-10">
                 <div class="bg-white/5 border border-white/10 p-1.5 rounded-xl flex gap-2">
                     <button onclick="switchNetworkTab('instance-focus')" id="tab-btn-instance" class="px-5 py-2.5 text-sm font-semibold rounded-lg bg-primary text-white transition-all shadow-md cursor-pointer">
-                        <i class="fas fa-server mr-2"></i>Istanza Singola
+                        <i class="fas fa-server mr-2"></i>Single Instance
                     </button>
                     <button onclick="switchNetworkTab('network-focus')" id="tab-btn-network" class="px-5 py-2.5 text-sm font-semibold rounded-lg text-text-muted hover:text-white hover:bg-white/5 transition-all cursor-pointer">
-                        <i class="fas fa-globe mr-2"></i>Rete Globale (Aggregazione)
+                        <i class="fas fa-globe mr-2"></i>Global Network (Aggregation)
                     </button>
                 </div>
             </div>
@@ -356,19 +356,19 @@
                                 <i id="info-icon" class="fas fa-server"></i>
                             </div>
                             <div>
-                                <span id="info-tag" class="inline-block text-[0.65rem] font-semibold uppercase tracking-widest px-2 py-0.5 rounded-full border border-primary/30 bg-primary/10 text-primary transition-colors duration-300">Protocollo Principale</span>
-                                <h3 id="info-title" class="font-display text-xl font-bold text-white mt-1">La Tua Istanza (Server)</h3>
+                                <span id="info-tag" class="inline-block text-[0.65rem] font-semibold uppercase tracking-widest px-2 py-0.5 rounded-full border border-primary/30 bg-primary/10 text-primary transition-colors duration-300">Core Protocol</span>
+                                <h3 id="info-title" class="font-display text-xl font-bold text-white mt-1">Your Instance (Server)</h3>
                             </div>
                         </div>
                         <p id="info-desc" class="text-text-muted text-sm leading-relaxed min-h-[160px] transition-opacity duration-200">
-                            L'istanza è il cuore del tuo nodo TuneCamp. È un server web autonomo che ospita la tua musica, gestisce il database locale, genera le forme d'onda, supporta le vendite dirette e dialoga con gli altri servizi della rete. Sei tu a possederlo e controllarlo al 100%.
+                            The instance is the heart of your TuneCamp node. It is a standalone web server that hosts your music, manages the local database, generates waveforms, supports direct sales, and communicates with other services in the network. You own and control it 100%.
                         </p>
                     </div>
 
                     <!-- Interactive interactive tips -->
                     <div class="p-4 bg-white/3 border border-white/5 rounded-xl text-xs text-text-muted flex items-center gap-3">
                         <i class="fas fa-info-circle text-primary text-sm shrink-0"></i>
-                        <span>Passa il mouse o tocca i diversi nodi del grafico a destra per esplorare come i dati fluiscono attraverso il network di TuneCamp.</span>
+                        <span>Hover or tap on the different nodes in the diagram on the right to explore how data flows through the TuneCamp network.</span>
                     </div>
                 </div>
 
@@ -398,7 +398,7 @@
                         <!-- Central Node: TuneCamp Instance -->
                         <div id="node-instance" class="absolute z-10 w-24 h-24 rounded-full bg-gradient-to-br from-primary to-purple-600 border border-primary/40 flex flex-col items-center justify-center shadow-[0_0_30px_rgba(139,92,246,0.3)] cursor-pointer transition-all duration-300 hover:scale-105" onclick="selectNode('instance')">
                             <div class="text-3xl text-white mb-1"><i class="fas fa-server"></i></div>
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-white text-center leading-none">Istanza</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-white text-center leading-none">Instance</span>
                         </div>
 
                         <!-- Outer Node 1: TuneCamp Peer (Top Left) -->
@@ -422,7 +422,7 @@
                         <!-- Outer Node 4: Fediverse / ActivityPub (Bottom Right) -->
                         <div id="node-fediverse" class="absolute bottom-[5%] right-[5%] z-10 w-20 h-20 rounded-2xl bg-bg-surface border border-white/10 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-primary/40" onclick="selectNode('fediverse')">
                             <div class="text-2xl text-text-muted mb-1 transition-colors"><i class="fab fa-mastodon"></i></div>
-                            <span class="text-[9px] font-semibold text-text-muted text-center leading-none px-1">Fediverso</span>
+                            <span class="text-[9px] font-semibold text-text-muted text-center leading-none px-1">Fediverse</span>
                         </div>
 
                         <!-- Outer Node 5: Gossip Network (Right Center) -->
@@ -467,7 +467,7 @@
                         <!-- Instance A (Top Left) -->
                         <div id="node-net-inst-a" class="absolute top-[20%] left-[20%] z-10 w-16 h-16 rounded-xl bg-bg-surface border border-white/10 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-primary/40" onclick="selectNetNode('inst_a')">
                             <div class="text-xl text-text-muted mb-0.5"><i class="fas fa-server"></i></div>
-                            <span class="text-[8px] font-semibold text-text-muted text-center leading-tight">Istanza A</span>
+                            <span class="text-[8px] font-semibold text-text-muted text-center leading-tight">Instance A</span>
                         </div>
                         <!-- Mini Peer A (Far Top Left) -->
                         <div id="node-net-peer-a" class="absolute top-[10%] left-[2%] z-10 w-12 h-12 rounded-lg bg-bg-surface-alt border border-white/5 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-amber-400/40" onclick="selectNetNode('peer_a')">
@@ -478,13 +478,13 @@
                         <!-- Instance B (Top Right) -->
                         <div id="node-net-inst-b" class="absolute top-[20%] right-[20%] z-10 w-16 h-16 rounded-xl bg-bg-surface border border-white/10 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-primary/40" onclick="selectNetNode('inst_b')">
                             <div class="text-xl text-text-muted mb-0.5"><i class="fas fa-server"></i></div>
-                            <span class="text-[8px] font-semibold text-text-muted text-center leading-tight">Istanza B</span>
+                            <span class="text-[8px] font-semibold text-text-muted text-center leading-tight">Instance B</span>
                         </div>
 
                         <!-- Instance C (Bottom Center) -->
                         <div id="node-net-inst-c" class="absolute bottom-[20%] left-[42%] z-10 w-16 h-16 rounded-xl bg-bg-surface border border-white/10 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-primary/40" onclick="selectNetNode('inst_c')">
                             <div class="text-xl text-text-muted mb-0.5"><i class="fas fa-server"></i></div>
-                            <span class="text-[8px] font-semibold text-text-muted text-center leading-tight">Istanza C</span>
+                            <span class="text-[8px] font-semibold text-text-muted text-center leading-tight">Instance C</span>
                         </div>
                         <!-- Mini Peer C (Far Bottom Left) -->
                         <div id="node-net-peer-c" class="absolute bottom-[8%] left-[30%] z-10 w-12 h-12 rounded-lg bg-bg-surface-alt border border-white/5 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-amber-400/40" onclick="selectNetNode('peer_c')">
@@ -495,7 +495,7 @@
                         <!-- Global Player / listener (Right Center) -->
                         <div id="node-net-player" class="absolute right-[5%] top-[50%] z-10 w-18 h-18 rounded-2xl bg-bg-surface border border-white/10 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-green-400/40" onclick="selectNetNode('player')">
                             <div class="text-2xl text-text-muted mb-0.5"><i class="fas fa-headphones"></i></div>
-                            <span class="text-[8px] font-semibold text-text-muted text-center leading-none px-1">Ascoltatore</span>
+                            <span class="text-[8px] font-semibold text-text-muted text-center leading-none px-1">Listener</span>
                         </div>
                     </div>
 
@@ -508,51 +508,51 @@
     <script>
         const nodesData = {
             instance: {
-                title: "La Tua Istanza (Server)",
-                tag: "Protocollo Principale",
+                title: "Your Instance (Server)",
+                tag: "Core Protocol",
                 icon: "fa-server",
                 iconColor: "text-primary",
-                desc: "L'istanza è il cuore del tuo nodo TuneCamp. È un server web autonomo che ospita la tua musica, gestisce il database locale, genera le forme d'onda, supporta le vendite dirette tramite Stripe e dialoga con gli altri servizi del network. È indipendente, installabile ovunque (anche in locale) e controllato unicamente da te.",
+                desc: "The instance is the heart of your TuneCamp node. It is a standalone web server that hosts your music, manages the local database, generates waveforms, supports direct sales via Stripe, and communicates with other services in the network. You own and control it 100%.",
                 color: "#8b5cf6"
             },
             peer: {
-                title: "TuneCamp Peer (File Locali)",
+                title: "TuneCamp Peer (Local Files)",
                 tag: "Reverse WebSocket Tunnel",
                 icon: "fa-folder-open",
                 iconColor: "text-amber-400",
-                desc: "Un client desktop o demone da terminale leggerissimo che scansiona le tue cartelle locali e le rende disponibili all'istanza cloud in tempo reale. Utilizza tunnel sicuri WebSocket invertiti: la musica viene trasmessa su richiesta all'istanza senza che tu debba aprire porte sul router o configurare indirizzi IP pubblici.",
+                desc: "A lightweight desktop client or terminal daemon that scans your local folders and makes them available to your cloud instance in real-time. It uses secure reverse WebSocket tunnels: music is streamed to the instance on-demand without you having to open ports or configure public static IPs.",
                 color: "#fbbf24"
             },
             listeners: {
-                title: "Ascoltatori & Fan (Web Player)",
-                tag: "Streaming Web Diretto",
+                title: "Listeners & Fans (Web Player)",
+                tag: "Direct Web Streaming",
                 icon: "fa-users",
                 iconColor: "text-green-400",
-                desc: "I fan si connettono al tuo sito web per ascoltare i brani in streaming in qualità lossless o ad alta fedeltà, consultare il catalogo e acquistare download o tracce protette da codici di sblocco. Non c'è alcun intermediario tra te e chi ascolta la tua musica, e le transazioni arrivano direttamente sul tuo conto Stripe.",
+                desc: "Fans connect to your website to stream tracks in lossless or high-fidelity quality, browse your catalog, and purchase downloads or tracks protected by unlock codes. There are no middlemen between you and your audience, and transactions go directly to your Stripe account.",
                 color: "#4ade80"
             },
             mobile: {
-                title: "App Mobile (API Subsonic)",
-                tag: "Compatibilità Universale",
+                title: "Mobile Apps (Subsonic API)",
+                tag: "Universal Compatibility",
                 icon: "fa-mobile-screen",
                 iconColor: "text-blue-400",
-                desc: "L'istanza TuneCamp implementa lo standard Subsonic API. Questo significa che puoi ascoltare la tua collezione musicale in movimento utilizzando decine di app per smartphone esistenti compatibili, come DSub, Symfonium, Amuse o Ultrasonic, con supporto per il caching offline e playlist sincronizzate.",
+                desc: "The TuneCamp instance implements the standard Subsonic API. This means you can listen to your music collection on the go using dozens of existing compatible smartphone apps like DSub, Symfonium, Amuse, or Ultrasonic, with support for offline caching and synchronized playlists.",
                 color: "#60a5fa"
             },
             fediverse: {
-                title: "Connessione al Fediverso",
-                tag: "Social Network Decentralizzato",
+                title: "Fediverse Connection",
+                tag: "Decentralized Social Network",
                 icon: "fa-mastodon",
                 iconColor: "text-pink-400",
-                desc: "TuneCamp implementa il protocollo ActivityPub, integrandosi nativamente nel Fediverso. La tua istanza genera una pagina/profilo social seguibile da piattaforme come Mastodon, Pleroma o Pixelfed. Quando carichi un nuovo brano o un post sul blog, i tuoi follower ricevono aggiornamenti automatici direttamente sui loro feed social.",
+                desc: "TuneCamp implements the ActivityPub protocol, integrating natively into the Fediverse. Your instance generates a social profile page that can be followed from platforms like Mastodon, Pleroma, or Pixelfed. When you upload a new track or blog post, your followers receive automatic updates directly in their feeds.",
                 color: "#f472b6"
             },
             gossip: {
-                title: "Rete Gossip Peer-to-Peer",
-                tag: "Scoperta Decentralizzata",
+                title: "Peer-to-Peer Gossip Network",
+                tag: "Decentralized Discovery",
                 icon: "fa-share-nodes",
                 iconColor: "text-indigo-400",
-                desc: "Le istanze TuneCamp sparse per il mondo si scoprono e scambiano informazioni sui cataloghi musicali a vicenda attraverso un protocollo di Gossip HTTP. Questo permette di creare elenchi di siti e tracce distribuiti in modo organico e peer-to-peer (come la pagina Explore del sito globale) senza bisogno di un server o database centrale di registrazione.",
+                desc: "TuneCamp instances around the world discover each other and exchange catalog information using an HTTP Gossip protocol. This allows the creation of decentralized, organic directory lists (like the Explore page on the global site) without needing a central registry database.",
                 color: "#818cf8"
             }
         };
@@ -560,58 +560,58 @@
         const networkNodesData = {
             hub: {
                 title: "tunecamp.org (Explore & Player)",
-                tag: "Aggregatore di Indici",
+                tag: "Index Aggregator",
                 icon: "fa-globe",
                 iconColor: "text-primary",
-                desc: "Il sito centrale tunecamp.org funge da elenco telefonico o elenco dei canali. Esegue richieste API client-side per raccogliere i manifesti dei brani dalle istanze attive conosciute e li visualizza in una comoda griglia. Non ospita, possiede o archivia i file audio degli artisti sui propri server.",
+                desc: "The main tunecamp.org website acts as a global directory. It runs client-side API requests to query known active seed nodes, discover public instances, collect track metadata, and display them in a single index. Crucial note: tunecamp.org does not store or host any audio files on its servers.",
                 color: "#8b5cf6"
             },
             inst_a: {
-                title: "Istanza A (Etichetta / Artista)",
-                tag: "Server Indipendente",
+                title: "Independent Instances",
+                tag: "Sovereign Servers",
                 icon: "fa-server",
                 iconColor: "text-indigo-400",
-                desc: "Un server web TuneCamp indipendente (es. sudorecords.dev). Mantiene il proprio database, risponde alle query di tunecamp.org per condividere il catalogo pubblico, e invia flussi audio lossless o pacchetti di download ai visitatori in modo autonomo.",
+                desc: "Each artist or label runs their own independent TuneCamp server. When a user visits the global explorer, their browser queries these decentralized servers directly in real-time to load the latest catalog details.",
                 color: "#818cf8"
             },
             inst_b: {
-                title: "Istanza B (Artista)",
-                tag: "Server Indipendente",
+                title: "Independent Instances",
+                tag: "Sovereign Servers",
                 icon: "fa-server",
                 iconColor: "text-violet-400",
-                desc: "Un altro server TuneCamp autonomo. Funziona in modo completamente separato dall'Istanza A, con il proprio nome di dominio, catalogo e impostazioni di monetizzazione Stripe, ma è visibile sullo stesso motore di ricerca globale.",
+                desc: "Each artist or label runs their own independent TuneCamp server. When a user visits the global explorer, their browser queries these decentralized servers directly in real-time to load the latest catalog details.",
                 color: "#a78bfa"
             },
             inst_c: {
-                title: "Istanza C (Sito Fan)",
-                tag: "Server Indipendente",
+                title: "Independent Instances",
+                tag: "Sovereign Servers",
                 icon: "fa-server",
                 iconColor: "text-fuchsia-400",
-                desc: "Una terza istanza indipendente che partecipa alla federazione. Condivide la propria libreria musicale sul network e risponde autonomamente alle richieste degli utenti finali.",
+                desc: "Each artist or label runs their own independent TuneCamp server. When a user visits the global explorer, their browser queries these decentralized servers directly in real-time to load the latest catalog details.",
                 color: "#e879f9"
             },
             peer_a: {
-                title: "TuneCamp Peer A",
-                tag: "Diretto da Computer",
+                title: "TuneCamp Peer A (Local Sources)",
+                tag: "Direct File Sharing",
                 icon: "fa-folder-open",
                 iconColor: "text-amber-400",
-                desc: "Il computer locale dell'artista A esegue il demone Peer per inviare la musica all'Istanza A tramite un WebSocket tunnel sicuro e invertito. Nessuna configurazione IP necessaria.",
+                desc: "Artists upload and share music directly from their local recording directories. The Peer daemon tunnels files to their cloud instance, which in turn shares the public metadata with the global explorer page.",
                 color: "#fbbf24"
             },
             peer_c: {
-                title: "TuneCamp Peer C",
-                tag: "Diretto da Computer",
+                title: "TuneCamp Peer C (Local Sources)",
+                tag: "Direct File Sharing",
                 icon: "fa-folder-open",
                 iconColor: "text-pink-400",
-                desc: "L'artista C condivide le sue cartelle di registrazione locali direttamente con l'Istanza C. Finché il Peer C è attivo, la musica è disponibile per lo streaming sul network globale.",
+                desc: "Artists upload and share music directly from their local recording directories. The Peer daemon tunnels files to their cloud instance, which in turn shares the public metadata with the global explorer page.",
                 color: "#f472b6"
             },
             player: {
-                title: "Ascoltatore Globale (Audio Player)",
-                tag: "Streaming Vero P2P",
+                title: "Global Listener (Direct Streaming)",
+                tag: "True P2P Distribution",
                 icon: "fa-headphones",
                 iconColor: "text-green-400",
-                desc: "Quando clicchi 'Play' sulla directory globale di tunecamp.org, il browser richiede il file audio direttamente dal server dell'artista (Istanza A, B o C). Lo streaming salta completamente tunecamp.org, garantendo velocità, privacy e zero costi di banda centralizzati.",
+                desc: "When you click 'Play' on the global directory at tunecamp.org, the audio stream is requested directly from the artist's own server (Instance A, B, or C). The stream completely bypasses tunecamp.org, ensuring high speed, absolute privacy, and zero centralized bandwidth costs.",
                 color: "#4ade80"
             }
         };
