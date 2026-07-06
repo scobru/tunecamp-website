@@ -325,7 +325,7 @@
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/10 blur-[130px] rounded-full pointer-events-none -z-10"></div>
         
         <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-16">
+            <div class="text-center mb-8">
                 <p class="text-xs font-semibold uppercase tracking-widest text-primary/70 mb-4">L'Architettura del Network</p>
                 <h2 class="font-display text-4xl md:text-5xl font-bold mb-4">
                     Come funziona TuneCamp?
@@ -333,6 +333,18 @@
                 <p class="text-text-muted text-lg max-w-2xl mx-auto">
                     TuneCamp non è una piattaforma centralizzata, ma una rete distribuita di nodi sovrani. Esplora le connessioni che danno vita al network.
                 </p>
+            </div>
+
+            <!-- Tab Selector -->
+            <div class="flex justify-center mb-12 relative z-10">
+                <div class="bg-white/5 border border-white/10 p-1.5 rounded-xl flex gap-2">
+                    <button onclick="switchNetworkTab('instance-focus')" id="tab-btn-instance" class="px-5 py-2.5 text-sm font-semibold rounded-lg bg-primary text-white transition-all shadow-md cursor-pointer">
+                        <i class="fas fa-server mr-2"></i>Istanza Singola
+                    </button>
+                    <button onclick="switchNetworkTab('network-focus')" id="tab-btn-network" class="px-5 py-2.5 text-sm font-semibold rounded-lg text-text-muted hover:text-white hover:bg-white/5 transition-all cursor-pointer">
+                        <i class="fas fa-globe mr-2"></i>Rete Globale (Aggregazione)
+                    </button>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -348,7 +360,7 @@
                                 <h3 id="info-title" class="font-display text-xl font-bold text-white mt-1">La Tua Istanza (Server)</h3>
                             </div>
                         </div>
-                        <p id="info-desc" class="text-text-muted text-sm leading-relaxed min-h-[120px] transition-opacity duration-200">
+                        <p id="info-desc" class="text-text-muted text-sm leading-relaxed min-h-[160px] transition-opacity duration-200">
                             L'istanza è il cuore del tuo nodo TuneCamp. È un server web autonomo che ospita la tua musica, gestisce il database locale, genera le forme d'onda, supporta le vendite dirette e dialoga con gli altri servizi della rete. Sei tu a possederlo e controllarlo al 100%.
                         </p>
                     </div>
@@ -361,10 +373,10 @@
                 </div>
 
                 <!-- Right Column: Interactive Node Graph -->
-                <div class="lg:col-span-7 flex justify-center relative select-none">
-                    <!-- SVG lines backing the nodes -->
-                    <div class="w-full max-w-[500px] aspect-square relative flex items-center justify-center">
-                        
+                <div class="lg:col-span-7 flex justify-center relative select-none min-h-[450px] w-full">
+                    
+                    <!-- GRAPH 1: Single Instance Focus -->
+                    <div id="container-instance-focus" class="w-full max-w-[500px] aspect-square relative flex items-center justify-center transition-all duration-300">
                         <!-- Connecting SVG lines using absolute positioning -->
                         <svg class="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
                             <!-- Lines from center (x: 50%, y: 50%) to outer nodes -->
@@ -386,7 +398,7 @@
                         <!-- Central Node: TuneCamp Instance -->
                         <div id="node-instance" class="absolute z-10 w-24 h-24 rounded-full bg-gradient-to-br from-primary to-purple-600 border border-primary/40 flex flex-col items-center justify-center shadow-[0_0_30px_rgba(139,92,246,0.3)] cursor-pointer transition-all duration-300 hover:scale-105" onclick="selectNode('instance')">
                             <div class="text-3xl text-white mb-1"><i class="fas fa-server"></i></div>
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-white">Istanza</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-white text-center leading-none">Istanza</span>
                         </div>
 
                         <!-- Outer Node 1: TuneCamp Peer (Top Left) -->
@@ -418,8 +430,75 @@
                             <div class="text-2xl text-text-muted mb-1 transition-colors"><i class="fas fa-share-nodes"></i></div>
                             <span class="text-[9px] font-semibold text-text-muted text-center leading-none px-1">Gossip P2P</span>
                         </div>
-
                     </div>
+
+                    <!-- GRAPH 2: Global Network Aggregation (Hidden by default) -->
+                    <div id="container-network-focus" class="w-full max-w-[500px] aspect-square relative flex items-center justify-center transition-all duration-300 hidden opacity-0">
+                        <!-- Connecting SVG lines -->
+                        <svg class="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Hub (Center: 50%, 50%) to Instances -->
+                            <!-- Instance A (Top-Left: 25%, 25%) -->
+                            <line id="line-net-hub-a" x1="50%" y1="50%" x2="25%" y2="25%" stroke="rgba(255,255,255,0.15)" stroke-width="2" class="transition-all duration-300"></line>
+                            <!-- Instance B (Top-Right: 75%, 25%) -->
+                            <line id="line-net-hub-b" x1="50%" y1="50%" x2="75%" y2="25%" stroke="rgba(255,255,255,0.15)" stroke-width="2" class="transition-all duration-300"></line>
+                            <!-- Instance C (Bottom-Center: 50%, 75%) -->
+                            <line id="line-net-hub-c" x1="50%" y1="50%" x2="50%" y2="75%" stroke="rgba(255,255,255,0.15)" stroke-width="2" class="transition-all duration-300"></line>
+
+                            <!-- Peer A to Instance A (x: 10%, y: 15% to x: 25%, y: 25%) -->
+                            <line id="line-net-peer-a" x1="10%" y1="15%" x2="25%" y2="25%" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" stroke-dasharray="4,4" class="transition-all duration-300"></line>
+                            <!-- Peer C to Instance C (x: 35%, y: 88% to x: 50%, y: 75%) -->
+                            <line id="line-net-peer-c" x1="35%" y1="88%" x2="50%" y2="75%" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" stroke-dasharray="4,4" class="transition-all duration-300"></line>
+
+                            <!-- Listener/Player (Right-Center: 82%, 60%) to Instances (Audio streams directly) -->
+                            <line id="line-net-stream-a" x1="82%" y1="60%" x2="25%" y2="25%" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-dasharray="5,5" class="transition-all duration-300"></line>
+                            <line id="line-net-stream-b" x1="82%" y1="60%" x2="75%" y2="25%" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-dasharray="5,5" class="transition-all duration-300"></line>
+                            <line id="line-net-stream-c" x1="82%" y1="60%" x2="50%" y2="75%" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-dasharray="5,5" class="transition-all duration-300"></line>
+                        </svg>
+
+                        <!-- Outer Glow Effect for active connections -->
+                        <div id="glow-pulse-net" class="absolute w-20 h-20 bg-primary/20 rounded-full blur-xl pointer-events-none transition-all duration-500 scale-0"></div>
+
+                        <!-- Central Hub Node: tunecamp.org -->
+                        <div id="node-net-hub" class="absolute z-10 w-22 h-22 rounded-full bg-gradient-to-br from-primary to-pink-500 border border-primary/40 flex flex-col items-center justify-center shadow-[0_0_30px_rgba(139,92,246,0.3)] cursor-pointer transition-all duration-300 hover:scale-105" onclick="selectNetNode('hub')">
+                            <div class="text-2xl text-white mb-1"><i class="fas fa-globe"></i></div>
+                            <span class="text-[9px] font-bold uppercase tracking-wider text-white text-center leading-none px-1">tunecamp.org</span>
+                        </div>
+
+                        <!-- Instance A (Top Left) -->
+                        <div id="node-net-inst-a" class="absolute top-[20%] left-[20%] z-10 w-16 h-16 rounded-xl bg-bg-surface border border-white/10 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-primary/40" onclick="selectNetNode('inst_a')">
+                            <div class="text-xl text-text-muted mb-0.5"><i class="fas fa-server"></i></div>
+                            <span class="text-[8px] font-semibold text-text-muted text-center leading-tight">Istanza A</span>
+                        </div>
+                        <!-- Mini Peer A (Far Top Left) -->
+                        <div id="node-net-peer-a" class="absolute top-[10%] left-[2%] z-10 w-12 h-12 rounded-lg bg-bg-surface-alt border border-white/5 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-amber-400/40" onclick="selectNetNode('peer_a')">
+                            <div class="text-sm text-text-muted"><i class="fas fa-folder-open"></i></div>
+                            <span class="text-[7px] font-semibold text-text-muted text-center mt-0.5">Peer A</span>
+                        </div>
+
+                        <!-- Instance B (Top Right) -->
+                        <div id="node-net-inst-b" class="absolute top-[20%] right-[20%] z-10 w-16 h-16 rounded-xl bg-bg-surface border border-white/10 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-primary/40" onclick="selectNetNode('inst_b')">
+                            <div class="text-xl text-text-muted mb-0.5"><i class="fas fa-server"></i></div>
+                            <span class="text-[8px] font-semibold text-text-muted text-center leading-tight">Istanza B</span>
+                        </div>
+
+                        <!-- Instance C (Bottom Center) -->
+                        <div id="node-net-inst-c" class="absolute bottom-[20%] left-[42%] z-10 w-16 h-16 rounded-xl bg-bg-surface border border-white/10 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-primary/40" onclick="selectNetNode('inst_c')">
+                            <div class="text-xl text-text-muted mb-0.5"><i class="fas fa-server"></i></div>
+                            <span class="text-[8px] font-semibold text-text-muted text-center leading-tight">Istanza C</span>
+                        </div>
+                        <!-- Mini Peer C (Far Bottom Left) -->
+                        <div id="node-net-peer-c" class="absolute bottom-[8%] left-[30%] z-10 w-12 h-12 rounded-lg bg-bg-surface-alt border border-white/5 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-amber-400/40" onclick="selectNetNode('peer_c')">
+                            <div class="text-sm text-text-muted"><i class="fas fa-folder-open"></i></div>
+                            <span class="text-[7px] font-semibold text-text-muted text-center mt-0.5">Peer C</span>
+                        </div>
+
+                        <!-- Global Player / listener (Right Center) -->
+                        <div id="node-net-player" class="absolute right-[5%] top-[50%] z-10 w-18 h-18 rounded-2xl bg-bg-surface border border-white/10 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-green-400/40" onclick="selectNetNode('player')">
+                            <div class="text-2xl text-text-muted mb-0.5"><i class="fas fa-headphones"></i></div>
+                            <span class="text-[8px] font-semibold text-text-muted text-center leading-none px-1">Ascoltatore</span>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -475,6 +554,65 @@
                 iconColor: "text-indigo-400",
                 desc: "Le istanze TuneCamp sparse per il mondo si scoprono e scambiano informazioni sui cataloghi musicali a vicenda attraverso un protocollo di Gossip HTTP. Questo permette di creare elenchi di siti e tracce distribuiti in modo organico e peer-to-peer (come la pagina Explore del sito globale) senza bisogno di un server o database centrale di registrazione.",
                 color: "#818cf8"
+            }
+        };
+
+        const networkNodesData = {
+            hub: {
+                title: "tunecamp.org (Explore & Player)",
+                tag: "Aggregatore di Indici",
+                icon: "fa-globe",
+                iconColor: "text-primary",
+                desc: "Il sito centrale tunecamp.org funge da elenco telefonico o elenco dei canali. Esegue richieste API client-side per raccogliere i manifesti dei brani dalle istanze attive conosciute e li visualizza in una comoda griglia. Non ospita, possiede o archivia i file audio degli artisti sui propri server.",
+                color: "#8b5cf6"
+            },
+            inst_a: {
+                title: "Istanza A (Etichetta / Artista)",
+                tag: "Server Indipendente",
+                icon: "fa-server",
+                iconColor: "text-indigo-400",
+                desc: "Un server web TuneCamp indipendente (es. sudorecords.dev). Mantiene il proprio database, risponde alle query di tunecamp.org per condividere il catalogo pubblico, e invia flussi audio lossless o pacchetti di download ai visitatori in modo autonomo.",
+                color: "#818cf8"
+            },
+            inst_b: {
+                title: "Istanza B (Artista)",
+                tag: "Server Indipendente",
+                icon: "fa-server",
+                iconColor: "text-violet-400",
+                desc: "Un altro server TuneCamp autonomo. Funziona in modo completamente separato dall'Istanza A, con il proprio nome di dominio, catalogo e impostazioni di monetizzazione Stripe, ma è visibile sullo stesso motore di ricerca globale.",
+                color: "#a78bfa"
+            },
+            inst_c: {
+                title: "Istanza C (Sito Fan)",
+                tag: "Server Indipendente",
+                icon: "fa-server",
+                iconColor: "text-fuchsia-400",
+                desc: "Una terza istanza indipendente che partecipa alla federazione. Condivide la propria libreria musicale sul network e risponde autonomamente alle richieste degli utenti finali.",
+                color: "#e879f9"
+            },
+            peer_a: {
+                title: "TuneCamp Peer A",
+                tag: "Diretto da Computer",
+                icon: "fa-folder-open",
+                iconColor: "text-amber-400",
+                desc: "Il computer locale dell'artista A esegue il demone Peer per inviare la musica all'Istanza A tramite un WebSocket tunnel sicuro e invertito. Nessuna configurazione IP necessaria.",
+                color: "#fbbf24"
+            },
+            peer_c: {
+                title: "TuneCamp Peer C",
+                tag: "Diretto da Computer",
+                icon: "fa-folder-open",
+                iconColor: "text-pink-400",
+                desc: "L'artista C condivide le sue cartelle di registrazione locali direttamente con l'Istanza C. Finché il Peer C è attivo, la musica è disponibile per lo streaming sul network globale.",
+                color: "#f472b6"
+            },
+            player: {
+                title: "Ascoltatore Globale (Audio Player)",
+                tag: "Streaming Vero P2P",
+                icon: "fa-headphones",
+                iconColor: "text-green-400",
+                desc: "Quando clicchi 'Play' sulla directory globale di tunecamp.org, il browser richiede il file audio direttamente dal server dell'artista (Istanza A, B o C). Lo streaming salta completamente tunecamp.org, garantendo velocità, privacy e zero costi di banda centralizzati.",
+                color: "#4ade80"
             }
         };
 
@@ -589,6 +727,184 @@
             }
         }
 
+        function selectNetNode(key) {
+            if (!networkNodesData[key]) return;
+            const data = networkNodesData[key];
+
+            // 1. Update Info Card
+            const infoIcon = document.getElementById('info-icon');
+            const infoIconContainer = document.getElementById('info-icon-container');
+            const infoTag = document.getElementById('info-tag');
+            const infoTitle = document.getElementById('info-title');
+            const infoDesc = document.getElementById('info-desc');
+
+            infoDesc.style.opacity = '0';
+            setTimeout(() => {
+                infoIcon.className = `fas ${data.icon} ${data.iconColor}`;
+                infoIconContainer.style.borderColor = `${data.color}40`;
+                infoIconContainer.style.backgroundColor = `${data.color}15`;
+                infoTag.innerText = data.tag;
+                infoTag.style.color = data.color;
+                infoTag.style.borderColor = `${data.color}30`;
+                infoTag.style.backgroundColor = `${data.color}10`;
+                infoTitle.innerText = data.title;
+                infoDesc.innerText = data.desc;
+                infoDesc.style.opacity = '1';
+            }, 150);
+
+            // 2. Update Node Highlights
+            const nodeKeys = Object.keys(networkNodesData);
+            nodeKeys.forEach(k => {
+                const nodeEl = document.getElementById(`node-net-${k.replace('_', '-')}`);
+                if (!nodeEl) return;
+                const iconEl = nodeEl.querySelector('i');
+                const textEl = nodeEl.querySelector('span');
+
+                if (k === key) {
+                    nodeEl.style.transform = 'scale(1.08)';
+                    nodeEl.style.borderColor = data.color;
+                    nodeEl.style.boxShadow = `0 0 30px ${data.color}30`;
+                    nodeEl.style.backgroundColor = `${data.color}08`;
+                    if (k === 'hub') {
+                        nodeEl.style.boxShadow = `0 0 40px ${data.color}60`;
+                    }
+                    if (iconEl) iconEl.className = `fas ${networkNodesData[k].icon} ${data.iconColor}`;
+                    if (textEl) {
+                        textEl.classList.remove('text-text-muted');
+                        textEl.classList.add('text-white');
+                    }
+                } else {
+                    nodeEl.style.transform = 'scale(1)';
+                    nodeEl.style.borderColor = 'rgba(255,255,255,0.1)';
+                    nodeEl.style.boxShadow = 'none';
+                    nodeEl.style.backgroundColor = 'rgba(255,255,255,0.05)';
+                    if (iconEl) iconEl.className = `fas ${networkNodesData[k].icon} text-text-muted`;
+                    if (textEl) {
+                        textEl.classList.add('text-text-muted');
+                        textEl.classList.remove('text-white');
+                    }
+                }
+            });
+
+            // 3. Highlight SVG connection lines
+            const allLines = [
+                'net-hub-a', 'net-hub-b', 'net-hub-c',
+                'net-peer-a', 'net-peer-c',
+                'net-stream-a', 'net-stream-b', 'net-stream-c'
+            ];
+
+            allLines.forEach(l => {
+                const lineEl = document.getElementById(`line-${l}`);
+                if (!lineEl) return;
+
+                // Reset styles
+                lineEl.setAttribute('stroke', 'rgba(255,255,255,0.15)');
+                lineEl.setAttribute('stroke-width', '2');
+                lineEl.classList.remove('animate-dash-flow');
+
+                if (l === 'net-peer-a' || l === 'net-peer-c') {
+                    lineEl.setAttribute('stroke-dasharray', '4,4');
+                } else if (l.startsWith('net-stream-')) {
+                    lineEl.setAttribute('stroke-dasharray', '5,5');
+                } else {
+                    lineEl.removeAttribute('stroke-dasharray');
+                }
+
+                // Check active state
+                let shouldHighlight = false;
+                let isFlow = false;
+
+                if (key === 'hub' && l.startsWith('net-hub-')) {
+                    shouldHighlight = true;
+                } else if (key === 'inst_a' && (l === 'net-hub-a' || l === 'net-peer-a')) {
+                    shouldHighlight = true;
+                } else if (key === 'inst_c' && (l === 'net-hub-c' || l === 'net-peer-c')) {
+                    shouldHighlight = true;
+                } else if (key === 'peer_a' && l === 'net-peer-a') {
+                    shouldHighlight = true;
+                    isFlow = true;
+                } else if (key === 'peer_c' && l === 'net-peer-c') {
+                    shouldHighlight = true;
+                    isFlow = true;
+                } else if (key === 'player' && l.startsWith('net-stream-')) {
+                    shouldHighlight = true;
+                    isFlow = true;
+                }
+
+                if (shouldHighlight) {
+                    lineEl.setAttribute('stroke', data.color);
+                    lineEl.setAttribute('stroke-width', '3');
+                    if (isFlow) {
+                        lineEl.classList.add('animate-dash-flow');
+                    } else {
+                        lineEl.removeAttribute('stroke-dasharray');
+                    }
+                }
+            });
+
+            // 4. Position backdrop glow
+            const glowPulseNet = document.getElementById('glow-pulse-net');
+            if (key === 'hub') {
+                glowPulseNet.style.transform = 'scale(0)';
+            } else {
+                glowPulseNet.style.backgroundColor = `${data.color}20`;
+                const positions = {
+                    inst_a: { top: '20%', left: '20%' },
+                    inst_b: { top: '20%', left: '80%' },
+                    inst_c: { top: '80%', left: '50%' },
+                    peer_a: { top: '10%', left: '2%' },
+                    peer_c: { top: '8%', left: '30%' },
+                    player: { top: '50%', left: '85%' }
+                };
+                const pos = positions[key];
+                glowPulseNet.style.top = `calc(${pos.top} - 1.5rem)`;
+                glowPulseNet.style.left = `calc(${pos.left} - 1.5rem)`;
+                glowPulseNet.style.transform = 'scale(1.5)';
+            }
+        }
+
+        function switchNetworkTab(tabKey) {
+            const containerInstance = document.getElementById('container-instance-focus');
+            const containerNetwork = document.getElementById('container-network-focus');
+            const btnInstance = document.getElementById('tab-btn-instance');
+            const btnNetwork = document.getElementById('tab-btn-network');
+
+            if (tabKey === 'instance-focus') {
+                // Set active button styles
+                btnInstance.className = "px-5 py-2.5 text-sm font-semibold rounded-lg bg-primary text-white transition-all shadow-md cursor-pointer";
+                btnNetwork.className = "px-5 py-2.5 text-sm font-semibold rounded-lg text-text-muted hover:text-white hover:bg-white/5 transition-all cursor-pointer";
+
+                // Fade transitions
+                containerNetwork.style.opacity = '0';
+                setTimeout(() => {
+                    containerNetwork.classList.add('hidden');
+                    containerInstance.classList.remove('hidden');
+                    setTimeout(() => {
+                        containerInstance.style.opacity = '1';
+                        containerInstance.classList.remove('opacity-0');
+                        selectNode('instance');
+                    }, 50);
+                }, 300);
+
+            } else {
+                // Set active button styles
+                btnNetwork.className = "px-5 py-2.5 text-sm font-semibold rounded-lg bg-primary text-white transition-all shadow-md cursor-pointer";
+                btnInstance.className = "px-5 py-2.5 text-sm font-semibold rounded-lg text-text-muted hover:text-white hover:bg-white/5 transition-all cursor-pointer";
+
+                // Fade transitions
+                containerInstance.style.opacity = '0';
+                setTimeout(() => {
+                    containerInstance.classList.add('hidden');
+                    containerNetwork.classList.remove('hidden');
+                    setTimeout(() => {
+                        containerNetwork.style.opacity = '1';
+                        containerNetwork.classList.remove('opacity-0');
+                        selectNetNode('hub');
+                    }, 50);
+                }, 300);
+            }
+        }
+
         // Add dynamic CSS styles for nodes transition and dash animations
         (function() {
             const style = document.createElement('style');
@@ -621,6 +937,14 @@
                 const el = document.getElementById(`node-${k}`);
                 if (el) {
                     el.addEventListener('mouseenter', () => selectNode(k));
+                }
+            });
+
+            const netKeys = ['hub', 'inst_a', 'inst_b', 'inst_c', 'peer_a', 'peer_c', 'player'];
+            netKeys.forEach(k => {
+                const el = document.getElementById(`node-net-${k.replace('_', '-')}`);
+                if (el) {
+                    el.addEventListener('mouseenter', () => selectNetNode(k));
                 }
             });
         });
