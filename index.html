@@ -38,6 +38,8 @@
     </style>
     <style>
       .track-tile { cursor: pointer; display: flex; flex-direction: column; gap: 0.5rem; }
+      .track-tile:focus-visible { outline: none; }
+      .track-tile:focus-visible .cover { border-color: #8b5cf6; box-shadow: 0 0 0 2px rgba(139,92,246,0.4); }
       .track-tile .cover {
         aspect-ratio: 1 / 1; width: 100%; border-radius: 0.75rem; overflow: hidden;
         background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
@@ -652,8 +654,11 @@
                 const key = trackStableKey(t);
                 const active = key === currentTrackKey;
                 const cover = t.coverUrl ? `<img src="${escapeHtml(t.coverUrl)}" class="w-full h-full object-cover">` : '<i class="fas fa-music"></i>';
+                const escapedTitle = escapeHtml(t.title);
+                const escapedArtist = escapeHtml(t.artistName);
+                const ariaLabel = `Play ${escapedTitle} by ${escapedArtist}`;
                 return `
-                    <div class="track-tile ${active ? 'playing' : ''}" data-track-key="${escapeHtml(key)}" onclick="playTrackByKey(this.getAttribute('data-track-key'))">
+                    <div class="track-tile ${active ? 'playing' : ''}" data-track-key="${escapeHtml(key)}" role="button" tabindex="0" aria-label="${ariaLabel}" onclick="playTrackByKey(this.getAttribute('data-track-key'))" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();playTrackByKey(this.getAttribute('data-track-key'));}">
                         <div class="cover">
                             ${cover}
                             <div class="overlay absolute inset-0 bg-black/40 flex items-center justify-center text-2xl text-white">
