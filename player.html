@@ -372,7 +372,9 @@
             }
             container.innerHTML = filteredTracks.map((t, i) => {
                 const active = currentTrackIndex === i;
-                const cover = t.coverUrl ? `<img src="${escapeHtml(t.coverUrl)}" class="w-full h-full object-cover">` : '<i class="fas fa-music text-xs"></i>';
+                // Bolt Optimization: Added loading="lazy" to track cover arts in the player list.
+                // Expected Impact: Improves rendering performance of long track lists by deferring image loading until scrolled into view.
+                const cover = t.coverUrl ? `<img src="${escapeHtml(t.coverUrl)}" loading="lazy" class="w-full h-full object-cover">` : '<i class="fas fa-music text-xs"></i>';
                 const time = t.duration ? `${Math.floor(t.duration/60)}:${Math.floor(t.duration%60).toString().padStart(2,'0')}` : '';
                 return `
                     <div class="track-row group ${active ? 'playing' : ''}" onclick="playTrackIndex(${i})">
