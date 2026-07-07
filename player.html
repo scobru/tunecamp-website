@@ -34,7 +34,7 @@
             @apply w-16 h-16 bg-gradient-to-r from-primary to-purple-500 hover:scale-105 border-none shadow-[0_0_20px_rgba(139,92,246,0.4)] text-2xl;
         }
         .track-row {
-            @apply flex items-center p-3 gap-4 rounded-xl transition-all duration-300 hover:bg-white/5 cursor-pointer border border-transparent hover:border-white/5;
+            @apply flex items-center p-3 gap-4 rounded-xl transition-all duration-300 hover:bg-white/5 cursor-pointer border border-transparent hover:border-white/5 focus-visible:outline-none focus-visible:bg-white/5 focus-visible:border-primary/50;
         }
         .track-row.playing {
             @apply bg-primary/10 border-primary/20;
@@ -374,8 +374,11 @@
                 const active = currentTrackIndex === i;
                 const cover = t.coverUrl ? `<img src="${escapeHtml(t.coverUrl)}" class="w-full h-full object-cover">` : '<i class="fas fa-music text-xs"></i>';
                 const time = t.duration ? `${Math.floor(t.duration/60)}:${Math.floor(t.duration%60).toString().padStart(2,'0')}` : '';
+                const escapedTitle = escapeHtml(t.title);
+                const escapedArtist = escapeHtml(t.artistName);
+                const ariaLabel = `Play ${escapedTitle} by ${escapedArtist}`;
                 return `
-                    <div class="track-row group ${active ? 'playing' : ''}" onclick="playTrackIndex(${i})">
+                    <div class="track-row group ${active ? 'playing' : ''}" role="button" tabindex="0" aria-label="${ariaLabel}" onclick="playTrackIndex(${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();playTrackIndex(${i});}">
                         <div class="w-10 h-10 bg-white/10 rounded-lg overflow-hidden flex items-center justify-center text-white/50 relative flex-shrink-0">
                             ${cover}
                             <div class="absolute inset-0 bg-black/40 hidden group-hover:flex items-center justify-center text-white text-xs">
