@@ -140,8 +140,8 @@
                 <h1 class="font-display text-4xl md:text-5xl font-bold mb-4">Network Graph</h1>
                 <p class="text-text-muted text-lg">
                     A live map of the TuneCamp federation. Each node is an instance; each line is a
-                    connection it knows about. Crawled in your browser, directly from the public
-                    gossip endpoints — no central registry.
+                    connection it knows about. Crawled from the public gossip endpoints by a single
+                    shared, cached crawler — no central registry.
                 </p>
             </div>
 
@@ -225,13 +225,15 @@
                 <div class="glass-card !p-5">
                     <div class="text-primary text-lg mb-2"><i class="fas fa-circle-info"></i></div>
                     <h3 class="font-bold mb-1">Good to know</h3>
-                    <p class="text-text-muted">This is federation topology, not live listening. Instances your browser can't reach still appear if another instance references them — but if an instance stays unreachable for a full day, it's dropped from the graph, the same 24h rule each instance's own federated-discovery crawler uses.</p>
+                    <p class="text-text-muted">This is federation topology, not live listening. Instances the crawler can't reach still appear if another instance references them — but if an instance stays unreachable for a full day, it's dropped from the graph, the same 24h rule each instance's own federated-discovery crawler uses.</p>
                 </div>
             </div>
 
             <p class="text-center text-xs text-text-muted mt-6">
-                Data is fetched live from each instance's public <code class="text-purple-300">/api/community/instance</code> and
-                <code class="text-purple-300">/api/community/peers</code> endpoints. Seed directory is configured in
+                Data comes from each instance's public <code class="text-purple-300">/api/community/instance</code> and
+                <code class="text-purple-300">/api/community/peers</code> endpoints, crawled server-side by
+                <code class="text-purple-300">/api/network</code> and cached for ~30 minutes (with an in-browser
+                fallback if the API is unavailable). Seed directory is configured in
                 <code class="text-purple-300">config.js</code>.
             </p>
         </div>
@@ -424,6 +426,62 @@
                 saveHealth(health);
             }
 
+            /** Shared tail for both crawl paths: prune the 24h-dead, persist health,
+             *  refresh stats/overlays and settle the layout. */
+            function finishCrawl(myToken, depth, reachedAny) {
+                if (myToken !== crawlToken) return;
+                pruneDeadNodes();
+                saveHealth(health);
+                recomputeDegrees();
+                updateStats(depth);
+                loadingOverlay.style.display = "none";
+                if (!reachedAny && nodes.size === 0) {
+                    emptyOverlay.style.display = "flex";
+                } else if (!reachedAny) {
+                    // We have referenced nodes but couldn't reach any endpoint directly.
+                    emptyOverlay.style.display = "none";
+                }
+                // Give the layout an initial settle, then fit.
+                alpha = 1; startSim();
+                setTimeout(() => { if (myToken === crawlToken) fitToView(); }, 600);
+            }
+
+            /** Preferred path: the site's own /api/network function crawls server-side
+             *  (one shared, CDN-cached crawl for everyone) instead of every visitor's
+             *  browser probing instances directly — no CORS false-offlines, no visitor
+             *  IP traffic toward third-party hosts. Returns false if unavailable so the
+             *  caller can fall back to the in-browser crawl (e.g. plain static hosting). */
+            async function crawlViaServer(myToken, maxDepth) {
+                const data = await fetchJson(`/api/network?depth=${maxDepth}`);
+                if (myToken !== crawlToken) return true; // superseded; don't fall through
+                if (!data || !Array.isArray(data.nodes) || data.nodes.length === 0) return false;
+
+                let reachedAny = false;
+                for (const sn of data.nodes) {
+                    const o = normOrigin(sn.url);
+                    if (!o) continue;
+                    const node = ensureNode(o, sn.seed);
+                    node.reachable = sn.reachable === true ? true : sn.reachable === false ? false : undefined;
+                    node.name = sn.name || null;
+                    node.version = sn.version || null;
+                    node.description = sn.description || null;
+                    node.artistName = sn.artistName || null;
+                    node.communityLink = sn.communityLink || null;
+                    if (node.reachable === true) {
+                        reachedAny = true;
+                        delete health[o];
+                    } else if (node.reachable === false && !health[o]) {
+                        health[o] = { offlineSince: Date.now() };
+                    }
+                }
+                for (const e of (data.edges || [])) {
+                    const a = normOrigin(e.from), b = normOrigin(e.to);
+                    if (a && b && nodes.has(a) && nodes.has(b)) addEdge(a, b);
+                }
+                finishCrawl(myToken, data.depth || maxDepth, reachedAny);
+                return true;
+            }
+
             async function crawl(maxDepth) {
                 const myToken = ++crawlToken;
                 nodes = new Map(); edges = []; edgeKeys = new Set();
@@ -433,6 +491,10 @@
                 loadingOverlay.style.display = "flex";
                 emptyOverlay.style.display = "none";
                 loadingText.textContent = "Crawling the network…";
+
+                if (await crawlViaServer(myToken, maxDepth)) return;
+                if (myToken !== crawlToken) return;
+                loadingText.textContent = "Server crawl unavailable — probing from your browser…";
 
                 const visited = new Set();
                 let frontier = [];
@@ -499,24 +561,7 @@
                     depth++;
                 }
 
-                if (myToken !== crawlToken) return;
-
-                pruneDeadNodes();
-                saveHealth(health);
-                recomputeDegrees();
-                updateStats(depth);
-                loadingOverlay.style.display = "none";
-
-                if (!reachedAny && nodes.size === 0) {
-                    emptyOverlay.style.display = "flex";
-                } else if (!reachedAny) {
-                    // We have referenced nodes but couldn't reach any endpoint directly.
-                    emptyOverlay.style.display = "none";
-                }
-
-                // Give the layout an initial settle, then fit.
-                alpha = 1; startSim();
-                setTimeout(() => { if (myToken === crawlToken) fitToView(); }, 600);
+                finishCrawl(myToken, depth, reachedAny);
             }
 
             function updateStats(depth) {

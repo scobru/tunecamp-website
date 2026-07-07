@@ -1,0 +1,8 @@
+{
+    "functions": {
+        "api/network.js": {
+            "includeFiles": "config.js",
+            "maxDuration": 30
+        }
+    }
+}
