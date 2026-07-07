@@ -225,7 +225,7 @@
                 <div class="glass-card !p-5">
                     <div class="text-primary text-lg mb-2"><i class="fas fa-circle-info"></i></div>
                     <h3 class="font-bold mb-1">Good to know</h3>
-                    <p class="text-text-muted">This is federation topology, not live listening. Instances your browser can't reach (offline or CORS-restricted) still appear if another instance references them.</p>
+                    <p class="text-text-muted">This is federation topology, not live listening. Instances your browser can't reach still appear if another instance references them — but if an instance stays unreachable for a full day, it's dropped from the graph, the same 24h rule each instance's own federated-discovery crawler uses.</p>
                 </div>
             </div>
 
@@ -265,6 +265,21 @@
             const SEEDS = Array.isArray(window.TUNECAMP_DIRECTORY) ? window.TUNECAMP_DIRECTORY.slice() : [];
             const MAX_NODES = 80;      // safety cap on graph size
             const FETCH_TIMEOUT = 6000; // ms per request
+            const OFFLINE_EXPIRY_MS = 24 * 60 * 60 * 1000; // 1d: matches the instance-side federated-discovery prune window
+            const HEALTH_KEY = "tunecamp_network_health_v1";
+
+            // ---- Offline persistence (mirrors the instance's 1-day prune) --
+            // The instance backend flags a peer offline once a full day passes without a
+            // successful probe (see federated-discovery.service.ts). This browser-side
+            // crawl has no server to persist that state in, so we track "first seen
+            // offline" per origin in localStorage and drop the node once it's been
+            // unreachable for a full day across visits/rescans — same 24h rule, client-side.
+            function loadHealth() {
+                try { return JSON.parse(localStorage.getItem(HEALTH_KEY) || "{}"); } catch { return {}; }
+            }
+            function saveHealth(health) {
+                try { localStorage.setItem(HEALTH_KEY, JSON.stringify(health)); } catch { /* storage unavailable (private mode, quota) */ }
+            }
 
             // ---- DOM ------------------------------------------------------
             const canvas = document.getElementById("graphCanvas");
@@ -385,10 +400,35 @@
 
             // ---- Crawl ----------------------------------------------------
             let crawlToken = 0;
+            let health = loadHealth();
+
+            /** Drops nodes that have been continuously unreachable for >= OFFLINE_EXPIRY_MS,
+             *  along with any edges touching them — same 1-day rule as the instance backend's
+             *  prune(), just reconstructed client-side from localStorage across visits. Nodes
+             *  never directly probed ("known only") are untouched: they're not confirmed dead. */
+            function pruneDeadNodes() {
+                const now = Date.now();
+                const dead = [];
+                for (const [origin, n] of nodes) {
+                    if (n.reachable !== false) continue;
+                    const since = health[origin]?.offlineSince;
+                    if (since && now - since >= OFFLINE_EXPIRY_MS) dead.push(origin);
+                }
+                if (dead.length === 0) return;
+                for (const origin of dead) {
+                    nodes.delete(origin);
+                    delete health[origin];
+                }
+                edges = edges.filter(e => !dead.includes(e.from) && !dead.includes(e.to));
+                edgeKeys = new Set(edges.map(e => e.from + " " + e.to));
+                saveHealth(health);
+            }
+
             async function crawl(maxDepth) {
                 const myToken = ++crawlToken;
                 nodes = new Map(); edges = []; edgeKeys = new Set();
                 view = { x: 0, y: 0, scale: 1 }; hoverNode = null;
+                health = loadHealth();
 
                 loadingOverlay.style.display = "flex";
                 emptyOverlay.style.display = "none";
@@ -427,6 +467,11 @@
                         const isTune = r.inst && (r.inst.software === "tunecamp" || r.inst.name || r.inst.peers);
                         // Reachable only if the instance endpoint answered as a TuneCamp node.
                         node.reachable = !!isTune;
+                        if (node.reachable) {
+                            delete health[r.origin];
+                        } else if (!health[r.origin]) {
+                            health[r.origin] = { offlineSince: Date.now() };
+                        }
                         if (r.inst) {
                             reachedAny = true;
                             node.name = r.inst.name || node.name;
@@ -456,6 +501,8 @@
 
                 if (myToken !== crawlToken) return;
 
+                pruneDeadNodes();
+                saveHealth(health);
                 recomputeDegrees();
                 updateStats(depth);
                 loadingOverlay.style.display = "none";
