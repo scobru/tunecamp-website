@@ -1,0 +1,790 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TuneCamp Network Graph — Live Instance Connections</title>
+    <link rel="icon" type="image/svg+xml" href="tunecamp.svg" />
+    <meta name="description"
+        content="A live, interactive graph of the TuneCamp federation: which instances exist and which other instances each one is connected to, crawled in real time from the public gossip endpoints." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.tunecamp.org/network-graph.html" />
+    <meta property="og:title" content="TuneCamp Network Graph — Live Instance Connections" />
+    <meta property="og:description" content="A live, interactive graph of the TuneCamp federation. See which instances exist and how they are connected." />
+    <meta property="og:image" content="https://www.tunecamp.org/tunecamp.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://www.tunecamp.org/tunecamp.jpg" />
+    <link rel="stylesheet" href="fonts/fonts.css" />
+    <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css" />
+    <script src="vendor/tailwind.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="theme.js"></script>
+    <style type="text/tailwindcss">
+        @theme {
+            --color-primary: #8b5cf6;
+            --color-primary-hover: #a78bfa;
+            --color-bg-base: #050505;
+            --color-bg-surface: #111111;
+            --color-bg-surface-alt: #1a1a1a;
+            --color-text-base: #ffffff;
+            --color-text-muted: #a3a3a3;
+            --font-sans: "Inter", sans-serif;
+            --font-display: "Outfit", sans-serif;
+        }
+
+        body {
+            @apply bg-bg-base text-text-base font-sans antialiased selection:bg-primary/30 overflow-x-hidden;
+        }
+
+        .glass-card {
+            @apply bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-8 transition-all duration-300;
+        }
+
+        .btn-primary {
+            @apply bg-gradient-to-r from-primary to-purple-500 text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(139,92,246,0.5)];
+        }
+
+        .btn-secondary {
+            @apply bg-white/5 backdrop-blur-sm border border-white/10 text-white px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 hover:bg-white/10 hover:scale-105 hover:border-white/20;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col relative">
+    <!-- Top Nav -->
+    <nav class="fixed top-0 left-0 w-full z-50 bg-black/60 backdrop-blur-lg border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-2 font-display font-bold text-lg">
+                <img src="tunecamp.svg" alt="Tunecamp" class="w-7 h-7" /> Tunecamp
+            </a>
+            <div class="hidden lg:flex items-center gap-6 text-sm font-medium">
+                <a href="about.html" class="text-text-muted hover:text-white transition-colors">Overview</a>
+                <a href="index.html" class="text-text-muted hover:text-white transition-colors">Explore</a>
+                <a href="network-graph.html" class="text-white">Network Graph</a>
+                <a href="peer.html" class="text-text-muted hover:text-white transition-colors">Peer Share</a>
+                <a href="run.html" class="text-text-muted hover:text-white transition-colors whitespace-nowrap">Run Instance</a>
+                <div class="relative">
+                    <button id="moreBtn" class="text-text-muted hover:text-white transition-colors flex items-center gap-1">More <i class="fas fa-chevron-down text-[10px]"></i></button>
+                    <div id="moreMenu" class="hidden absolute right-0 top-full mt-2 w-44 bg-black/95 backdrop-blur-lg border border-white/10 rounded-xl py-1 z-50 shadow-xl">
+                        <a href="usecases.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Use Cases</a>
+                        <a href="manifesto.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Manifesto</a>
+                        <a href="player.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Player</a>
+                        <a href="press.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Press Kit</a>
+                        <a href="legal.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Legal</a>
+                    </div>
+                </div>
+                <a href="https://scobru.github.io/tunecamp/" target="_blank" class="text-text-muted hover:text-white transition-colors">Docs</a>
+                <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors"><i class="fab fa-github"></i></a>
+                <button onclick="toggleTheme()" aria-label="Toggle theme" class="text-text-muted hover:text-white transition-colors w-8 h-8 flex items-center justify-center">
+                    <i data-theme-icon class="fas fa-sun text-sm"></i>
+                </button>
+            </div>
+            <!-- Mobile hamburger -->
+            <button id="menuToggle" aria-label="Menu" aria-expanded="false" class="lg:hidden w-10 h-10 -mr-2 flex items-center justify-center text-text-muted hover:text-white transition-colors">
+                <i class="fas fa-bars text-lg"></i>
+            </button>
+        </div>
+        <!-- Mobile menu panel -->
+        <div id="mobileMenu" class="hidden lg:hidden border-t border-white/10 bg-black/90 backdrop-blur-lg">
+            <div class="px-6 py-4 flex flex-col gap-1 text-sm font-medium">
+                <a href="about.html" class="py-2 text-text-muted hover:text-white transition-colors">Overview</a>
+                <a href="index.html" class="py-2 text-text-muted hover:text-white transition-colors">Explore</a>
+                <a href="network-graph.html" class="py-2 text-white">Network Graph</a>
+                <a href="peer.html" class="py-2 text-text-muted hover:text-white transition-colors">Peer Share</a>
+                <a href="run.html" class="py-2 text-text-muted hover:text-white transition-colors">Run Instance</a>
+                <a href="usecases.html" class="py-2 text-text-muted hover:text-white transition-colors">Use Cases</a>
+                <a href="manifesto.html" class="py-2 text-text-muted hover:text-white transition-colors">Manifesto</a>
+                <a href="press.html" class="py-2 text-text-muted hover:text-white transition-colors">Press Kit</a>
+                <a href="legal.html" class="py-2 text-text-muted hover:text-white transition-colors">Legal</a>
+                <a href="https://scobru.github.io/tunecamp/" target="_blank" class="py-2 text-text-muted hover:text-white transition-colors">Docs</a>
+                <a href="https://github.com/scobru/tunecamp" class="py-2 text-text-muted hover:text-white transition-colors"><i class="fab fa-github mr-2"></i>GitHub</a>
+                <button onclick="toggleTheme()" class="py-2 flex items-center gap-2 text-text-muted hover:text-white transition-colors">
+                    <i data-theme-icon class="fas fa-sun text-sm w-4 text-center"></i>
+                    <span>Toggle theme</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+    <script>
+        (function () {
+            const btn = document.getElementById('menuToggle');
+            const menu = document.getElementById('mobileMenu');
+            if (btn && menu) {
+                btn.addEventListener('click', () => {
+                    const open = menu.classList.toggle('hidden') === false;
+                    btn.setAttribute('aria-expanded', String(open));
+                    btn.querySelector('i').className = open ? 'fas fa-times text-lg' : 'fas fa-bars text-lg';
+                });
+            }
+            const moreBtn = document.getElementById('moreBtn');
+            const moreMenu = document.getElementById('moreMenu');
+            if (moreBtn && moreMenu) {
+                moreBtn.addEventListener('click', e => { e.stopPropagation(); moreMenu.classList.toggle('hidden'); });
+                document.addEventListener('click', () => moreMenu.classList.add('hidden'));
+            }
+        })();
+    </script>
+
+    <!-- Ambient Glow -->
+    <div class="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/15 blur-[130px] rounded-full pointer-events-none -z-10"></div>
+
+    <!-- Main Content -->
+    <main class="flex-1 pt-24 pb-16 px-6">
+        <div class="max-w-7xl mx-auto">
+            <!-- Hero -->
+            <div class="text-center max-w-3xl mx-auto mb-10">
+                <div class="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full text-xs font-semibold text-primary mb-4">
+                    <i class="fas fa-circle-nodes"></i> Live Federation Topology
+                </div>
+                <h1 class="font-display text-4xl md:text-5xl font-bold mb-4">Network Graph</h1>
+                <p class="text-text-muted text-lg">
+                    A live map of the TuneCamp federation. Each node is an instance; each line is a
+                    connection it knows about. Crawled in your browser, directly from the public
+                    gossip endpoints — no central registry.
+                </p>
+            </div>
+
+            <!-- Stat bar -->
+            <div id="statBar" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                <div class="glass-card !p-4 text-center">
+                    <div id="statInstances" class="font-display text-2xl font-bold text-primary">—</div>
+                    <div class="text-xs text-text-muted uppercase tracking-wider mt-1">Instances</div>
+                </div>
+                <div class="glass-card !p-4 text-center">
+                    <div id="statConnections" class="font-display text-2xl font-bold text-primary">—</div>
+                    <div class="text-xs text-text-muted uppercase tracking-wider mt-1">Connections</div>
+                </div>
+                <div class="glass-card !p-4 text-center">
+                    <div id="statReachable" class="font-display text-2xl font-bold text-primary">—</div>
+                    <div class="text-xs text-text-muted uppercase tracking-wider mt-1">Reachable</div>
+                </div>
+                <div class="glass-card !p-4 text-center">
+                    <div id="statDepth" class="font-display text-2xl font-bold text-primary">—</div>
+                    <div class="text-xs text-text-muted uppercase tracking-wider mt-1">Crawl depth</div>
+                </div>
+            </div>
+
+            <!-- Graph canvas -->
+            <div class="glass-card !p-0 overflow-hidden relative">
+                <!-- Toolbar -->
+                <div class="flex flex-wrap items-center gap-3 px-4 py-3 border-b border-white/10 bg-black/20">
+                    <div class="flex items-center gap-2 text-sm">
+                        <label for="depthSelect" class="text-text-muted">Depth</label>
+                        <select id="depthSelect" class="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-sm text-white focus:outline-none focus:border-primary/50">
+                            <option value="1">1 hop</option>
+                            <option value="2" selected>2 hops</option>
+                            <option value="3">3 hops</option>
+                        </select>
+                    </div>
+                    <button id="rescanBtn" class="btn-secondary !px-4 !py-1.5 !text-sm">
+                        <i class="fas fa-rotate"></i> Rescan
+                    </button>
+                    <div class="flex-1"></div>
+                    <div class="hidden sm:flex items-center gap-4 text-xs text-text-muted">
+                        <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:#8b5cf6"></span> Reachable</span>
+                        <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:#6b7280"></span> Known only</span>
+                        <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:#ef4444"></span> Offline</span>
+                    </div>
+                    <button id="fitBtn" class="btn-secondary !px-3 !py-1.5 !text-sm" title="Fit to view">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                </div>
+
+                <!-- Canvas host -->
+                <div id="canvasHost" class="relative w-full" style="height:min(70vh,640px)">
+                    <canvas id="graphCanvas" class="absolute inset-0 w-full h-full block cursor-grab"></canvas>
+
+                    <!-- Overlays -->
+                    <div id="loadingOverlay" class="absolute inset-0 flex flex-col items-center justify-center gap-3 text-text-muted pointer-events-none">
+                        <i class="fas fa-circle-nodes fa-spin text-3xl text-primary/70"></i>
+                        <span id="loadingText" class="text-sm">Crawling the network…</span>
+                    </div>
+                    <div id="emptyOverlay" class="absolute inset-0 hidden flex-col items-center justify-center gap-3 text-text-muted px-6 text-center">
+                        <i class="fas fa-satellite-dish text-3xl opacity-40"></i>
+                        <span class="text-sm max-w-md">No instances could be reached from your browser. The directory instances may be offline, or blocking cross-origin requests. Try again later.</span>
+                    </div>
+
+                    <!-- Hover tooltip -->
+                    <div id="tooltip" class="hidden absolute z-20 pointer-events-none max-w-xs bg-black/90 backdrop-blur-md border border-white/15 rounded-xl px-3.5 py-2.5 shadow-2xl text-sm"></div>
+                </div>
+            </div>
+
+            <!-- Help / meaning -->
+            <div class="grid md:grid-cols-3 gap-4 mt-6 text-sm">
+                <div class="glass-card !p-5">
+                    <div class="text-primary text-lg mb-2"><i class="fas fa-hand-pointer"></i></div>
+                    <h3 class="font-bold mb-1">Interact</h3>
+                    <p class="text-text-muted">Drag nodes to rearrange, drag the background to pan, scroll to zoom. Hover a node to highlight its links; click to open the instance.</p>
+                </div>
+                <div class="glass-card !p-5">
+                    <div class="text-primary text-lg mb-2"><i class="fas fa-diagram-project"></i></div>
+                    <h3 class="font-bold mb-1">What a line means</h3>
+                    <p class="text-text-muted">An edge means one instance <em>knows about</em> another (via its public <code class="text-purple-300">/peers</code> gossip list). Node size reflects how many connections it has.</p>
+                </div>
+                <div class="glass-card !p-5">
+                    <div class="text-primary text-lg mb-2"><i class="fas fa-circle-info"></i></div>
+                    <h3 class="font-bold mb-1">Good to know</h3>
+                    <p class="text-text-muted">This is federation topology, not live listening. Instances your browser can't reach (offline or CORS-restricted) still appear if another instance references them.</p>
+                </div>
+            </div>
+
+            <p class="text-center text-xs text-text-muted mt-6">
+                Data is fetched live from each instance's public <code class="text-purple-300">/api/community/instance</code> and
+                <code class="text-purple-300">/api/community/peers</code> endpoints. Seed directory is configured in
+                <code class="text-purple-300">config.js</code>.
+            </p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 py-12 px-6 bg-bg-surface-alt/30">
+        <div class="max-w-6xl mx-auto flex flex-col items-center">
+            <nav class="flex flex-wrap justify-center gap-8 mb-8">
+                <a href="https://scobru.github.io/tunecamp/" target="_blank" class="text-text-muted hover:text-white transition-colors"><i class="fas fa-book mr-2"></i>Docs</a>
+                <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors"><i class="fab fa-github mr-2"></i>GitHub</a>
+                <a href="https://web.telegram.org/a/#-1004480953180" class="text-text-muted hover:text-white transition-colors" target="_blank"><i class="fab fa-telegram mr-2"></i>Telegram</a>
+                <a href="https://buymeacoffee.com/scobru" class="text-text-muted hover:text-white transition-colors"><i class="fas fa-mug-hot mr-2"></i>Support</a>
+                <a href="legal.html" class="text-text-muted hover:text-white transition-colors"><i class="fas fa-scale-balanced mr-2"></i>Legal</a>
+            </nav>
+            <p class="text-sm text-text-muted">
+                Tunecamp is MIT Licensed. Made with ❤️ for independent music.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Seed directory -->
+    <script src="config.js"></script>
+
+    <!-- Network graph engine -->
+    <script>
+        (function () {
+            "use strict";
+
+            // ---- Config ---------------------------------------------------
+            const SEEDS = Array.isArray(window.TUNECAMP_DIRECTORY) ? window.TUNECAMP_DIRECTORY.slice() : [];
+            const MAX_NODES = 80;      // safety cap on graph size
+            const FETCH_TIMEOUT = 6000; // ms per request
+
+            // ---- DOM ------------------------------------------------------
+            const canvas = document.getElementById("graphCanvas");
+            const host = document.getElementById("canvasHost");
+            const ctx = canvas.getContext("2d");
+            const tooltip = document.getElementById("tooltip");
+            const loadingOverlay = document.getElementById("loadingOverlay");
+            const loadingText = document.getElementById("loadingText");
+            const emptyOverlay = document.getElementById("emptyOverlay");
+            const depthSelect = document.getElementById("depthSelect");
+            const rescanBtn = document.getElementById("rescanBtn");
+            const fitBtn = document.getElementById("fitBtn");
+
+            // ---- Theme-aware colours -------------------------------------
+            let COLORS = readColors();
+            function cssVar(name, fallback) {
+                const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+                return v || fallback;
+            }
+            function readColors() {
+                return {
+                    reachable: cssVar("--color-primary", "#8b5cf6"),
+                    known: "#6b7280",
+                    offline: "#ef4444",
+                    edge: cssVar("--color-text-muted", "#a3a3a3"),
+                    text: cssVar("--color-text-base", "#ffffff"),
+                    muted: cssVar("--color-text-muted", "#a3a3a3"),
+                };
+            }
+            // Recompute colours when the theme toggles.
+            new MutationObserver(() => { COLORS = readColors(); }).observe(
+                document.documentElement, { attributes: true, attributeFilter: ["data-theme"] }
+            );
+
+            // ---- Graph state ---------------------------------------------
+            /** @type {Map<string, any>} origin -> node */
+            let nodes = new Map();
+            /** @type {Array<{from:string,to:string}>} */
+            let edges = [];
+            let edgeKeys = new Set();
+
+            // View transform
+            let view = { x: 0, y: 0, scale: 1 };
+            let hoverNode = null;
+            let dragNode = null;
+            let panning = false;
+            let dragMoved = false;
+            let lastPointer = { x: 0, y: 0 };
+            let alpha = 1;            // simulation "temperature"
+            let rafId = null;
+
+            // ---- Helpers --------------------------------------------------
+            function normOrigin(raw) {
+                if (!raw || typeof raw !== "string") return null;
+                try {
+                    const u = new URL(raw.trim());
+                    if (u.protocol !== "https:" && u.protocol !== "http:") return null;
+                    return u.origin;
+                } catch { return null; }
+            }
+            function hostname(origin) {
+                try { return new URL(origin).hostname; } catch { return origin; }
+            }
+            async function fetchJson(url) {
+                const controller = new AbortController();
+                const t = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+                try {
+                    const res = await fetch(url, { signal: controller.signal, headers: { Accept: "application/json" } });
+                    if (!res.ok) return null;
+                    return await res.json();
+                } catch { return null; }
+                finally { clearTimeout(t); }
+            }
+            function ensureNode(origin, seed) {
+                let n = nodes.get(origin);
+                if (!n) {
+                    // Spawn near the centre with a little scatter so the sim can unfold it.
+                    n = {
+                        origin,
+                        host: hostname(origin),
+                        name: null, version: null, description: null, artistName: null, communityLink: null,
+                        reachable: undefined, // undefined = not probed, true/false = probed result
+                        seed: !!seed,
+                        degree: 0,
+                        x: (Math.random() - 0.5) * 200,
+                        y: (Math.random() - 0.5) * 200,
+                        vx: 0, vy: 0,
+                    };
+                    nodes.set(origin, n);
+                } else if (seed) {
+                    n.seed = true;
+                }
+                return n;
+            }
+            function addEdge(from, to) {
+                if (from === to) return;
+                const key = from + " " + to;
+                const rev = to + " " + from;
+                // Treat "knows about" as effectively undirected for layout/rendering;
+                // collapse reciprocal pairs so we don't draw a line twice.
+                if (edgeKeys.has(key) || edgeKeys.has(rev)) return;
+                edgeKeys.add(key);
+                edges.push({ from, to });
+            }
+            function recomputeDegrees() {
+                for (const n of nodes.values()) n.degree = 0;
+                for (const e of edges) {
+                    const a = nodes.get(e.from), b = nodes.get(e.to);
+                    if (a) a.degree++;
+                    if (b) b.degree++;
+                }
+            }
+            function parsePeers(doc) {
+                if (Array.isArray(doc)) return doc.filter(p => typeof p === "string");
+                if (doc && Array.isArray(doc.peers)) return doc.peers.filter(p => typeof p === "string");
+                return [];
+            }
+
+            // ---- Crawl ----------------------------------------------------
+            let crawlToken = 0;
+            async function crawl(maxDepth) {
+                const myToken = ++crawlToken;
+                nodes = new Map(); edges = []; edgeKeys = new Set();
+                view = { x: 0, y: 0, scale: 1 }; hoverNode = null;
+
+                loadingOverlay.style.display = "flex";
+                emptyOverlay.style.display = "none";
+                loadingText.textContent = "Crawling the network…";
+
+                const visited = new Set();
+                let frontier = [];
+                for (const s of SEEDS) {
+                    const o = normOrigin(s);
+                    if (o) { ensureNode(o, true); frontier.push(o); }
+                }
+                frontier = Array.from(new Set(frontier));
+
+                let depth = 0;
+                let reachedAny = false;
+
+                while (frontier.length && depth < maxDepth) {
+                    const batch = frontier.filter(o => !visited.has(o));
+                    batch.forEach(o => visited.add(o));
+
+                    loadingText.textContent = `Probing ${batch.length} instance${batch.length === 1 ? "" : "s"} (hop ${depth + 1})…`;
+
+                    const results = await Promise.all(batch.map(async (origin) => {
+                        const [inst, peersDoc] = await Promise.all([
+                            fetchJson(origin + "/api/community/instance"),
+                            fetchJson(origin + "/api/community/peers"),
+                        ]);
+                        return { origin, inst, peers: parsePeers(peersDoc) };
+                    }));
+
+                    if (myToken !== crawlToken) return; // superseded by a newer crawl
+
+                    const next = [];
+                    for (const r of results) {
+                        const node = ensureNode(r.origin);
+                        const isTune = r.inst && (r.inst.software === "tunecamp" || r.inst.name || r.inst.peers);
+                        // Reachable only if the instance endpoint answered as a TuneCamp node.
+                        node.reachable = !!isTune;
+                        if (r.inst) {
+                            reachedAny = true;
+                            node.name = r.inst.name || node.name;
+                            node.version = r.inst.version || node.version;
+                            node.description = r.inst.description || node.description;
+                            node.artistName = r.inst.artistName || node.artistName;
+                            node.communityLink = r.inst.communityLink || node.communityLink;
+                        }
+                        for (const p of r.peers) {
+                            const po = normOrigin(p);
+                            if (!po || po === r.origin) continue;
+                            if (!nodes.has(po) && nodes.size >= MAX_NODES) continue;
+                            ensureNode(po);
+                            addEdge(r.origin, po);
+                            if (!visited.has(po)) next.push(po);
+                        }
+                    }
+
+                    // Redraw progressively as hops complete.
+                    recomputeDegrees();
+                    updateStats(depth + 1);
+                    alpha = 1; startSim();
+
+                    frontier = Array.from(new Set(next));
+                    depth++;
+                }
+
+                if (myToken !== crawlToken) return;
+
+                recomputeDegrees();
+                updateStats(depth);
+                loadingOverlay.style.display = "none";
+
+                if (!reachedAny && nodes.size === 0) {
+                    emptyOverlay.style.display = "flex";
+                } else if (!reachedAny) {
+                    // We have referenced nodes but couldn't reach any endpoint directly.
+                    emptyOverlay.style.display = "none";
+                }
+
+                // Give the layout an initial settle, then fit.
+                alpha = 1; startSim();
+                setTimeout(() => { if (myToken === crawlToken) fitToView(); }, 600);
+            }
+
+            function updateStats(depth) {
+                let reachable = 0;
+                for (const n of nodes.values()) if (n.reachable) reachable++;
+                document.getElementById("statInstances").textContent = String(nodes.size);
+                document.getElementById("statConnections").textContent = String(edges.length);
+                document.getElementById("statReachable").textContent = String(reachable);
+                document.getElementById("statDepth").textContent = String(depth);
+            }
+
+            // ---- Force simulation ----------------------------------------
+            function tick() {
+                const list = Array.from(nodes.values());
+                const n = list.length;
+                if (n === 0) return;
+
+                const REPULSION = 9000;
+                const SPRING = 0.02;
+                const SPRING_LEN = 120;
+                const GRAVITY = 0.015;
+                const DAMPING = 0.85;
+
+                // Repulsion (O(n^2), n is capped small)
+                for (let i = 0; i < n; i++) {
+                    const a = list[i];
+                    for (let j = i + 1; j < n; j++) {
+                        const b = list[j];
+                        let dx = a.x - b.x, dy = a.y - b.y;
+                        let d2 = dx * dx + dy * dy;
+                        if (d2 < 0.01) { dx = Math.random() - 0.5; dy = Math.random() - 0.5; d2 = 0.01; }
+                        const d = Math.sqrt(d2);
+                        const f = REPULSION / d2;
+                        const fx = (dx / d) * f, fy = (dy / d) * f;
+                        a.vx += fx; a.vy += fy;
+                        b.vx -= fx; b.vy -= fy;
+                    }
+                }
+                // Springs
+                for (const e of edges) {
+                    const a = nodes.get(e.from), b = nodes.get(e.to);
+                    if (!a || !b) continue;
+                    let dx = b.x - a.x, dy = b.y - a.y;
+                    let d = Math.sqrt(dx * dx + dy * dy) || 0.01;
+                    const f = SPRING * (d - SPRING_LEN);
+                    const fx = (dx / d) * f, fy = (dy / d) * f;
+                    a.vx += fx; a.vy += fy;
+                    b.vx -= fx; b.vy -= fy;
+                }
+                // Gravity toward origin + integrate
+                for (const p of list) {
+                    p.vx += -p.x * GRAVITY;
+                    p.vy += -p.y * GRAVITY;
+                    if (p === dragNode) { p.vx = 0; p.vy = 0; continue; }
+                    p.vx *= DAMPING; p.vy *= DAMPING;
+                    p.x += p.vx * alpha;
+                    p.y += p.vy * alpha;
+                }
+            }
+
+            function nodeRadius(nd) {
+                return 8 + Math.min(14, Math.sqrt(nd.degree) * 4) + (nd.seed ? 2 : 0);
+            }
+
+            // ---- Rendering ------------------------------------------------
+            let dpr = 1, cw = 0, ch = 0;
+            function resize() {
+                dpr = window.devicePixelRatio || 1;
+                const rect = host.getBoundingClientRect();
+                cw = rect.width; ch = rect.height;
+                canvas.width = Math.round(cw * dpr);
+                canvas.height = Math.round(ch * dpr);
+                draw();
+            }
+            function worldToScreen(x, y) {
+                return { x: (x + view.x) * view.scale + cw / 2, y: (y + view.y) * view.scale + ch / 2 };
+            }
+            function screenToWorld(sx, sy) {
+                return { x: (sx - cw / 2) / view.scale - view.x, y: (sy - ch / 2) / view.scale - view.y };
+            }
+
+            function draw() {
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                ctx.clearRect(0, 0, cw, ch);
+
+                const neighbors = new Set();
+                if (hoverNode) {
+                    neighbors.add(hoverNode.origin);
+                    for (const e of edges) {
+                        if (e.from === hoverNode.origin) neighbors.add(e.to);
+                        if (e.to === hoverNode.origin) neighbors.add(e.from);
+                    }
+                }
+
+                // Edges
+                for (const e of edges) {
+                    const a = nodes.get(e.from), b = nodes.get(e.to);
+                    if (!a || !b) continue;
+                    const pa = worldToScreen(a.x, a.y), pb = worldToScreen(b.x, b.y);
+                    const active = hoverNode && (e.from === hoverNode.origin || e.to === hoverNode.origin);
+                    ctx.beginPath();
+                    ctx.moveTo(pa.x, pa.y);
+                    ctx.lineTo(pb.x, pb.y);
+                    ctx.strokeStyle = active ? COLORS.reachable : COLORS.edge;
+                    ctx.globalAlpha = hoverNode ? (active ? 0.9 : 0.08) : 0.22;
+                    ctx.lineWidth = active ? 2 : 1;
+                    ctx.stroke();
+                }
+                ctx.globalAlpha = 1;
+
+                // Nodes
+                for (const nd of nodes.values()) {
+                    const p = worldToScreen(nd.x, nd.y);
+                    const r = nodeRadius(nd) * Math.min(1.4, Math.max(0.7, view.scale));
+                    const dim = hoverNode && !neighbors.has(nd.origin);
+                    const color = nd.reachable === true ? COLORS.reachable
+                        : nd.reachable === false ? COLORS.offline
+                            : COLORS.known;
+
+                    ctx.globalAlpha = dim ? 0.25 : 1;
+
+                    // glow for reachable / seed
+                    if (nd.reachable === true && !dim) {
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, r + 6, 0, Math.PI * 2);
+                        ctx.fillStyle = color;
+                        ctx.globalAlpha = dim ? 0.05 : 0.15;
+                        ctx.fill();
+                        ctx.globalAlpha = dim ? 0.25 : 1;
+                    }
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+                    ctx.fillStyle = color;
+                    ctx.fill();
+
+                    // seed / hovered ring
+                    if (nd.seed || nd === hoverNode) {
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, r + 3, 0, Math.PI * 2);
+                        ctx.strokeStyle = COLORS.text;
+                        ctx.lineWidth = nd === hoverNode ? 2 : 1.2;
+                        ctx.globalAlpha = dim ? 0.2 : (nd === hoverNode ? 0.9 : 0.4);
+                        ctx.stroke();
+                    }
+
+                    // Label: show when hovered/neighbor, seed, or graph is small / zoomed in.
+                    const showLabel = !dim && (nd === hoverNode || neighbors.has(nd.origin) || nd.seed || nodes.size <= 12 || view.scale > 1.3);
+                    if (showLabel) {
+                        ctx.globalAlpha = dim ? 0.3 : 1;
+                        ctx.fillStyle = COLORS.text;
+                        ctx.font = "600 11px Inter, sans-serif";
+                        ctx.textAlign = "center";
+                        ctx.textBaseline = "top";
+                        const label = nd.name || nd.host;
+                        ctx.fillText(truncate(label, 22), p.x, p.y + r + 4);
+                    }
+                    ctx.globalAlpha = 1;
+                }
+            }
+            function truncate(s, n) { return s.length > n ? s.slice(0, n - 1) + "…" : s; }
+
+            function loop() {
+                tick();
+                draw();
+                alpha *= 0.985;
+                if (alpha > 0.02 || dragNode || panning) {
+                    rafId = requestAnimationFrame(loop);
+                } else {
+                    rafId = null;
+                }
+            }
+            function startSim() {
+                if (alpha < 0.3) alpha = Math.max(alpha, 0.6);
+                if (!rafId) rafId = requestAnimationFrame(loop);
+            }
+
+            function fitToView() {
+                if (nodes.size === 0) return;
+                let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+                for (const n of nodes.values()) {
+                    minX = Math.min(minX, n.x); maxX = Math.max(maxX, n.x);
+                    minY = Math.min(minY, n.y); maxY = Math.max(maxY, n.y);
+                }
+                const w = Math.max(maxX - minX, 1), h = Math.max(maxY - minY, 1);
+                const pad = 80;
+                const scale = Math.min((cw - pad) / w, (ch - pad) / h, 2.2);
+                view.scale = Math.max(0.25, scale);
+                view.x = -(minX + maxX) / 2;
+                view.y = -(minY + maxY) / 2;
+                draw();
+            }
+
+            // ---- Hit testing & interaction --------------------------------
+            function pickNode(sx, sy) {
+                let best = null, bestD = Infinity;
+                for (const nd of nodes.values()) {
+                    const p = worldToScreen(nd.x, nd.y);
+                    const r = nodeRadius(nd) * Math.min(1.4, Math.max(0.7, view.scale)) + 4;
+                    const dx = sx - p.x, dy = sy - p.y;
+                    const d = dx * dx + dy * dy;
+                    if (d <= r * r && d < bestD) { bestD = d; best = nd; }
+                }
+                return best;
+            }
+            function pointerPos(ev) {
+                const rect = canvas.getBoundingClientRect();
+                const src = ev.touches ? ev.touches[0] : ev;
+                return { x: src.clientX - rect.left, y: src.clientY - rect.top };
+            }
+
+            function onDown(ev) {
+                const p = pointerPos(ev);
+                lastPointer = p; dragMoved = false;
+                const hit = pickNode(p.x, p.y);
+                if (hit) { dragNode = hit; canvas.style.cursor = "grabbing"; }
+                else { panning = true; canvas.style.cursor = "grabbing"; }
+                startSim();
+            }
+            function onMove(ev) {
+                const p = pointerPos(ev);
+                if (dragNode) {
+                    const w = screenToWorld(p.x, p.y);
+                    dragNode.x = w.x; dragNode.y = w.y;
+                    dragMoved = true; alpha = Math.max(alpha, 0.5); startSim();
+                } else if (panning) {
+                    view.x += (p.x - lastPointer.x) / view.scale;
+                    view.y += (p.y - lastPointer.y) / view.scale;
+                    dragMoved = true; draw();
+                } else {
+                    const hit = pickNode(p.x, p.y);
+                    if (hit !== hoverNode) { hoverNode = hit; draw(); }
+                    canvas.style.cursor = hit ? "pointer" : "grab";
+                    updateTooltip(hit, p);
+                }
+                lastPointer = p;
+            }
+            function onUp(ev) {
+                if (dragNode && !dragMoved) {
+                    // A click (no drag) on a node opens the instance.
+                    window.open(dragNode.origin, "_blank", "noopener,noreferrer");
+                }
+                dragNode = null; panning = false;
+                canvas.style.cursor = "grab";
+            }
+            function updateTooltip(nd, p) {
+                if (!nd) { tooltip.style.display = "none"; return; }
+                const parts = [];
+                parts.push('<div class="font-bold text-white">' + escapeHtml(nd.name || nd.host) + '</div>');
+                parts.push('<div class="text-purple-300 text-xs font-mono">' + escapeHtml(nd.host) + '</div>');
+                if (nd.artistName) parts.push('<div class="text-text-muted text-xs mt-1"><i class="fas fa-user-music mr-1"></i>' + escapeHtml(nd.artistName) + '</div>');
+                if (nd.description) parts.push('<div class="text-text-muted text-xs mt-1">' + escapeHtml(truncate(nd.description, 100)) + '</div>');
+                const meta = [];
+                meta.push(nd.reachable === true ? '<span style="color:#8b5cf6">● reachable</span>'
+                    : nd.reachable === false ? '<span style="color:#ef4444">● offline</span>'
+                        : '<span style="color:#6b7280">● known only</span>');
+                if (nd.version) meta.push('v' + escapeHtml(String(nd.version)));
+                meta.push(nd.degree + ' link' + (nd.degree === 1 ? '' : 's'));
+                parts.push('<div class="text-xs mt-1.5 flex flex-wrap gap-2 items-center text-text-muted">' + meta.join('<span class="opacity-30">·</span>') + '</div>');
+                parts.push('<div class="text-[10px] text-text-muted mt-1.5 opacity-70">click to open →</div>');
+                tooltip.innerHTML = parts.join("");
+                tooltip.style.display = "block";
+                // Position, keeping inside the host box.
+                const hb = host.getBoundingClientRect();
+                let tx = p.x + 16, ty = p.y + 16;
+                const tw = tooltip.offsetWidth, th = tooltip.offsetHeight;
+                if (tx + tw > hb.width) tx = p.x - tw - 16;
+                if (ty + th > hb.height) ty = p.y - th - 16;
+                tooltip.style.left = Math.max(4, tx) + "px";
+                tooltip.style.top = Math.max(4, ty) + "px";
+            }
+            function escapeHtml(s) {
+                return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+            }
+
+            function onWheel(ev) {
+                ev.preventDefault();
+                const p = pointerPos(ev);
+                const before = screenToWorld(p.x, p.y);
+                const factor = ev.deltaY < 0 ? 1.12 : 1 / 1.12;
+                view.scale = Math.max(0.2, Math.min(4, view.scale * factor));
+                const after = screenToWorld(p.x, p.y);
+                view.x += after.x - before.x;
+                view.y += after.y - before.y;
+                draw();
+            }
+
+            // ---- Wire up --------------------------------------------------
+            canvas.addEventListener("mousedown", onDown);
+            window.addEventListener("mousemove", onMove);
+            window.addEventListener("mouseup", onUp);
+            canvas.addEventListener("mouseleave", () => { hoverNode = null; tooltip.style.display = "none"; draw(); });
+            canvas.addEventListener("wheel", onWheel, { passive: false });
+            canvas.addEventListener("touchstart", (e) => { onDown(e); }, { passive: true });
+            canvas.addEventListener("touchmove", (e) => { onMove(e); }, { passive: true });
+            canvas.addEventListener("touchend", onUp);
+
+            fitBtn.addEventListener("click", fitToView);
+            rescanBtn.addEventListener("click", () => crawl(parseInt(depthSelect.value, 10)));
+            depthSelect.addEventListener("change", () => crawl(parseInt(depthSelect.value, 10)));
+            window.addEventListener("resize", resize);
+
+            // ---- Boot -----------------------------------------------------
+            if (SEEDS.length === 0) {
+                loadingOverlay.style.display = "none";
+                emptyOverlay.querySelector("span").textContent = "No directory instances are configured in config.js.";
+                emptyOverlay.style.display = "flex";
+            } else {
+                resize();
+                crawl(parseInt(depthSelect.value, 10));
+            }
+            // Ensure canvas has correct size once fonts/layout settle.
+            requestAnimationFrame(resize);
+        })();
+    </script>
+</body>
+
+</html>
