@@ -480,10 +480,10 @@
                 const instName = escapeHtml(l.instance?.name || '');
                 const instUrl = l.instance?.url ? escapeHtml(l.instance.url) : '#';
                 const avatar = l.avatar
-                    ? `<img src="${escapeHtml(l.avatar)}" class="w-full h-full object-cover">`
+                    ? `<img src="${escapeHtml(sanitizeUrl(l.avatar))}" class="w-full h-full object-cover">`
                     : `<i class="fas fa-user text-white/40"></i>`;
                 return `
-                    <a href="${instUrl}" target="_blank" class="shrink-0 w-56 bg-white/5 border border-white/10 rounded-xl p-3 flex items-center gap-3 hover:border-primary/50 transition-all group">
+                    <a href="${escapeHtml(sanitizeUrl(instUrl, false))}" target="_blank" class="shrink-0 w-56 bg-white/5 border border-white/10 rounded-xl p-3 flex items-center gap-3 hover:border-primary/50 transition-all group">
                         <div class="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-primary/40 to-purple-800 flex items-center justify-center shrink-0">${avatar}</div>
                         <div class="min-w-0">
                             <div class="text-sm font-semibold truncate group-hover:text-primary transition-colors">${who}</div>
@@ -541,9 +541,9 @@
                 // public profile on the origin instance; everything else opens the object.
                 const instUrl = (e.instance?.url || '').replace(/\/$/, '');
                 const profileUrl = e.user && instUrl ? `${instUrl}/u/${encodeURIComponent(e.user)}` : null;
-                const url = escapeHtml((e.type === 'playlist' && profileUrl) ? profileUrl : (obj.url || '#'));
+                const url = escapeHtml(sanitizeUrl((e.type === 'playlist' && profileUrl) ? profileUrl : (obj.url || '#'), false));
                 const cover = obj.cover
-                    ? `<img src="${escapeHtml(obj.cover)}" class="w-full h-full object-cover">`
+                    ? `<img src="${escapeHtml(sanitizeUrl(obj.cover))}" class="w-full h-full object-cover">`
                     : `<i class="fas ${meta.icon} ${meta.color}"></i>`;
                 // Likes carry a user only when that user opted in server-side.
                 const label = e.user && (e.type === 'like' || e.type === 'playlist')
@@ -577,9 +577,9 @@
             document.getElementById('statInstances').textContent = sites.length;
             if (sites.length === 0) return;
             strip.innerHTML = sites.map(s => {
-                const cover = s.coverImage ? `<img src="${escapeHtml(s.coverImage)}" class="w-full h-full object-cover">` : '<i class="fas fa-compact-disc text-white/40"></i>';
+                const cover = s.coverImage ? `<img src="${escapeHtml(sanitizeUrl(s.coverImage))}" class="w-full h-full object-cover">` : '<i class="fas fa-compact-disc text-white/40"></i>';
                 return `
-                    <a href="${escapeHtml(s.url)}" target="_blank" class="shrink-0 w-40 group">
+                    <a href="${escapeHtml(sanitizeUrl(s.url, false))}" target="_blank" class="shrink-0 w-40 group">
                         <div class="aspect-square w-full rounded-xl overflow-hidden bg-gradient-to-br from-primary/40 to-purple-800 flex items-center justify-center text-2xl border border-white/10 group-hover:border-primary/50 transition-all">${cover}</div>
                         <div class="mt-2 text-sm font-semibold truncate group-hover:text-primary transition-colors">${escapeHtml(s.title)}</div>
                     </a>`;
@@ -653,7 +653,7 @@
             grid.innerHTML = filteredTracks.map((t) => {
                 const key = trackStableKey(t);
                 const active = key === currentTrackKey;
-                const cover = t.coverUrl ? `<img src="${escapeHtml(t.coverUrl)}" class="w-full h-full object-cover">` : '<i class="fas fa-music"></i>';
+                const cover = t.coverUrl ? `<img src="${escapeHtml(sanitizeUrl(t.coverUrl))}" class="w-full h-full object-cover">` : '<i class="fas fa-music"></i>';
                 const escapedTitle = escapeHtml(t.title);
                 const escapedArtist = escapeHtml(t.artistName);
                 const ariaLabel = `Play ${escapedTitle} by ${escapedArtist}`;
@@ -699,7 +699,7 @@
                 console.warn('Playback failed:', track.audioUrl, err);
                 document.getElementById('miniTitle').textContent = track.title + ' — unavailable';
             });
-            const coverHtml = track.coverUrl ? `<img src="${escapeHtml(track.coverUrl)}" class="w-full h-full object-cover">` : '<i class="fas fa-music"></i>';
+            const coverHtml = track.coverUrl ? `<img src="${escapeHtml(sanitizeUrl(track.coverUrl))}" class="w-full h-full object-cover">` : '<i class="fas fa-music"></i>';
             document.getElementById('miniCover').innerHTML = coverHtml;
             document.getElementById('miniTitle').textContent = track.title;
             document.getElementById('miniArtist').textContent = track.artistName;
@@ -741,6 +741,14 @@
         function formatTime(s) {
             if (!s || isNaN(s)) return '0:00';
             return `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
+        }
+        function sanitizeUrl(u, allowData=true) {
+            if (!u) return '#';
+            try {
+                const p = new URL(String(u).trim(), window.location.origin).protocol;
+                if (p === 'javascript:' || p === 'vbscript:' || (!allowData && p === 'data:')) return '#';
+            } catch (e) { return '#'; }
+            return String(u).trim();
         }
         function escapeHtml(s) { return s ? s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;') : ''; }
 
