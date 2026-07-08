@@ -149,8 +149,9 @@
             <div class="sticky top-24 space-y-1">
                 <p class="text-xs text-text-muted/50 uppercase tracking-widest font-semibold mb-4">On this page</p>
                 <a href="#railway" class="toc-link block py-1">Deploy on Railway</a>
-                <a href="#prerequisites" class="toc-link block py-1">Prerequisites</a>
-                <a href="#install" class="toc-link block py-1">Install &amp; run</a>
+                <a href="#vps-installer" class="toc-link block py-1">VPS Auto-Installer</a>
+                <a href="#prerequisites" class="toc-link block py-1">Prerequisites (Manual)</a>
+                <a href="#install" class="toc-link block py-1">Install &amp; run (Manual)</a>
                 <a href="#first-login" class="toc-link block py-1">First login</a>
                 <a href="#music" class="toc-link block py-1">Add your music</a>
                 <a href="#public" class="toc-link block py-1">Go public (Nginx)</a>
@@ -207,6 +208,34 @@
                     </div>
                 </div>
                 <p class="text-xs text-text-muted mt-4">Want the Docker path instead? Continue with the steps below.</p>
+            </section>
+
+            <!-- VPS Auto-Installer -->
+            <section id="vps-installer" class="mb-6 bg-gradient-to-r from-teal-950/60 to-emerald-900/40 border border-teal-500/30 rounded-2xl p-8">
+                <div class="flex items-center gap-3 mb-4">
+                    <i class="fas fa-terminal text-teal-400 text-xl"></i>
+                    <h2 class="font-display text-xl font-bold">VPS Auto-Installer (Recommended)</h2>
+                    <span class="tag ml-auto"><i class="fas fa-magic text-amber-400"></i> ~3 min</span>
+                </div>
+                <p class="text-text-muted text-sm mb-5">
+                    Rented a fresh VPS (Ubuntu/Debian)? Run this single command to automatically install Docker, Docker Compose, Nginx, Certbot (SSL), configure your firewall, clone the repository, and spin up your TuneCamp instance:
+                </p>
+                <pre class="bg-black/40 border border-white/5 rounded-xl p-4 font-mono text-sm overflow-x-auto mb-5 text-teal-300">curl -fsSL https://tunecamp.org/install.sh | sudo bash</pre>
+                <div class="pt-5 border-t border-white/10 grid sm:grid-cols-3 gap-4 text-sm">
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-cogs text-teal-400 mt-0.5 shrink-0"></i>
+                        <span class="text-text-muted">Interactive prompt maps your music folder and custom admin credentials</span>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-shield-alt text-green-400 mt-0.5 shrink-0"></i>
+                        <span class="text-text-muted">Automatic Let's Encrypt SSL certificate registration for your domain</span>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-bolt text-amber-400 mt-0.5 shrink-0"></i>
+                        <span class="text-text-muted">Configures Nginx reverse proxy with websocket support automatically</span>
+                    </div>
+                </div>
+                <p class="text-xs text-text-muted mt-4">Want the manual step-by-step setup instead? Continue with the steps below.</p>
             </section>
 
             <!-- Step 1: Prerequisites -->
