@@ -1,4 +1,4 @@
-## 2025-02-27 - [XSS in inline event handlers]
-**Vulnerability:** XSS inside the string literal of an inline event handler in index.html (onclick="...").
-**Learning:** HTML entity decoding occurs before inline JavaScript executes in an attribute. Therefore `&#039;` is decoded back into `'` and can break out of a JS string literal, making `escapeHtml` insufficient for defending against XSS in this context.
-**Prevention:** Avoid dynamic interpolations within inline JS attributes. Instead store data using `data-*` attributes and retrieve them safely via `this.getAttribute(...)`.
+## 2025-07-09 - [Prevent URI-based XSS via federated dynamic URLs]
+**Vulnerability:** External federated API data was directly used in dynamically constructed `href` and `src` attributes for track covers and instance links. While `escapeHtml` was used, it does not prevent `javascript:` or `vbscript:` payloads in URLs, allowing potential Cross-Site Scripting (XSS).
+**Learning:** Federated applications are highly susceptible to malicious payloads in arbitrary fields such as image URLs or profile links. Simply HTML-escaping is insufficient for `href` or `src` attributes. `data:` URIs are specifically needed for track covers, meaning broad URL sanitization requires conditional logic.
+**Prevention:** Always implement a `sanitizeUrl` function that parses the URL and strictly allows only safe protocols (e.g., `http:`, `https:`), explicitly rejecting `javascript:` and `vbscript:`. Safely parse using `new URL()` with a base URL like `window.location.origin` to avoid crashing on relative paths. Use this sanitizer immediately before applying HTML escaping.

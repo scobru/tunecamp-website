@@ -372,7 +372,7 @@
             }
             container.innerHTML = filteredTracks.map((t, i) => {
                 const active = currentTrackIndex === i;
-                const cover = t.coverUrl ? `<img src="${escapeHtml(t.coverUrl)}" class="w-full h-full object-cover">` : '<i class="fas fa-music text-xs"></i>';
+                const cover = t.coverUrl ? `<img src="${escapeHtml(sanitizeUrl(t.coverUrl, true))}" class="w-full h-full object-cover">` : '<i class="fas fa-music text-xs"></i>';
                 const time = t.duration ? `${Math.floor(t.duration/60)}:${Math.floor(t.duration%60).toString().padStart(2,'0')}` : '';
                 const escapedTitle = escapeHtml(t.title);
                 const escapedArtist = escapeHtml(t.artistName);
@@ -407,7 +407,7 @@
             audio.play().catch(()=>{});
             
             // Update UI
-            const coverHtml = track.coverUrl ? `<img src="${escapeHtml(track.coverUrl)}" class="w-full h-full object-cover shadow-2xl">` : '<i class="fas fa-music"></i>';
+            const coverHtml = track.coverUrl ? `<img src="${escapeHtml(sanitizeUrl(track.coverUrl, true))}" class="w-full h-full object-cover shadow-2xl">` : '<i class="fas fa-music"></i>';
             document.getElementById('playerCover').innerHTML = coverHtml;
             document.getElementById('miniCover').innerHTML = coverHtml;
             document.getElementById('playerTitle').textContent = track.title;
@@ -481,6 +481,17 @@
             const m = Math.floor(s / 60);
             const se = Math.floor(s % 60);
             return `${m}:${se.toString().padStart(2,'0')}`;
+        }
+        function sanitizeUrl(url, isImage = false) {
+            if (!url) return url;
+            try {
+                const parsed = new URL(url, window.location.origin);
+                if (['javascript:', 'vbscript:'].includes(parsed.protocol)) return 'about:blank';
+                if (parsed.protocol === 'data:' && !isImage) return 'about:blank';
+                return url;
+            } catch (e) {
+                return 'about:blank';
+            }
         }
         function escapeHtml(s) { return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'):''; }
         
