@@ -732,7 +732,8 @@
                 console.warn('Playback failed:', track.audioUrl, err);
                 document.getElementById('miniTitle').textContent = track.title + ' — unavailable';
             });
-            const coverHtml = track.coverUrl ? `<img src="${escapeHtml(track.coverUrl)}" class="w-full h-full object-cover">` : '<i class="fas fa-music"></i>';
+             // ⚡ Bolt: Added native lazy loading to dynamically injected grid images to prevent network bottleneck
+            const coverHtml = track.coverUrl ? `<img src="${escapeHtml(track.coverUrl)}" class="w-full h-full object-cover" loading="lazy">` : '<i class="fas fa-music"></i>';
             document.getElementById('miniCover').innerHTML = coverHtml;
             document.getElementById('miniTitle').textContent = track.title;
             document.getElementById('miniArtist').textContent = track.artistName;
