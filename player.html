@@ -148,7 +148,7 @@
                 <div class="flex items-center gap-6 mb-3">
                     <button class="text-text-muted hover:text-white transition-colors" title="Shuffle" id="toggleShuffle" aria-label="Shuffle"><i class="fas fa-random"></i></button>
                     <button class="ctrl-btn" id="prevBtn" aria-label="Previous track"><i class="fas fa-step-backward"></i></button>
-                    <button class="ctrl-btn ctrl-btn-play" id="playBtn" aria-label="Play or pause"><i class="fas fa-play" id="playIcon"></i></button>
+                    <button class="ctrl-btn ctrl-btn-play" id="playBtn" aria-label="Play or pause (Space)" title="Play or pause (Space)"><i class="fas fa-play" id="playIcon"></i></button>
                     <button class="ctrl-btn" id="nextBtn" aria-label="Next track"><i class="fas fa-step-forward"></i></button>
                     <button class="text-text-muted hover:text-white transition-colors" title="Repeat" id="toggleRepeat" aria-label="Repeat"><i class="fas fa-redo"></i></button>
                 </div>
@@ -233,6 +233,23 @@
                 const rect = e.currentTarget.getBoundingClientRect();
                 const percent = (e.clientX - rect.left) / rect.width;
                 if (audio.duration) audio.currentTime = audio.duration * percent;
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === ' ' || e.code === 'Space') {
+                    const active = document.activeElement;
+                    if (active) {
+                        const tagName = active.tagName.toLowerCase();
+                        const role = active.getAttribute('role');
+                        if (['input', 'textarea', 'button', 'a', 'select'].includes(tagName) ||
+                            ['button', 'link', 'menuitem', 'tab'].includes(role) ||
+                            active.isContentEditable) {
+                            return;
+                        }
+                    }
+                    e.preventDefault();
+                    togglePlay();
+                }
             });
         }
 
