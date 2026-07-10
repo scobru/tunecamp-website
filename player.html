@@ -387,9 +387,14 @@
                 container.innerHTML = `<div class="p-8 text-center text-text-muted">No tracks match your search.</div>`;
                 return;
             }
+
+            // ⚡ Bolt Performance Optimization:
+            // Added loading="lazy" to dynamically injected track cover images in the playlist.
+            // Defers loading for offscreen covers in long playlists, improving main thread performance
+            // and reducing network congestion during initial directory load.
             container.innerHTML = filteredTracks.map((t, i) => {
                 const active = currentTrackIndex === i;
-                const cover = t.coverUrl ? `<img src="${escapeHtml(t.coverUrl)}" class="w-full h-full object-cover">` : '<i class="fas fa-music text-xs"></i>';
+                const cover = t.coverUrl ? `<img src="${escapeHtml(t.coverUrl)}" class="w-full h-full object-cover" loading="lazy">` : '<i class="fas fa-music text-xs"></i>';
                 const time = t.duration ? `${Math.floor(t.duration/60)}:${Math.floor(t.duration%60).toString().padStart(2,'0')}` : '';
                 const escapedTitle = escapeHtml(t.title);
                 const escapedArtist = escapeHtml(t.artistName);
