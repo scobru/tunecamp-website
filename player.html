@@ -394,10 +394,10 @@
             // and reducing network congestion during initial directory load.
             container.innerHTML = filteredTracks.map((t, i) => {
                 const active = currentTrackIndex === i;
-                const cover = t.coverUrl ? `<img src="${escapeHtml(t.coverUrl)}" class="w-full h-full object-cover" loading="lazy">` : '<i class="fas fa-music text-xs"></i>';
-                const time = t.duration ? `${Math.floor(t.duration/60)}:${Math.floor(t.duration%60).toString().padStart(2,'0')}` : '';
                 const escapedTitle = escapeHtml(t.title);
                 const escapedArtist = escapeHtml(t.artistName);
+                const cover = t.coverUrl ? `<img src="${escapeHtml(t.coverUrl)}" alt="${escapedTitle} cover" loading="lazy" class="w-full h-full object-cover">` : '<i class="fas fa-music text-xs" aria-hidden="true"></i>';
+                const time = t.duration ? `${Math.floor(t.duration/60)}:${Math.floor(t.duration%60).toString().padStart(2,'0')}` : '';
                 const ariaLabel = `Play ${escapedTitle} by ${escapedArtist}`;
                 return `
                     <div class="track-row group ${active ? 'playing' : ''}" role="button" tabindex="0" aria-label="${ariaLabel}" onclick="playTrackIndex(${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();playTrackIndex(${i});}">
@@ -429,7 +429,7 @@
             audio.play().catch(()=>{});
             
             // Update UI
-            const coverHtml = track.coverUrl ? `<img src="${escapeHtml(track.coverUrl)}" class="w-full h-full object-cover shadow-2xl">` : '<i class="fas fa-music"></i>';
+            const coverHtml = track.coverUrl ? `<img src="${escapeHtml(track.coverUrl)}" alt="${escapeHtml(track.title)} cover" class="w-full h-full object-cover shadow-2xl">` : '<i class="fas fa-music" aria-hidden="true"></i>';
             document.getElementById('playerCover').innerHTML = coverHtml;
             document.getElementById('miniCover').innerHTML = coverHtml;
             document.getElementById('playerTitle').textContent = track.title;

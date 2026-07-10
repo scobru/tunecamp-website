@@ -9,3 +9,7 @@
 ## 2024-05-18 - Global Media Shortcuts vs Accessibility
 **Learning:** Adding global media shortcuts (like Spacebar for play/pause) is a great micro-UX improvement, but it can break accessibility and core browser behavior if not scoped correctly. For instance, spacebar should type a space in inputs or activate focused buttons.
 **Action:** When implementing global keyboard shortcuts, always check `document.activeElement.tagName` and `role` to ensure the currently focused element isn't an input, textarea, button, anchor, or an element behaving like one (`role="button"`, etc.), before calling `e.preventDefault()`.
+
+## 2026-07-10 - Added missing alt attributes and lazy loading to dynamic images
+**Learning:** Found a pattern where images (track covers, user avatars, instance covers) generated dynamically via vanilla JS template literals lacked `alt` attributes, making them inaccessible to screen readers. Furthermore, many of these images are rendered in large lists but weren't lazy-loaded, causing unnecessary network requests.
+**Action:** Added descriptive `alt` attributes to all dynamically injected `<img>` tags. Added `loading="lazy"` to images within track lists, activity feeds, and "now spinning" strips to improve performance and LCP. Also added `aria-hidden="true"` to fallback decorative icons to prevent screen reader noise.
