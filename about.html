@@ -452,6 +452,11 @@
                             <!-- Instance C (Bottom-Center: 50%, 75%) -->
                             <line id="line-net-hub-c" x1="50%" y1="50%" x2="50%" y2="75%" stroke="rgba(255,255,255,0.15)" stroke-width="2" class="transition-all duration-300"></line>
 
+                            <!-- Instance-to-instance federation mesh (gossip discovery + cross-instance peer search) -->
+                            <line id="line-net-fed-ab" x1="25%" y1="25%" x2="75%" y2="25%" stroke="rgba(129,140,248,0.28)" stroke-width="1.5" stroke-dasharray="3,4" class="transition-all duration-300"></line>
+                            <line id="line-net-fed-bc" x1="75%" y1="25%" x2="50%" y2="75%" stroke="rgba(129,140,248,0.28)" stroke-width="1.5" stroke-dasharray="3,4" class="transition-all duration-300"></line>
+                            <line id="line-net-fed-ac" x1="25%" y1="25%" x2="50%" y2="75%" stroke="rgba(129,140,248,0.28)" stroke-width="1.5" stroke-dasharray="3,4" class="transition-all duration-300"></line>
+
                             <!-- Peer A to Instance A (x: 10%, y: 15% to x: 25%, y: 25%) -->
                             <line id="line-net-peer-a" x1="10%" y1="15%" x2="25%" y2="25%" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" stroke-dasharray="4,4" class="transition-all duration-300"></line>
                             <!-- Peer C to Instance C (x: 35%, y: 88% to x: 50%, y: 75%) -->
@@ -571,7 +576,7 @@
                 tag: "Index Aggregator",
                 icon: "fa-globe",
                 iconColor: "text-primary",
-                desc: "The main tunecamp.org website acts as a global directory. It runs client-side API requests to query known active seed nodes, discover public instances, collect track metadata, and display them in a single index. Crucial note: tunecamp.org does not store or host any audio files on its servers.",
+                desc: "The main tunecamp.org website acts as a global directory. It crawls the federation server-side (edge-cached) to discover public instances and seed nodes, then aggregates their public catalog metadata into a single index. Crucial note: tunecamp.org does not store or host any audio files on its servers.",
                 color: "#8b5cf6"
             },
             inst_a: {
@@ -579,7 +584,7 @@
                 tag: "Sovereign Servers",
                 icon: "fa-server",
                 iconColor: "text-indigo-400",
-                desc: "Each artist or label runs their own independent TuneCamp server. When a user visits the global explorer, their browser queries these decentralized servers directly in real-time to load the latest catalog details.",
+                desc: "Each artist or label runs their own independent TuneCamp server. Instances also federate directly with each other — gossip discovery plus cross-instance peer-track search — so a query on one instance can surface and stream shared tracks hosted on another (single hop).",
                 color: "#818cf8"
             },
             inst_b: {
@@ -587,7 +592,7 @@
                 tag: "Sovereign Servers",
                 icon: "fa-server",
                 iconColor: "text-violet-400",
-                desc: "Each artist or label runs their own independent TuneCamp server. When a user visits the global explorer, their browser queries these decentralized servers directly in real-time to load the latest catalog details.",
+                desc: "Each artist or label runs their own independent TuneCamp server. Instances also federate directly with each other — gossip discovery plus cross-instance peer-track search — so a query on one instance can surface and stream shared tracks hosted on another (single hop).",
                 color: "#a78bfa"
             },
             inst_c: {
@@ -595,7 +600,7 @@
                 tag: "Sovereign Servers",
                 icon: "fa-server",
                 iconColor: "text-fuchsia-400",
-                desc: "Each artist or label runs their own independent TuneCamp server. When a user visits the global explorer, their browser queries these decentralized servers directly in real-time to load the latest catalog details.",
+                desc: "Each artist or label runs their own independent TuneCamp server. Instances also federate directly with each other — gossip discovery plus cross-instance peer-track search — so a query on one instance can surface and stream shared tracks hosted on another (single hop).",
                 color: "#e879f9"
             },
             peer_a: {
