@@ -464,7 +464,7 @@ server {
                 <h2 class="font-display text-2xl font-bold mb-2">Instance running?</h2>
                 <p class="text-text-muted mb-5">Register it to appear in the network directory immediately.</p>
                 <form id="registerForm" class="flex gap-2 mb-3" onsubmit="return false;">
-                    <input id="registerUrl" type="text" placeholder="your-instance.example.com"
+                    <input id="registerUrl" aria-label="Instance URL" type="text" placeholder="your-instance.example.com"
                         class="flex-1 px-4 py-2.5 rounded-xl bg-white/10 border border-white/10 text-white placeholder-text-muted text-sm focus:outline-none focus:border-primary" />
                     <button id="registerBtn" type="submit"
                         class="shrink-0 bg-gradient-to-r from-primary to-purple-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:scale-105 transition-all">Register</button>
