@@ -9,3 +9,7 @@
 ## 2024-05-18 - Global Media Shortcuts vs Accessibility
 **Learning:** Adding global media shortcuts (like Spacebar for play/pause) is a great micro-UX improvement, but it can break accessibility and core browser behavior if not scoped correctly. For instance, spacebar should type a space in inputs or activate focused buttons.
 **Action:** When implementing global keyboard shortcuts, always check `document.activeElement.tagName` and `role` to ensure the currently focused element isn't an input, textarea, button, anchor, or an element behaving like one (`role="button"`, etc.), before calling `e.preventDefault()`.
+
+## 2024-05-19 - Added ARIA labels and focus rings to form inputs
+**Learning:** Found that custom-styled form controls (search inputs, filters, volume sliders) in `index.html` and `player.html` frequently relied on adjacent icons or placeholders for context rather than explicitly setting `aria-label`. Additionally, the volume sliders used `focus:outline-none` which suppressed the browser's default focus ring, making them inaccessible to keyboard users navigating via Tab.
+**Action:** Consistently added `aria-label` attributes to these form controls and replaced `focus:outline-none` on interactive custom components with `focus-visible:ring-2 focus-visible:ring-primary/50 focus:outline-none` to restore a clear and matching focus indicator.
