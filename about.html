@@ -187,7 +187,7 @@
 
             <!-- Hero screenshot: full-screen player -->
             <div class="rounded-2xl overflow-hidden border border-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.5)] mb-5 bg-bg-surface">
-                <img src="screenshots/tunecamp-player.png"
+                <!-- ⚡ Bolt: Hero images should not be lazy loaded for LCP performance --><img src="screenshots/tunecamp-player.png"
                      alt="Tunecamp full-screen ambient player with album art, waveform visualizer, and dynamic color glow matching the cover"
                      class="w-full block" />
                 <div class="px-6 py-4 border-t border-white/10 flex items-center gap-3">
@@ -200,7 +200,7 @@
             <!-- 3-col screenshots -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="rounded-xl overflow-hidden border border-white/10 bg-bg-surface flex flex-col">
-                    <img src="screenshots/tunecamp-release.webp"
+                    <!-- ⚡ Bolt: Added lazy loading to offscreen images --><img loading="lazy" src="screenshots/tunecamp-release.webp"
                          alt="Releases page with album artwork grid and filter tabs for Singles, Albums, Livesets"
                          class="w-full block flex-1" />
                     <div class="px-4 py-3 border-t border-white/10 shrink-0">
@@ -209,7 +209,7 @@
                     </div>
                 </div>
                 <div class="rounded-xl overflow-hidden border border-white/10 bg-bg-surface flex flex-col">
-                    <img src="screenshots/tunecamp-album.png"
+                    <img loading="lazy" src="screenshots/tunecamp-album.png"
                          alt="Album detail page with tracklist, AI-powered related vibes, and store/download options"
                          class="w-full block flex-1" />
                     <div class="px-4 py-3 border-t border-white/10 shrink-0">
@@ -218,7 +218,7 @@
                     </div>
                 </div>
                 <div class="rounded-xl overflow-hidden border border-white/10 bg-bg-surface flex flex-col">
-                    <img src="screenshots/tuencamp-archive.webp"
+                    <img loading="lazy" src="screenshots/tuencamp-archive.webp"
                          alt="Private archive showing 192 personal albums from various artists including Van Halen and Ryuichi Sakamoto"
                          class="w-full block flex-1" />
                     <div class="px-4 py-3 border-t border-white/10 shrink-0">
