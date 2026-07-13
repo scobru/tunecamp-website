@@ -64,7 +64,7 @@
             </a>
             <div class="relative flex-1 max-w-md hidden lg:block">
                 <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-text-muted text-sm"></i>
-                <input type="text" id="searchInput" aria-label="Search tracks and artists" placeholder="Search tracks and artists" oninput="filterTracks(false)"
+                <input type="text" id="searchInput" aria-label="Search tracks and artists" placeholder="Search tracks and artists" oninput="debouncedFilterTracks(false)"
                     class="w-full bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-primary/50 placeholder-text-muted" />
             </div>
             <div class="hidden lg:flex items-center gap-5 text-sm font-medium ml-auto">
@@ -100,7 +100,7 @@
                 <!-- Mobile search input -->
                 <div class="relative w-full">
                     <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-text-muted text-sm"></i>
-                    <input type="text" id="mobileSearchInput" aria-label="Search tracks and artists" placeholder="Search tracks and artists" oninput="filterTracks(true)"
+                    <input type="text" id="mobileSearchInput" aria-label="Search tracks and artists" placeholder="Search tracks and artists" oninput="debouncedFilterTracks(true)"
                         class="w-full bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-primary/50 placeholder-text-muted" />
                 </div>
                 <div class="flex flex-col gap-1">
@@ -778,6 +778,18 @@
         }
         function escapeHtml(s) { return s ? s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;') : ''; }
 
+        // ⚡ Bolt Performance Optimization:
+        // Debounce search input to prevent main thread blocking during rapid typing.
+        // Full DOM rebuilds via innerHTML are expensive, so we delay execution until typing pauses.
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        window.debouncedFilterTracks = debounce(filterTracks, 300);
         window.filterTracks = filterTracks;
         window.playTrackIndex = playTrackIndex;
         window.playTrackByKey = playTrackByKey;
