@@ -370,6 +370,14 @@
             filterTracks();
         }
 
+        function clearFilters() {
+            const si = document.getElementById('searchInput');
+            if (si) si.value = '';
+            const af = document.getElementById('artistFilter');
+            if (af) af.value = '';
+            filterTracks();
+        }
+
         function filterTracks() {
             const q = document.getElementById('searchInput').value.toLowerCase();
             const a = document.getElementById('artistFilter').value;
@@ -384,7 +392,13 @@
         function renderTracks() {
             const container = document.getElementById('tracksContainer');
             if (filteredTracks.length === 0) {
-                container.innerHTML = `<div class="p-8 text-center text-text-muted">No tracks match your search.</div>`;
+                container.innerHTML = `
+                    <div class="p-8 flex flex-col items-center justify-center text-center">
+                        <p class="text-text-muted mb-4">No tracks match your search.</p>
+                        <button onclick="clearFilters()" class="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm font-medium transition-colors text-white">
+                            Clear Filters
+                        </button>
+                    </div>`;
                 return;
             }
 
@@ -508,6 +522,7 @@
         function escapeHtml(s) { return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'):''; }
         
         window.filterTracks = filterTracks;
+        window.clearFilters = clearFilters;
         window.playTrackIndex = playTrackIndex;
     </script>
 </body>
