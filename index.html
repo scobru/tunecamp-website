@@ -641,6 +641,18 @@
             filterTracks();
         }
 
+        function clearFilters() {
+            const di = document.getElementById('searchInput');
+            if (di) di.value = '';
+            const mi = document.getElementById('mobileSearchInput');
+            if (mi) mi.value = '';
+            const af = document.getElementById('artistFilter');
+            if (af) af.value = '';
+            const gf = document.getElementById('genreFilter');
+            if (gf) gf.value = '';
+            filterTracks();
+        }
+
         function filterTracks(isMobile) {
             const desktopInput = document.getElementById('searchInput');
             const mobileInput = document.getElementById('mobileSearchInput');
@@ -675,7 +687,13 @@
         function renderTracks() {
             const grid = document.getElementById('tracksGrid');
             if (filteredTracks.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-12 text-center text-text-muted">No tracks match your search.</div>`;
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 flex flex-col items-center justify-center text-center">
+                        <p class="text-text-muted mb-4">No tracks match your search.</p>
+                        <button onclick="clearFilters()" class="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm font-medium transition-colors text-white">
+                            Clear Filters
+                        </button>
+                    </div>`;
                 return;
             }
 
@@ -779,6 +797,7 @@
         function escapeHtml(s) { return s ? s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;') : ''; }
 
         window.filterTracks = filterTracks;
+        window.clearFilters = clearFilters;
         window.playTrackIndex = playTrackIndex;
         window.playTrackByKey = playTrackByKey;
     </script>
