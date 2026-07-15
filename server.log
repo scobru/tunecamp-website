@@ -1,0 +1,13 @@
+127.0.0.1 - - [15/Jul/2026 01:42:36] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jul/2026 01:42:36] "GET /fonts/fonts.css HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jul/2026 01:42:36] "GET /vendor/fontawesome/css/all.min.css HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jul/2026 01:42:36] "GET /vendor/tailwind.js HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jul/2026 01:42:36] "GET /theme.js HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jul/2026 01:42:36] "GET /tunecamp.svg HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jul/2026 01:42:36] "GET /styles.css HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jul/2026 01:42:36] "GET /config.js HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jul/2026 01:42:37] "GET /fonts/inter-v20-UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2 HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jul/2026 01:42:37] "GET /fonts/outfit-v15-QGYvz_MVcBeNP4NJtEtq.woff2 HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jul/2026 01:42:37] "GET /vendor/fontawesome/webfonts/fa-brands-400.woff2 HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jul/2026 01:42:37] "GET /vendor/fontawesome/webfonts/fa-solid-900.woff2 HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jul/2026 01:42:43] "GET /player.html HTTP/1.1" 200 -
