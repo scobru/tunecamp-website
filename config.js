@@ -16,3 +16,9 @@ window.TUNECAMP_DIRECTORY = [
     "https://tunecamp.subterralabel.com",
     "https://tunecamp.fdalabs.net"
 ];
+
+/**
+ * Base URL of the tunecamp-sso service (see the `tunecamp-sso` repo) used by
+ * signin.html for the "Sign in with your instance" flow.
+ */
+window.TUNECAMP_SSO_URL = "https://sso.tunecamp.org";

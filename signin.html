@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tunecamp — Sign In</title>
+    <link rel="icon" type="image/svg+xml" href="tunecamp.svg" />
+    <meta name="description" content="Sign in to Tunecamp with your own instance account." />
+    <meta name="robots" content="noindex" />
+    <link rel="stylesheet" href="fonts/fonts.css" />
+    <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css" />
+    <script src="vendor/tailwind.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="theme.js"></script>
+    <script src="config.js"></script>
+    <style type="text/tailwindcss">
+        @theme {
+        --color-primary: #8b5cf6;
+        --color-primary-hover: #a78bfa;
+        --color-bg-base: #050505;
+        --color-bg-surface: #111111;
+        --color-bg-surface-alt: #1a1a1a;
+        --color-text-base: #ffffff;
+        --color-text-muted: #a3a3a3;
+        --font-sans: "Inter", sans-serif;
+        --font-display: "Outfit", sans-serif;
+      }
+      body {
+        @apply bg-bg-base text-text-base font-sans antialiased selection:bg-primary/30 overflow-x-hidden;
+      }
+      .btn-primary {
+        @apply bg-gradient-to-r from-primary to-purple-500 text-white px-8 py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(139,92,246,0.5)];
+      }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col relative">
+    <!-- Top Nav -->
+    <nav class="fixed top-0 left-0 w-full z-50 bg-black/60 backdrop-blur-lg border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-2 font-display font-bold text-lg">
+                <img src="tunecamp.svg" alt="Tunecamp" class="w-7 h-7" /> Tunecamp
+            </a>
+            <a href="index.html" class="text-sm text-text-muted hover:text-white transition-colors">Back to Explore</a>
+        </div>
+    </nav>
+
+    <!-- Ambient Glow -->
+    <div class="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/20 blur-[120px] rounded-full pointer-events-none -z-10"></div>
+
+    <section class="pt-32 pb-16 px-6 flex-1 flex items-start justify-center">
+        <div class="max-w-md w-full">
+            <div id="signedInPanel" class="hidden rounded-2xl border border-white/10 bg-white/5 p-6 text-center mb-6">
+                <p class="text-sm text-text-muted mb-1">Signed in as</p>
+                <p id="signedInActor" class="font-display font-bold text-lg mb-4 break-all"></p>
+                <button onclick="tcSignOut()" class="text-sm text-text-muted hover:text-white transition-colors">Sign out</button>
+            </div>
+
+            <h1 class="font-display text-3xl font-extrabold mb-2 text-center">Sign in with your instance</h1>
+            <p class="text-text-muted text-sm text-center mb-8">
+                Use the account you already have on your own Tunecamp instance — no new password to create.
+            </p>
+
+            <form id="signinForm" class="space-y-4">
+                <div>
+                    <label for="instanceInput" class="block text-sm font-medium mb-2">Your instance domain</label>
+                    <input id="instanceInput" type="text" required placeholder="yourinstance.com"
+                        class="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-primary/50 placeholder-text-muted" />
+                </div>
+                <div id="signinError" class="hidden text-error text-sm"></div>
+                <button type="submit" class="btn-primary w-full">
+                    <i class="fas fa-arrow-right-to-bracket"></i> Continue
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <script>
+        (function () {
+            const TOKEN_KEY = 'tunecamp_sso_token';
+
+            function normalizeInstance(raw) {
+                let v = raw.trim().replace(/^https?:\/\//i, '').replace(/\/.*$/, '');
+                return v;
+            }
+
+            const params = new URLSearchParams(location.search);
+            const token = params.get('token');
+            if (token) {
+                localStorage.setItem(TOKEN_KEY, token);
+                history.replaceState(null, '', location.pathname);
+            }
+
+            const existing = localStorage.getItem(TOKEN_KEY);
+            if (existing) {
+                document.getElementById('signedInPanel').classList.remove('hidden');
+                let actor = 'Signed in';
+                try {
+                    const payload = JSON.parse(atob(existing.split('.')[1]));
+                    actor = payload.actor || payload.username || actor;
+                } catch (e) { /* opaque token, nothing to show */ }
+                document.getElementById('signedInActor').textContent = actor;
+            }
+
+            window.tcSignOut = function () {
+                localStorage.removeItem(TOKEN_KEY);
+                location.reload();
+            };
+
+            document.getElementById('signinForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const errEl = document.getElementById('signinError');
+                errEl.classList.add('hidden');
+
+                const ssoUrl = window.TUNECAMP_SSO_URL;
+                if (!ssoUrl) {
+                    errEl.textContent = 'Sign-in service is not configured.';
+                    errEl.classList.remove('hidden');
+                    return;
+                }
+                const instance = normalizeInstance(document.getElementById('instanceInput').value);
+                if (!instance) return;
+
+                const returnTo = location.origin + location.pathname;
+                const url = new URL('/auth/start', ssoUrl);
+                url.searchParams.set('instance', instance);
+                url.searchParams.set('return_to', returnTo);
+                location.href = url.href;
+            });
+        })();
+    </script>
+</body>
+
+</html>
