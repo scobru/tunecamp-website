@@ -499,9 +499,9 @@
             strip.innerHTML = listeners.map(l => {
                 const who = escapeHtml(l.alias || l.username || 'Someone');
                 const instName = escapeHtml(l.instance?.name || '');
-                const instUrl = l.instance?.url ? escapeHtml(l.instance.url) : '#';
+                const instUrl = l.instance?.url ? escapeHtml(sanitizeUrl(l.instance.url)) : '#';
                 const avatar = l.avatar
-                    ? `<img src="${escapeHtml(l.avatar)}" class="w-full h-full object-cover" loading="lazy">`
+                    ? `<img src="${escapeHtml(sanitizeUrl(l.avatar))}" class="w-full h-full object-cover" loading="lazy">`
                     : `<i class="fas fa-user text-white/40"></i>`;
                 return `
                     <a href="${instUrl}" target="_blank" class="shrink-0 w-56 bg-white/5 border border-white/10 rounded-xl p-3 flex items-center gap-3 hover:border-primary/50 transition-all group">
@@ -566,9 +566,9 @@
                 // public profile on the origin instance; everything else opens the object.
                 const instUrl = (e.instance?.url || '').replace(/\/$/, '');
                 const profileUrl = e.user && instUrl ? `${instUrl}/u/${encodeURIComponent(e.user)}` : null;
-                const url = escapeHtml((e.type === 'playlist' && profileUrl) ? profileUrl : (obj.url || '#'));
+                const url = escapeHtml(sanitizeUrl((e.type === 'playlist' && profileUrl) ? profileUrl : (obj.url || '#')));
                 const cover = obj.cover
-                    ? `<img src="${escapeHtml(obj.cover)}" class="w-full h-full object-cover" loading="lazy">`
+                    ? `<img src="${escapeHtml(sanitizeUrl(obj.cover))}" class="w-full h-full object-cover" loading="lazy">`
                     : `<i class="fas ${meta.icon} ${meta.color}"></i>`;
                 // Likes carry a user only when that user opted in server-side.
                 const label = e.user && (e.type === 'like' || e.type === 'playlist')
@@ -605,9 +605,9 @@
             // ⚡ Bolt Performance Optimization:
             // Added loading="lazy" to dynamically injected instance covers to save bandwidth for offscreen elements.
             strip.innerHTML = sites.map(s => {
-                const cover = s.coverImage ? `<img src="${escapeHtml(s.coverImage)}" class="w-full h-full object-cover" loading="lazy">` : '<i class="fas fa-compact-disc text-white/40"></i>';
+                const cover = s.coverImage ? `<img src="${escapeHtml(sanitizeUrl(s.coverImage))}" class="w-full h-full object-cover" loading="lazy">` : '<i class="fas fa-compact-disc text-white/40"></i>';
                 return `
-                    <a href="${escapeHtml(s.url)}" target="_blank" class="shrink-0 w-40 group">
+                    <a href="${escapeHtml(sanitizeUrl(s.url))}" target="_blank" class="shrink-0 w-40 group">
                         <div class="aspect-square w-full rounded-xl overflow-hidden bg-gradient-to-br from-primary/40 to-purple-800 flex items-center justify-center text-2xl border border-white/10 group-hover:border-primary/50 transition-all">${cover}</div>
                         <div class="mt-2 text-sm font-semibold truncate group-hover:text-primary transition-colors">${escapeHtml(s.title)}</div>
                     </a>`;
@@ -686,7 +686,7 @@
             grid.innerHTML = filteredTracks.map((t) => {
                 const key = trackStableKey(t);
                 const active = key === currentTrackKey;
-                const cover = t.coverUrl ? `<img src="${escapeHtml(t.coverUrl)}" class="w-full h-full object-cover" loading="lazy">` : '<i class="fas fa-music"></i>';
+                const cover = t.coverUrl ? `<img src="${escapeHtml(sanitizeUrl(t.coverUrl))}" class="w-full h-full object-cover" loading="lazy">` : '<i class="fas fa-music"></i>';
                 const escapedTitle = escapeHtml(t.title);
                 const escapedArtist = escapeHtml(t.artistName);
                 const ariaLabel = `Play ${escapedTitle} by ${escapedArtist}`;
@@ -733,7 +733,7 @@
                 document.getElementById('miniTitle').textContent = track.title + ' — unavailable';
             });
              // ⚡ Bolt: Added native lazy loading to dynamically injected grid images to prevent network bottleneck
-            const coverHtml = track.coverUrl ? `<img src="${escapeHtml(track.coverUrl)}" class="w-full h-full object-cover" loading="lazy">` : '<i class="fas fa-music"></i>';
+            const coverHtml = track.coverUrl ? `<img src="${escapeHtml(sanitizeUrl(track.coverUrl))}" class="w-full h-full object-cover" loading="lazy">` : '<i class="fas fa-music"></i>';
             document.getElementById('miniCover').innerHTML = coverHtml;
             document.getElementById('miniTitle').textContent = track.title;
             document.getElementById('miniArtist').textContent = track.artistName;
@@ -777,6 +777,18 @@
             return `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
         }
         function escapeHtml(s) { return s ? s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;') : ''; }
+        function sanitizeUrl(url) {
+            if (!url) return '#';
+            try {
+                const parsed = new URL(url, window.location.origin);
+                if (['javascript:', 'vbscript:', 'file:'].includes(parsed.protocol)) {
+                    return '#';
+                }
+                return url;
+            } catch {
+                return '#';
+            }
+        }
 
         window.filterTracks = filterTracks;
         window.playTrackIndex = playTrackIndex;
