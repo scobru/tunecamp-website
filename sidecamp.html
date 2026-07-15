@@ -167,28 +167,40 @@
                     <!-- Tab buttons -->
                     <div class="flex flex-wrap border-b border-white/10 gap-2 pb-4 mb-6">
                         <button onclick="switchTab('search')" id="tab-search" class="px-4 py-2 text-sm font-semibold rounded-lg bg-primary text-white transition-all">
-                            🔎 Search & Download
+                            🔎 Search
                         </button>
                         <button onclick="switchTab('network')" id="tab-network" class="px-4 py-2 text-sm font-semibold rounded-lg text-text-muted hover:text-white hover:bg-white/5 transition-all">
-                            🌐 Network Explorer
+                            🌐 Network
                         </button>
                         <button onclick="switchTab('library')" id="tab-library" class="px-4 py-2 text-sm font-semibold rounded-lg text-text-muted hover:text-white hover:bg-white/5 transition-all">
                             🎵 Library
                         </button>
-                        <button onclick="switchTab('downloads')" id="tab-downloads" class="px-4 py-2 text-sm font-semibold rounded-lg text-text-muted hover:text-white hover:bg-white/5 transition-all">
-                            📦 Transfers
+                        <button onclick="switchTab('tags')" id="tab-tags" class="px-4 py-2 text-sm font-semibold rounded-lg text-text-muted hover:text-white hover:bg-white/5 transition-all">
+                            🏷️ Tag Editor
+                        </button>
+                        <button onclick="switchTab('graph')" id="tab-graph" class="px-4 py-2 text-sm font-semibold rounded-lg text-text-muted hover:text-white hover:bg-white/5 transition-all">
+                            🕸️ Graph Playlist
+                        </button>
+                        <button onclick="switchTab('cues')" id="tab-cues" class="px-4 py-2 text-sm font-semibold rounded-lg text-text-muted hover:text-white hover:bg-white/5 transition-all">
+                            🌊 Waveform & Cues
+                        </button>
+                        <button onclick="switchTab('hotcues')" id="tab-hotcues" class="px-4 py-2 text-sm font-semibold rounded-lg text-text-muted hover:text-white hover:bg-white/5 transition-all">
+                            🎛️ Hot Cues & Loops
+                        </button>
+                        <button onclick="switchTab('transitions')" id="tab-transitions" class="px-4 py-2 text-sm font-semibold rounded-lg text-text-muted hover:text-white hover:bg-white/5 transition-all">
+                            🎚️ EQ Transitions
                         </button>
                     </div>
 
                     <!-- Display Window -->
                     <div class="relative overflow-hidden rounded-xl border border-white/10 bg-black/40 aspect-[4/3] md:aspect-[16/10] flex items-center justify-center">
-                        <!-- ⚡ Bolt: Added lazy loading to offscreen images --><img id="showcase-img" loading="lazy" src="screenshots/sidecamp-search.png" alt="Sidecamp Search & Download" class="max-h-full max-w-full object-contain transition-opacity duration-300" />
+                        <!-- ⚡ Bolt: Added lazy loading to offscreen images --><img id="showcase-img" loading="lazy" src="screenshots/sidecamp-ingestion.png" alt="Sidecamp Search" class="max-h-full max-w-full object-contain transition-opacity duration-300" />
                     </div>
 
                     <!-- Caption -->
                     <div class="mt-4 p-4 bg-white/3 border border-white/5 rounded-xl text-sm">
                         <p id="showcase-caption" class="text-text-muted leading-relaxed">
-                            <strong>Search & Download:</strong> Search across Soulseek, SoundCloud, Bandcamp, and Torrent networks directly from your desktop. Add magnet links or direct URLs, and monitor download progress with real-time logs.
+                            <strong>Search:</strong> Search across Soulseek, SoundCloud, Bandcamp, Torrent, the TuneCamp network, and Internet Archive — all from one bar, all platforms at once or one at a time.
                         </p>
                     </div>
                 </div>
@@ -198,25 +210,41 @@
             <script>
                 const tabData = {
                     search: {
-                        img: 'screenshots/sidecamp-search.png',
-                        caption: '<strong>Search & Download:</strong> Search across Soulseek, SoundCloud, Bandcamp, and Torrent networks directly from your desktop. Add magnet links or direct URLs, and monitor download progress with real-time logs.'
+                        img: 'screenshots/sidecamp-ingestion.png',
+                        caption: '<strong>Search:</strong> Search across Soulseek, SoundCloud, Bandcamp, Torrent, the TuneCamp network, and Internet Archive — all from one bar, all platforms at once or one at a time.'
                     },
                     network: {
                         img: 'screenshots/sidecamp-network.png',
                         caption: '<strong>Network Explorer:</strong> Browse connected peers and the TuneCamp server catalog. View shared track libraries from other nodes and download tracks on-demand with a single click.'
                     },
                     library: {
-                        img: 'screenshots/sidecamp-library.png',
-                        caption: '<strong>Local Library:</strong> Browse all your downloaded tracks in one place. Play any file with the built-in audio player, edit ID3 tags (title, artist, album), rename files, move them to folders, or upload directly to TuneCamp.'
+                        img: 'screenshots/sidecamp-librabry.png',
+                        caption: '<strong>Local Library:</strong> Browse all your downloaded tracks, analyze BPM/key, organize files into folders, and jump straight into the graph playlist or tag editor.'
                     },
-                    downloads: {
-                        img: 'screenshots/sidecamp-dowloads.png',
-                        caption: '<strong>Transfers:</strong> Monitor active and failed transfers. Upload tracks to TuneCamp or seed them as torrents to share with the broader network.'
+                    tags: {
+                        img: 'screenshots/sidecamp-tags.png',
+                        caption: '<strong>Tag Editor:</strong> Edit ID3 tags (title, artist, album) and rename files directly from the library, in place.'
+                    },
+                    graph: {
+                        img: 'screenshots/sidecamp-dynamic-graph-playlist.png',
+                        caption: '<strong>Graph Playlist:</strong> Visualize your library as a track graph, auto-linked by BPM/key/genre compatibility. Shift+click to link tracks, Ctrl+click to preview a waveform, and play a path straight through the graph.'
+                    },
+                    cues: {
+                        img: 'screenshots/sidecamp-cue-points.png',
+                        caption: '<strong>Zoomable Waveform & Cue Points:</strong> Zoom and pan the waveform, snap to the beat grid, and set cue/start points precisely before mixing.'
+                    },
+                    hotcues: {
+                        img: 'screenshots/sidecamp-loops-beatjump.png',
+                        caption: '<strong>Hot Cues & Loops:</strong> Pitch and filter controls, beat jump, loop rolls (1/2/4/8/16 beats), and four hot cues per track for live performance.'
+                    },
+                    transitions: {
+                        img: 'screenshots/sidecamp-beatmatch-transitions.png',
+                        caption: '<strong>EQ-Based Transitions:</strong> Preview beat-synced crossfades with adjustable fade length and EQ transition presets (bass-swap, echo-out), against a list of BPM/key/genre-compatible tracks.'
                     }
                 };
 
                 function switchTab(tabKey) {
-                    const keys = ['search', 'network', 'library', 'downloads'];
+                    const keys = ['search', 'network', 'library', 'tags', 'graph', 'cues', 'hotcues', 'transitions'];
                     
                     // Update active button state
                     keys.forEach(k => {
