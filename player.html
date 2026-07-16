@@ -107,7 +107,7 @@
             <div class="p-6 border-b border-white/10 flex flex-col sm:flex-row gap-4 bg-black/20">
                 <div class="relative flex-1">
                     <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-text-muted"></i>
-                    <input type="text" id="searchInput" aria-label="Search tracks or artists" placeholder="Search tracks or artists..." oninput="filterTracks()" class="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:border-primary/50 text-white placeholder-text-muted transition-colors">
+                    <input type="text" id="searchInput" aria-label="Search tracks or artists" placeholder="Search tracks or artists..." oninput="debounceFilterTracks()" class="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:border-primary/50 text-white placeholder-text-muted transition-colors">
                 </div>
                 <div class="flex gap-2">
                     <select id="artistFilter" aria-label="Filter by artist" onchange="filterTracks()" class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary/50 text-white appearance-none pr-10 relative">
@@ -370,6 +370,17 @@
             filterTracks();
         }
 
+        let filterTimeout;
+        // ⚡ Bolt Performance Optimization:
+        // Debounce high-frequency search input events to prevent main-thread
+        // blocking caused by full DOM rebuilds on every keystroke.
+        function debounceFilterTracks() {
+            clearTimeout(filterTimeout);
+            filterTimeout = setTimeout(() => {
+                filterTracks();
+            }, 300);
+        }
+
         function filterTracks() {
             const q = document.getElementById('searchInput').value.toLowerCase();
             const a = document.getElementById('artistFilter').value;
@@ -508,6 +519,7 @@
         function escapeHtml(s) { return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'):''; }
         
         window.filterTracks = filterTracks;
+        window.debounceFilterTracks = debounceFilterTracks;
         window.playTrackIndex = playTrackIndex;
     </script>
 </body>
