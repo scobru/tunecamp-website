@@ -12,3 +12,7 @@
 ## 2024-07-11 - Missing ARIA Labels on Implicitly Unlabeled Forms
 **Learning:** Found several input elements (e.g. search bars, volume sliders, filtering select dropdowns) throughout the site that lacked explicit `<label>` associations and also lacked an `aria-label`. Without either, these controls are announced poorly by screen readers, creating an accessibility barrier. Specifically, custom range inputs used for volume sliders also lacked clear focus indicators.
 **Action:** When adding inputs like custom search fields or range sliders without visible labels, always include an `aria-label` explaining the input's purpose, and ensure `focus-visible` utility classes (like `focus-visible:ring-2`) are applied for keyboard accessibility.
+
+## 2024-07-19 - Actionable zero-result empty state for track filters
+**Learning:** In the Tunecamp static frontend, zero-result empty states for filtering or searching must include an actionable button (e.g., 'Clear Filters') that programmatically resets input values and re-triggers the list render to provide a clear recovery path.
+**Action:** Always provide clear recovery paths (like 'Clear Filters') for zero-result states, making them actionable rather than dead ends, and ensuring they have proper focus-visible styles.
