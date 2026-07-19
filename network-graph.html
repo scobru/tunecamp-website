@@ -22,13 +22,13 @@
     <script src="theme.js"></script>
     <style type="text/tailwindcss">
         @theme {
-            --color-primary: #8b5cf6;
-            --color-primary-hover: #a78bfa;
-            --color-bg-base: #050505;
-            --color-bg-surface: #111111;
-            --color-bg-surface-alt: #1a1a1a;
+            --color-primary: #2997ff;
+            --color-primary-hover: #5cb3ff;
+            --color-bg-base: #000000;
+            --color-bg-surface: #272729;
+            --color-bg-surface-alt: #2a2a2c;
             --color-text-base: #ffffff;
-            --color-text-muted: #a3a3a3;
+            --color-text-muted: #8c8c8c;
             --font-sans: "Inter", sans-serif;
             --font-display: "Outfit", sans-serif;
         }
@@ -42,7 +42,7 @@
         }
 
         .btn-primary {
-            @apply bg-gradient-to-r from-primary to-purple-500 text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(139,92,246,0.5)];
+            @apply bg-gradient-to-r from-primary to-purple-500 text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(41, 151, 255,0.5)];
         }
 
         .btn-secondary {
@@ -182,7 +182,7 @@
                     </button>
                     <div class="flex-1"></div>
                     <div class="hidden sm:flex items-center gap-4 text-xs text-text-muted">
-                        <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:#8b5cf6"></span> Reachable</span>
+                        <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:#2997ff"></span> Reachable</span>
                         <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:#6b7280"></span> Known only</span>
                         <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:#ef4444"></span> Offline</span>
                     </div>
@@ -303,12 +303,12 @@
             }
             function readColors() {
                 return {
-                    reachable: cssVar("--color-primary", "#8b5cf6"),
+                    reachable: cssVar("--color-primary", "#2997ff"),
                     known: "#6b7280",
                     offline: "#ef4444",
-                    edge: cssVar("--color-text-muted", "#a3a3a3"),
+                    edge: cssVar("--color-text-muted", "#8c8c8c"),
                     text: cssVar("--color-text-base", "#ffffff"),
-                    muted: cssVar("--color-text-muted", "#a3a3a3"),
+                    muted: cssVar("--color-text-muted", "#8c8c8c"),
                 };
             }
             // Recompute colours when the theme toggles.
@@ -815,7 +815,7 @@
                 if (nd.artistName) parts.push('<div class="text-text-muted text-xs mt-1"><i class="fas fa-user-music mr-1"></i>' + escapeHtml(nd.artistName) + '</div>');
                 if (nd.description) parts.push('<div class="text-text-muted text-xs mt-1">' + escapeHtml(truncate(nd.description, 100)) + '</div>');
                 const meta = [];
-                meta.push(nd.reachable === true ? '<span style="color:#8b5cf6">● reachable</span>'
+                meta.push(nd.reachable === true ? '<span style="color:#2997ff">● reachable</span>'
                     : nd.reachable === false ? '<span style="color:#ef4444">● offline</span>'
                         : '<span style="color:#6b7280">● known only</span>');
                 if (nd.version) meta.push('v' + escapeHtml(String(nd.version)));

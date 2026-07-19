@@ -11,13 +11,13 @@
     <link rel="stylesheet" href="styles.css">
     <style type="text/tailwindcss">
         @theme {
-            --color-primary: #8b5cf6;
-            --color-primary-hover: #a78bfa;
-            --color-bg-base: #050505;
-            --color-bg-surface: #111111;
-            --color-bg-surface-alt: #1a1a1a;
+            --color-primary: #2997ff;
+            --color-primary-hover: #5cb3ff;
+            --color-bg-base: #000000;
+            --color-bg-surface: #272729;
+            --color-bg-surface-alt: #2a2a2c;
             --color-text-base: #ffffff;
-            --color-text-muted: #a3a3a3;
+            --color-text-muted: #8c8c8c;
             --font-sans: 'Inter', sans-serif;
             --font-display: 'Outfit', sans-serif;
         }
@@ -31,7 +31,7 @@
             @apply w-12 h-12 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/15 transition-all text-white border border-white/5;
         }
         .ctrl-btn-play {
-            @apply w-16 h-16 bg-gradient-to-r from-primary to-purple-500 hover:scale-105 border-none shadow-[0_0_20px_rgba(139,92,246,0.4)] text-2xl;
+            @apply w-16 h-16 bg-gradient-to-r from-primary to-purple-500 hover:scale-105 border-none shadow-[0_0_20px_rgba(41, 151, 255,0.4)] text-2xl;
         }
         .track-row {
             @apply flex items-center p-3 gap-4 rounded-xl transition-all duration-300 hover:bg-white/5 cursor-pointer border border-transparent hover:border-white/5 focus-visible:outline-none focus-visible:bg-white/5 focus-visible:border-primary/50;
@@ -218,11 +218,11 @@
 
             document.getElementById('toggleShuffle').addEventListener('click', (e) => {
                 isShuffle = !isShuffle;
-                e.currentTarget.style.color = isShuffle ? '#8b5cf6' : '';
+                e.currentTarget.style.color = isShuffle ? '#2997ff' : '';
             });
             document.getElementById('toggleRepeat').addEventListener('click', (e) => {
                 isRepeat = !isRepeat;
-                e.currentTarget.style.color = isRepeat ? '#8b5cf6' : '';
+                e.currentTarget.style.color = isRepeat ? '#2997ff' : '';
             });
 
             const volumeSlider = document.getElementById('volumeSlider');
@@ -440,7 +440,7 @@
             document.getElementById('playerRelease').textContent = track.releaseTitle || '';
             
             // Extract colors for ambient glow (simplified pseudo-random based on title)
-            const colors = ['#8b5cf6', '#ec4899', '#3b82f6', '#10b981', '#f59e0b'];
+            const colors = ['#2997ff', '#ec4899', '#3b82f6', '#10b981', '#f59e0b'];
             const cIdx = track.title.length % colors.length;
             document.getElementById('ambientGlow').style.backgroundColor = colors[cIdx];
 
@@ -484,7 +484,7 @@
 
         window.shufflePlay = function() {
             isShuffle = true;
-            document.getElementById('toggleShuffle').style.color = '#8b5cf6';
+            document.getElementById('toggleShuffle').style.color = '#2997ff';
             if(filteredTracks.length > 0) playTrackIndex(Math.floor(Math.random() * filteredTracks.length));
         }
 
