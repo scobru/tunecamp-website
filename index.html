@@ -39,15 +39,15 @@
     <style>
       .track-tile { cursor: pointer; display: flex; flex-direction: column; gap: 0.5rem; }
       .track-tile:focus-visible { outline: none; }
-      .track-tile:focus-visible .cover { border-color: #2997ff; box-shadow: 0 0 0 2px rgba(41, 151, 255,0.4); }
+      .track-tile:focus-visible .cover { border-color: #2997ff; box-shadow: 0 0 0 2px rgba(41,151,255,0.4); }
       .track-tile .cover {
         aspect-ratio: 1 / 1; width: 100%; border-radius: 0.75rem; overflow: hidden;
         background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
         display: flex; align-items: center; justify-content: center;
         font-size: 1.875rem; color: rgba(255,255,255,0.2); position: relative; transition: all 0.3s;
       }
-      .track-tile:hover .cover { border-color: rgba(41, 151, 255,0.5); }
-      .track-tile.playing .cover { border-color: #2997ff; box-shadow: 0 0 0 2px rgba(41, 151, 255,0.4); }
+      .track-tile:hover .cover { border-color: rgba(41,151,255,0.5); }
+      .track-tile.playing .cover { border-color: #2997ff; box-shadow: 0 0 0 2px rgba(41,151,255,0.4); }
       .track-tile .cover .overlay { opacity: 0; transition: opacity 0.3s; }
       .track-tile:hover .cover .overlay { opacity: 1; }
       ::-webkit-scrollbar { width: 8px; }
