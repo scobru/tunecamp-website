@@ -57,7 +57,7 @@
             <div class="hidden lg:flex items-center gap-6 text-sm font-medium">
                 <a href="about.html" class="text-white">Overview</a>
                 <a href="index.html" class="text-text-muted hover:text-white transition-colors">Explore</a>
-                <a href="sidecamp.html" class="text-text-muted hover:text-white transition-colors whitespace-nowrap">Sidecamp</a>
+                <a href="ecosystem.html" class="text-text-muted hover:text-white transition-colors whitespace-nowrap">Ecosystem</a>
                 <a href="run.html" class="text-text-muted hover:text-white transition-colors whitespace-nowrap">Run Instance</a>
                 <div class="relative">
                     <button id="moreBtn" class="text-text-muted hover:text-white transition-colors flex items-center gap-1">More <i class="fas fa-chevron-down text-[10px]"></i></button>
@@ -86,7 +86,7 @@
             <div class="px-6 py-4 flex flex-col gap-1 text-sm font-medium">
                 <a href="about.html" class="py-2 text-text-muted hover:text-white transition-colors">Overview</a>
                 <a href="index.html" class="py-2 text-text-muted hover:text-white transition-colors">Explore</a>
-                <a href="sidecamp.html" class="py-2 text-text-muted hover:text-white transition-colors">Sidecamp</a>
+                <a href="ecosystem.html" class="py-2 text-text-muted hover:text-white transition-colors">Ecosystem</a>
                 <a href="player.html" class="py-2 text-text-muted hover:text-white transition-colors">Player</a>
                 <a href="run.html" class="py-2 text-text-muted hover:text-white transition-colors">Run Instance</a>
                 <a href="network-graph.html" class="py-2 text-text-muted hover:text-white transition-colors">Network Graph</a>
@@ -1025,96 +1025,6 @@
                         Your site is live with streaming, downloads, and Fediverse
                         connectivity.
                     </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Ecosystem -->
-    <section class="py-24 px-6 relative" id="ecosystem">
-        <div class="max-w-5xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="font-display text-4xl md:text-5xl font-bold mb-4">
-                    The Tunecamp Ecosystem
-                </h2>
-                <p class="text-text-muted text-lg max-w-2xl mx-auto">
-                    Standalone tools that extend Tunecamp. Each lives in its own repo
-                    and can be used independently.
-                </p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div class="glass-card group flex flex-col gap-4">
-                    <div class="flex items-center gap-4">
-                        <div
-                            class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
-                            <i class="fas fa-plug"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold font-display">sidecamp</h3>
-                            <p class="text-xs text-text-muted font-mono">
-                                github.com/scobru/sidecamp
-                            </p>
-                        </div>
-                    </div>
-                    <p class="text-text-muted text-sm leading-relaxed">
-                        Lightweight CLI daemon that shares your local music folders with
-                        any Tunecamp instance over a reverse WebSocket tunnel — no
-                        port-forwarding, no static IP. Disconnect and all index rows
-                        vanish instantly.
-                    </p>
-                    <div class="flex gap-2">
-                        <a href="sidecamp.html" class="btn-primary text-sm !py-2 !px-4 flex-1"><i class="fas fa-info-circle mr-2"></i>Learn More</a>
-                        <a href="https://github.com/scobru/sidecamp" target="_blank" class="btn-secondary text-sm !py-2 !px-2"><i class="fab fa-github"></i></a>
-                    </div>
-                </div>
-                <div class="glass-card group flex flex-col gap-4">
-                    <div class="flex items-center gap-4">
-                        <div
-                            class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
-                            <i class="fas fa-tape"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold font-display">
-                                tunecamp-4-track-recorder
-                            </h3>
-                            <p class="text-xs text-text-muted font-mono">
-                                github.com/scobru/tunecamp-4-track-recorder
-                            </p>
-                        </div>
-                    </div>
-                    <p class="text-text-muted text-sm leading-relaxed">
-                        A browser-based 4-track cassette recorder built with the Web Audio
-                        API and Svelte 5. Low-latency overdub recording, latency
-                        compensation, sample-accurate playback — all client-side, no
-                        server needed.
-                    </p>
-
-                    <a href="https://github.com/scobru/tunecamp-4-track-recorder" target="_blank"
-                        class="btn-secondary text-sm !py-2 !px-4"><i class="fab fa-github mr-2"></i>View on GitHub</a>
-                </div>
-                <div class="glass-card group flex flex-col gap-4">
-                    <div class="flex items-center gap-4">
-                        <div
-                            class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
-                            <i class="fas fa-wave-square"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold font-display">
-                                tunecamp-audiofabric
-                            </h3>
-                            <p class="text-xs text-text-muted font-mono">
-                                github.com/scobru/tunecamp-audiofabric
-                            </p>
-                        </div>
-                    </div>
-                    <p class="text-text-muted text-sm leading-relaxed">
-                        Interactive 3D WebGL music visualization built with regl and the
-                        Web Audio API. Renders beautiful real-time audio-reactive 3D
-                        terrain and dynamic waveforms.
-                    </p>
-
-                    <a href="https://github.com/scobru/tunecamp-audiofabric" target="_blank"
-                        class="btn-secondary text-sm !py-2 !px-4"><i class="fab fa-github mr-2"></i>View on GitHub</a>
                 </div>
             </div>
         </div>

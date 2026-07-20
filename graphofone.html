@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Graphofone — Live Performance Graph Mixer</title>
+    <link rel="icon" type="image/svg+xml" href="tunecamp.svg" />
+    <meta name="description"
+        content="Import a music folder, arrange tracks as a graph, and perform with beat-matched crossfade transitions. Graphofone is a fully offline live-performance app built on Tunecamp's graph engine." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.tunecamp.org/graphofone.html" />
+    <meta property="og:title" content="Graphofone — Live Performance Graph Mixer" />
+    <meta property="og:description" content="Import a music folder, arrange tracks as a graph, and perform with beat-matched crossfade transitions — fully offline." />
+    <meta property="og:image" content="https://www.tunecamp.org/tunecamp.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://www.tunecamp.org/tunecamp.jpg" />
+    <link rel="stylesheet" href="fonts/fonts.css" />
+    <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css" />
+    <script src="vendor/tailwind.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="theme.js"></script>
+    <style type="text/tailwindcss">
+        @theme {
+            --color-primary: #2997ff;
+            --color-primary-hover: #5cb3ff;
+            --color-bg-base: #000000;
+            --color-bg-surface: #272729;
+            --color-bg-surface-alt: #2a2a2c;
+            --color-text-base: #ffffff;
+            --color-text-muted: #8c8c8c;
+            --font-sans: "Inter", sans-serif;
+            --font-display: "Outfit", sans-serif;
+        }
+        body {
+            @apply bg-bg-base text-text-base font-sans antialiased selection:bg-primary/30 overflow-x-hidden;
+        }
+        .glass-card {
+            @apply bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-8 transition-all duration-300 hover:border-primary/40 hover:bg-white/10;
+        }
+        .btn-primary {
+            @apply bg-gradient-to-r from-primary to-purple-500 text-white px-8 py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(41,151,255,0.5)];
+        }
+        .btn-secondary {
+            @apply bg-white/5 backdrop-blur-sm border border-white/10 text-white px-8 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 hover:bg-white/10 hover:scale-105 hover:border-white/20;
+        }
+        pre {
+            @apply bg-black/60 border border-white/10 rounded-xl p-5 text-sm font-mono text-green-300 overflow-x-auto leading-relaxed;
+        }
+        code:not(pre code) {
+            @apply bg-white/10 px-1.5 py-0.5 rounded text-sm font-mono text-purple-300;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col relative">
+    <!-- Top Nav -->
+    <nav class="fixed top-0 left-0 w-full z-50 bg-black/60 backdrop-blur-lg border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-2 font-display font-bold text-lg">
+                <img src="tunecamp.svg" alt="Tunecamp" class="w-7 h-7" /> Tunecamp
+            </a>
+            <div class="hidden lg:flex items-center gap-6 text-sm font-medium">
+                <a href="about.html" class="text-text-muted hover:text-white transition-colors">Overview</a>
+                <a href="index.html" class="text-text-muted hover:text-white transition-colors">Explore</a>
+                <a href="ecosystem.html" class="text-white">Ecosystem</a>
+                <a href="run.html" class="text-text-muted hover:text-white transition-colors whitespace-nowrap">Run Instance</a>
+                <div class="relative">
+                    <button id="moreBtn" class="text-text-muted hover:text-white transition-colors flex items-center gap-1">More <i class="fas fa-chevron-down text-[10px]"></i></button>
+                    <div id="moreMenu" class="hidden absolute right-0 top-full mt-2 w-44 bg-black/95 backdrop-blur-lg border border-white/10 rounded-xl py-1 z-50 shadow-xl">
+                        <a href="network-graph.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Network Graph</a>
+                        <a href="usecases.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Use Cases</a>
+                        <a href="manifesto.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Manifesto</a>
+                        <a href="player.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Player</a>
+                        <a href="press.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Press Kit</a>
+                        <a href="legal.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Legal</a>
+                    </div>
+                </div>
+                <a href="https://scobru.github.io/tunecamp/" target="_blank" class="text-text-muted hover:text-white transition-colors">Docs</a>
+                <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors"><i class="fab fa-github"></i></a>
+                <button onclick="toggleTheme()" aria-label="Toggle theme" class="text-text-muted hover:text-white transition-colors w-8 h-8 flex items-center justify-center">
+                    <i data-theme-icon class="fas fa-sun text-sm"></i>
+                </button>
+            </div>
+            <!-- Mobile hamburger -->
+            <button id="menuToggle" aria-label="Menu" aria-expanded="false" class="lg:hidden w-10 h-10 -mr-2 flex items-center justify-center text-text-muted hover:text-white transition-colors">
+                <i class="fas fa-bars text-lg"></i>
+            </button>
+        </div>
+        <!-- Mobile menu panel -->
+        <div id="mobileMenu" class="hidden lg:hidden border-t border-white/10 bg-black/90 backdrop-blur-lg">
+            <div class="px-6 py-4 flex flex-col gap-1 text-sm font-medium">
+                <a href="about.html" class="py-2 text-text-muted hover:text-white transition-colors">Overview</a>
+                <a href="index.html" class="py-2 text-text-muted hover:text-white transition-colors">Explore</a>
+                <a href="ecosystem.html" class="py-2 text-white">Ecosystem</a>
+                <a href="player.html" class="py-2 text-text-muted hover:text-white transition-colors">Player</a>
+                <a href="run.html" class="py-2 text-text-muted hover:text-white transition-colors">Run Instance</a>
+                <a href="network-graph.html" class="py-2 text-text-muted hover:text-white transition-colors">Network Graph</a>
+                <a href="usecases.html" class="py-2 text-text-muted hover:text-white transition-colors">Use Cases</a>
+                <a href="manifesto.html" class="py-2 text-text-muted hover:text-white transition-colors">Manifesto</a>
+                <a href="press.html" class="py-2 text-text-muted hover:text-white transition-colors">Press Kit</a>
+                <a href="legal.html" class="py-2 text-text-muted hover:text-white transition-colors">Legal</a>
+                <a href="https://scobru.github.io/tunecamp/" target="_blank" class="py-2 text-text-muted hover:text-white transition-colors">Docs</a>
+                <a href="https://github.com/scobru/tunecamp" class="py-2 text-text-muted hover:text-white transition-colors"><i class="fab fa-github mr-2"></i>GitHub</a>
+                <button onclick="toggleTheme()" class="py-2 flex items-center gap-2 text-text-muted hover:text-white transition-colors">
+                    <i data-theme-icon class="fas fa-sun text-sm w-4 text-center"></i>
+                    <span>Toggle theme</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+    <script>
+        (function () {
+            const btn = document.getElementById('menuToggle');
+            const menu = document.getElementById('mobileMenu');
+            if (btn && menu) {
+                btn.addEventListener('click', () => {
+                    const open = menu.classList.toggle('hidden') === false;
+                    btn.setAttribute('aria-expanded', String(open));
+                    btn.querySelector('i').className = open ? 'fas fa-times text-lg' : 'fas fa-bars text-lg';
+                });
+            }
+            const moreBtn = document.getElementById('moreBtn');
+            const moreMenu = document.getElementById('moreMenu');
+            if (moreBtn && moreMenu) {
+                moreBtn.addEventListener('click', e => { e.stopPropagation(); moreMenu.classList.toggle('hidden'); });
+                document.addEventListener('click', () => moreMenu.classList.add('hidden'));
+            }
+        })();
+    </script>
+
+    <!-- Ambient Glow -->
+    <div class="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/15 blur-[130px] rounded-full pointer-events-none -z-10"></div>
+
+    <!-- Main Content -->
+    <main class="flex-1 pt-28 pb-20 px-6">
+        <div class="max-w-6xl mx-auto">
+            <!-- Hero -->
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <div class="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full text-xs font-semibold text-primary mb-4">
+                    <i class="fas fa-diagram-project"></i> Standalone Live-Performance Tool
+                </div>
+                <h1 class="font-display text-4xl md:text-6xl font-extrabold tracking-tight mb-6">
+                    Import. Link. <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-pink-500">Perform.</span>
+                </h1>
+                <p class="text-lg text-text-muted leading-relaxed mb-8">
+                    Graphofone is a focused live-performance app: import a music folder, arrange your tracks as a
+                    graph, link them with beat-matched crossfade transitions, and perform. Built on the same graph
+                    engine as Sidecamp, but fully offline — no P2P, no server, no network features.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="https://github.com/scobru/sidecamp/tree/main/apps/graphofone" target="_blank" class="btn-primary">
+                        <i class="fab fa-github text-xl"></i> View on GitHub
+                    </a>
+                    <a href="#quickstart" class="btn-secondary">
+                        <i class="fas fa-download text-xl"></i> Get Started
+                    </a>
+                </div>
+            </div>
+
+            <!-- Key Features -->
+            <section class="mb-24">
+                <div class="text-center mb-12">
+                    <h2 class="font-display text-2xl md:text-3xl font-bold mb-2">Key Features</h2>
+                    <p class="text-text-muted">A club-ready graph mixer for live sets, fully local.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="glass-card flex gap-5">
+                        <div class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xl">
+                            <i class="fas fa-diagram-project"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-display text-lg font-bold mb-2">Graph-Based Track Arrangement</h3>
+                            <p class="text-text-muted text-sm leading-relaxed">
+                                Import a local music folder and arrange tracks as nodes in a graph, linked by BPM/key/genre compatibility. Shift+click to link, Ctrl+click to preview a waveform.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="glass-card flex gap-5">
+                        <div class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xl">
+                            <i class="fas fa-random"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-display text-lg font-bold mb-2">Beat-Matched Crossfade Transitions</h3>
+                            <p class="text-text-muted text-sm leading-relaxed">
+                                Preview beat-synced crossfades with adjustable fade length and EQ transition presets (bass-swap, echo-out) between linked tracks.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="glass-card flex gap-5">
+                        <div class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xl">
+                            <i class="fas fa-sliders"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-display text-lg font-bold mb-2">Ableton-Style Mixer</h3>
+                            <p class="text-text-muted text-sm leading-relaxed">
+                                Vertical mixer layout with strip/node selections kept in sync, and per-node plus per-strip EQ presets.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="glass-card flex gap-5">
+                        <div class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xl">
+                            <i class="fas fa-headphones"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-display text-lg font-bold mb-2">Cue / Master Headphone Routing</h3>
+                            <p class="text-text-muted text-sm leading-relaxed">
+                                Pre-listen on headphones before sending to the room: dedicated Cue Out vs Master Out routing with its own cue volume.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="glass-card flex gap-5">
+                        <div class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xl">
+                            <i class="fas fa-wave-square"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-display text-lg font-bold mb-2">Quantized Loops & Cue Points</h3>
+                            <p class="text-text-muted text-sm leading-relaxed">
+                                Quantized loop clips, Cue In/Out points on every node, and a waveform that zooms to the cursor for precise edits.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="glass-card flex gap-5">
+                        <div class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xl">
+                            <i class="fas fa-record-vinyl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-display text-lg font-bold mb-2">Set Recording</h3>
+                            <p class="text-text-muted text-sm leading-relaxed">
+                                Record your live mix session to a file as you play through the graph — capture the set exactly as you performed it.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="glass-card flex gap-5">
+                        <div class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xl">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-display text-lg font-bold mb-2">100% Offline</h3>
+                            <p class="text-text-muted text-sm leading-relaxed">
+                                No P2P, no server, no network features. Your library and your set stay entirely on your machine.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="glass-card flex gap-5">
+                        <div class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xl">
+                            <i class="fas fa-circle-question"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-display text-lg font-bold mb-2">Quick Tour Onboarding</h3>
+                            <p class="text-text-muted text-sm leading-relaxed">
+                                A guided first-run quick tour gets you performing fast — reopen it anytime from the <code>?</code> button in the header.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Start Guide -->
+            <section id="quickstart" class="mb-24">
+                <div class="border border-white/10 rounded-3xl p-8 bg-white/3 backdrop-blur-md">
+                    <h2 class="font-display text-2xl md:text-3xl font-bold mb-6">Quick Start Guide</h2>
+
+                    <div class="space-y-8">
+                        <div>
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="w-7 h-7 rounded-full bg-primary/25 border border-primary/40 flex items-center justify-center text-primary font-bold text-xs">1</span>
+                                <h3 class="font-display font-semibold text-lg">Install</h3>
+                            </div>
+                            <p class="text-text-muted text-sm mb-3">Download the latest release (v0.17.1):</p>
+                            <div class="flex gap-3 mb-4">
+                                <a href="https://github.com/scobru/sidecamp/releases/download/v0.17.1/graphofone-0.17.1-arm64.dmg" class="btn btn-primary text-sm px-4 py-2 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 1.44C9.6 6.44 7.78 5 5 5c-2 0-3.8 1-4.8 2.8C-1.8 12.33 1.2 21 5.3 21c1.2 0 2.22-1 3.22-1S10.5 20.94 12 20.94Z"/><path d="M12 5.5A4.47 4.47 0 0 0 15 2a4.47 4.47 0 0 0-3 3.5Z"/></svg>
+                                    Mac (.dmg)
+                                </a>
+                                <a href="https://github.com/scobru/sidecamp/releases/download/v0.17.1/graphofone.Setup.0.17.1.exe" class="btn btn-primary text-sm px-4 py-2 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                                    Windows (.exe)
+                                </a>
+                                <a href="https://github.com/scobru/sidecamp/releases" target="_blank" class="btn btn-outline text-sm px-4 py-2">
+                                    All Releases
+                                </a>
+                            </div>
+                            <p class="text-text-muted text-sm mb-3">or build from source — Graphofone lives in the Sidecamp monorepo as a standalone workspace app:</p>
+                            <pre><code>git clone https://github.com/scobru/sidecamp.git
+cd sidecamp
+npm install
+npm run dev --workspace apps/graphofone     # development mode
+npm run build --workspace apps/graphofone   # build installer</code></pre>
+                            <p class="text-text-muted text-xs mt-2">Requires <strong class="text-white">Node.js 18+</strong>. The Electron build produces installers in <code>apps/graphofone/release/</code> for your host OS.</p>
+                        </div>
+
+                        <div>
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="w-7 h-7 rounded-full bg-primary/25 border border-primary/40 flex items-center justify-center text-primary font-bold text-xs">2</span>
+                                <h3 class="font-display font-semibold text-lg">Import Your Library</h3>
+                            </div>
+                            <p class="text-text-muted text-sm">Open Graphofone and point it at a local music folder. Tracks are analyzed for BPM/key and added to the graph as nodes.</p>
+                        </div>
+
+                        <div>
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="w-7 h-7 rounded-full bg-primary/25 border border-primary/40 flex items-center justify-center text-primary font-bold text-xs">3</span>
+                                <h3 class="font-display font-semibold text-lg">Perform</h3>
+                            </div>
+                            <p class="text-text-muted text-sm">Link compatible tracks, set cue/loop points, route cue vs master to your headphones, and play a path through the graph — record the set if you want to keep it.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 py-12 px-6 bg-bg-surface-alt/30">
+        <div class="max-w-6xl mx-auto flex flex-col items-center">
+            <nav class="flex gap-8 mb-8">
+                <a href="https://scobru.github.io/tunecamp/" target="_blank"
+                    class="text-text-muted hover:text-white transition-colors"><i class="fas fa-book mr-2"></i>Docs</a>
+                <a href="https://github.com/scobru/tunecamp"
+                    class="text-text-muted hover:text-white transition-colors"><i
+                        class="fab fa-github mr-2"></i>GitHub</a>
+                <a href="https://web.telegram.org/a/#-1004480953180"
+                    class="text-text-muted hover:text-white transition-colors" target="_blank"><i
+                        class="fab fa-telegram mr-2"></i>Telegram</a>
+                <a href="https://buymeacoffee.com/scobru" class="text-text-muted hover:text-white transition-colors"><i
+                        class="fas fa-mug-hot mr-2"></i>Support</a>
+                <a href="legal.html" class="text-text-muted hover:text-white transition-colors"><i
+                        class="fas fa-scale-balanced mr-2"></i>Legal</a>
+            </nav>
+            <p class="text-sm text-text-muted">
+                Tunecamp is MIT Licensed. Made with ❤️ for independent music.
+            </p>
+        </div>
+    </footer>
+</body>
+
+</html>

@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ecosystem — Tools Built on Tunecamp</title>
+    <link rel="icon" type="image/svg+xml" href="tunecamp.svg" />
+    <meta name="description"
+        content="Standalone tools that extend Tunecamp: Sidecamp, Graphofone, and more. Each lives in its own repo and can be used independently." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.tunecamp.org/ecosystem.html" />
+    <meta property="og:title" content="Ecosystem — Tools Built on Tunecamp" />
+    <meta property="og:description" content="Standalone tools that extend Tunecamp: Sidecamp, Graphofone, and more." />
+    <meta property="og:image" content="https://www.tunecamp.org/tunecamp.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://www.tunecamp.org/tunecamp.jpg" />
+    <link rel="stylesheet" href="fonts/fonts.css" />
+    <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css" />
+    <script src="vendor/tailwind.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="theme.js"></script>
+    <style type="text/tailwindcss">
+        @theme {
+            --color-primary: #2997ff;
+            --color-primary-hover: #5cb3ff;
+            --color-bg-base: #000000;
+            --color-bg-surface: #272729;
+            --color-bg-surface-alt: #2a2a2c;
+            --color-text-base: #ffffff;
+            --color-text-muted: #8c8c8c;
+            --font-sans: "Inter", sans-serif;
+            --font-display: "Outfit", sans-serif;
+        }
+        body {
+            @apply bg-bg-base text-text-base font-sans antialiased selection:bg-primary/30 overflow-x-hidden;
+        }
+        .glass-card {
+            @apply bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-8 transition-all duration-300 hover:border-primary/40 hover:bg-white/10;
+        }
+        .btn-primary {
+            @apply bg-gradient-to-r from-primary to-purple-500 text-white px-8 py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(41,151,255,0.5)];
+        }
+        .btn-secondary {
+            @apply bg-white/5 backdrop-blur-sm border border-white/10 text-white px-8 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 hover:bg-white/10 hover:scale-105 hover:border-white/20;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col relative">
+    <!-- Top Nav -->
+    <nav class="fixed top-0 left-0 w-full z-50 bg-black/60 backdrop-blur-lg border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-2 font-display font-bold text-lg">
+                <img src="tunecamp.svg" alt="Tunecamp" class="w-7 h-7" /> Tunecamp
+            </a>
+            <div class="hidden lg:flex items-center gap-6 text-sm font-medium">
+                <a href="about.html" class="text-text-muted hover:text-white transition-colors">Overview</a>
+                <a href="index.html" class="text-text-muted hover:text-white transition-colors">Explore</a>
+                <a href="ecosystem.html" class="text-white">Ecosystem</a>
+                <a href="run.html" class="text-text-muted hover:text-white transition-colors whitespace-nowrap">Run Instance</a>
+                <div class="relative">
+                    <button id="moreBtn" class="text-text-muted hover:text-white transition-colors flex items-center gap-1">More <i class="fas fa-chevron-down text-[10px]"></i></button>
+                    <div id="moreMenu" class="hidden absolute right-0 top-full mt-2 w-44 bg-black/95 backdrop-blur-lg border border-white/10 rounded-xl py-1 z-50 shadow-xl">
+                        <a href="network-graph.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Network Graph</a>
+                        <a href="usecases.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Use Cases</a>
+                        <a href="manifesto.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Manifesto</a>
+                        <a href="player.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Player</a>
+                        <a href="press.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Press Kit</a>
+                        <a href="legal.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Legal</a>
+                    </div>
+                </div>
+                <a href="https://scobru.github.io/tunecamp/" target="_blank" class="text-text-muted hover:text-white transition-colors">Docs</a>
+                <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors"><i class="fab fa-github"></i></a>
+                <button onclick="toggleTheme()" aria-label="Toggle theme" class="text-text-muted hover:text-white transition-colors w-8 h-8 flex items-center justify-center">
+                    <i data-theme-icon class="fas fa-sun text-sm"></i>
+                </button>
+            </div>
+            <!-- Mobile hamburger -->
+            <button id="menuToggle" aria-label="Menu" aria-expanded="false" class="lg:hidden w-10 h-10 -mr-2 flex items-center justify-center text-text-muted hover:text-white transition-colors">
+                <i class="fas fa-bars text-lg"></i>
+            </button>
+        </div>
+        <!-- Mobile menu panel -->
+        <div id="mobileMenu" class="hidden lg:hidden border-t border-white/10 bg-black/90 backdrop-blur-lg">
+            <div class="px-6 py-4 flex flex-col gap-1 text-sm font-medium">
+                <a href="about.html" class="py-2 text-text-muted hover:text-white transition-colors">Overview</a>
+                <a href="index.html" class="py-2 text-text-muted hover:text-white transition-colors">Explore</a>
+                <a href="ecosystem.html" class="py-2 text-white">Ecosystem</a>
+                <a href="player.html" class="py-2 text-text-muted hover:text-white transition-colors">Player</a>
+                <a href="run.html" class="py-2 text-text-muted hover:text-white transition-colors">Run Instance</a>
+                <a href="network-graph.html" class="py-2 text-text-muted hover:text-white transition-colors">Network Graph</a>
+                <a href="usecases.html" class="py-2 text-text-muted hover:text-white transition-colors">Use Cases</a>
+                <a href="manifesto.html" class="py-2 text-text-muted hover:text-white transition-colors">Manifesto</a>
+                <a href="press.html" class="py-2 text-text-muted hover:text-white transition-colors">Press Kit</a>
+                <a href="legal.html" class="py-2 text-text-muted hover:text-white transition-colors">Legal</a>
+                <a href="https://scobru.github.io/tunecamp/" target="_blank" class="py-2 text-text-muted hover:text-white transition-colors">Docs</a>
+                <a href="https://github.com/scobru/tunecamp" class="py-2 text-text-muted hover:text-white transition-colors"><i class="fab fa-github mr-2"></i>GitHub</a>
+                <button onclick="toggleTheme()" class="py-2 flex items-center gap-2 text-text-muted hover:text-white transition-colors">
+                    <i data-theme-icon class="fas fa-sun text-sm w-4 text-center"></i>
+                    <span>Toggle theme</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+    <script>
+        (function () {
+            const btn = document.getElementById('menuToggle');
+            const menu = document.getElementById('mobileMenu');
+            if (btn && menu) {
+                btn.addEventListener('click', () => {
+                    const open = menu.classList.toggle('hidden') === false;
+                    btn.setAttribute('aria-expanded', String(open));
+                    btn.querySelector('i').className = open ? 'fas fa-times text-lg' : 'fas fa-bars text-lg';
+                });
+            }
+            const moreBtn = document.getElementById('moreBtn');
+            const moreMenu = document.getElementById('moreMenu');
+            if (moreBtn && moreMenu) {
+                moreBtn.addEventListener('click', e => { e.stopPropagation(); moreMenu.classList.toggle('hidden'); });
+                document.addEventListener('click', () => moreMenu.classList.add('hidden'));
+            }
+        })();
+    </script>
+
+    <!-- Ambient Glow -->
+    <div class="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/15 blur-[130px] rounded-full pointer-events-none -z-10"></div>
+
+    <!-- Main Content -->
+    <main class="flex-1 pt-28 pb-20 px-6">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-16">
+                <h1 class="font-display text-4xl md:text-5xl font-bold mb-4">
+                    The Tunecamp Ecosystem
+                </h1>
+                <p class="text-text-muted text-lg max-w-2xl mx-auto">
+                    Standalone tools that extend Tunecamp. Each lives in its own repo
+                    and can be used independently.
+                </p>
+            </div>
+
+            <!-- Desktop Apps -->
+            <div class="flex items-center gap-3 mb-6">
+                <i class="fas fa-desktop text-primary"></i>
+                <h2 class="font-display text-2xl font-bold">Desktop Apps</h2>
+            </div>
+            <p class="text-text-muted text-sm mb-8">
+                Native companion apps you install and run outside the browser.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+                <div class="glass-card group flex flex-col gap-4">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+                            <i class="fas fa-plug"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="text-xl font-bold font-display">Sidecamp</h3>
+                            <p class="text-xs text-text-muted font-mono break-all">
+                                github.com/scobru/sidecamp
+                            </p>
+                        </div>
+                    </div>
+                    <span class="self-start text-[10px] font-mono uppercase tracking-wide text-primary bg-primary/10 border border-primary/30 rounded-full px-2 py-0.5">Desktop App</span>
+                    <p class="text-text-muted text-sm leading-relaxed">
+                        Desktop companion app for TuneCamp. Search and download music
+                        from Soulseek, torrents, and YouTube, manage your local library,
+                        and share your collection back to the network as a peer node.
+                    </p>
+                    <div class="flex gap-2">
+                        <a href="sidecamp.html" class="btn-primary text-sm !py-2 !px-4 flex-1"><i class="fas fa-info-circle mr-2"></i>Learn More</a>
+                        <a href="https://github.com/scobru/sidecamp" target="_blank" class="btn-secondary text-sm !py-2 !px-2"><i class="fab fa-github"></i></a>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="https://github.com/scobru/sidecamp/releases/download/v0.17.1/sidecamp.Setup.0.17.1.exe" class="btn-secondary text-sm !py-2 !px-4 flex-1"><i class="fab fa-windows mr-2"></i>Windows</a>
+                        <a href="https://github.com/scobru/sidecamp/releases/download/v0.17.1/sidecamp-0.17.1-arm64.dmg" class="btn-secondary text-sm !py-2 !px-4 flex-1"><i class="fab fa-apple mr-2"></i>Mac</a>
+                    </div>
+                </div>
+                <div class="glass-card group flex flex-col gap-4">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+                            <i class="fas fa-diagram-project"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="text-xl font-bold font-display">Graphofone</h3>
+                            <p class="text-xs text-text-muted font-mono break-all">
+                                github.com/scobru/sidecamp/apps/graphofone
+                            </p>
+                        </div>
+                    </div>
+                    <span class="self-start text-[10px] font-mono uppercase tracking-wide text-primary bg-primary/10 border border-primary/30 rounded-full px-2 py-0.5">Desktop App</span>
+                    <p class="text-text-muted text-sm leading-relaxed">
+                        Standalone live-performance app built on the same graph engine
+                        as Sidecamp. Import a music folder, arrange tracks as a graph,
+                        link them with beat-matched crossfade transitions, and perform —
+                        fully offline, no P2P, no server.
+                    </p>
+                    <div class="flex gap-2">
+                        <a href="graphofone.html" class="btn-primary text-sm !py-2 !px-4 flex-1"><i class="fas fa-info-circle mr-2"></i>Learn More</a>
+                        <a href="https://github.com/scobru/sidecamp/tree/main/apps/graphofone" target="_blank" class="btn-secondary text-sm !py-2 !px-2"><i class="fab fa-github"></i></a>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="https://github.com/scobru/sidecamp/releases/download/v0.17.1/graphofone.Setup.0.17.1.exe" class="btn-secondary text-sm !py-2 !px-4 flex-1"><i class="fab fa-windows mr-2"></i>Windows</a>
+                        <a href="https://github.com/scobru/sidecamp/releases/download/v0.17.1/graphofone-0.17.1-arm64.dmg" class="btn-secondary text-sm !py-2 !px-4 flex-1"><i class="fab fa-apple mr-2"></i>Mac</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Web Apps / Lab -->
+            <div class="flex items-center gap-3 mb-6">
+                <i class="fas fa-flask text-primary"></i>
+                <h2 class="font-display text-2xl font-bold">Web Apps · TuneCamp Lab</h2>
+            </div>
+            <p class="text-text-muted text-sm mb-8">
+                Browser-based tools. Both run standalone and can be embedded as
+                sandboxed iFrame apps under <code class="text-primary">/lab</code> on
+                any TuneCamp instance — see the
+                <a href="https://scobru.github.io/tunecamp/LAB" target="_blank" class="text-primary hover:underline">Lab docs</a>.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="glass-card group flex flex-col gap-4">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+                            <i class="fas fa-tape"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="text-xl font-bold font-display">
+                                tunecamp-4-track-recorder
+                            </h3>
+                            <p class="text-xs text-text-muted font-mono break-all">
+                                github.com/scobru/tunecamp-4-track-recorder
+                            </p>
+                        </div>
+                    </div>
+                    <span class="self-start text-[10px] font-mono uppercase tracking-wide text-primary bg-primary/10 border border-primary/30 rounded-full px-2 py-0.5">Web App · Lab-ready</span>
+                    <p class="text-text-muted text-sm leading-relaxed">
+                        A browser-based 4-track cassette recorder built with the Web Audio
+                        API and Svelte 5. Low-latency overdub recording, latency
+                        compensation, sample-accurate playback — all client-side, no
+                        server needed.
+                    </p>
+                    <a href="https://github.com/scobru/tunecamp-4-track-recorder" target="_blank"
+                        class="btn-secondary text-sm !py-2 !px-4"><i class="fab fa-github mr-2"></i>View on GitHub</a>
+                </div>
+                <div class="glass-card group flex flex-col gap-4">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl text-primary group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+                            <i class="fas fa-wave-square"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="text-xl font-bold font-display">
+                                tunecamp-audiofabric
+                            </h3>
+                            <p class="text-xs text-text-muted font-mono break-all">
+                                github.com/scobru/tunecamp-audiofabric
+                            </p>
+                        </div>
+                    </div>
+                    <span class="self-start text-[10px] font-mono uppercase tracking-wide text-primary bg-primary/10 border border-primary/30 rounded-full px-2 py-0.5">Web App · Built-in Lab App</span>
+                    <p class="text-text-muted text-sm leading-relaxed">
+                        Real-time 3D WebGL music visualizer built with Three.js and the
+                        Web Audio API. Ships bundled inside TuneCamp at
+                        <code class="text-primary">/lab/audiofabric</code>, streaming
+                        your library live via the Subsonic API.
+                    </p>
+                    <a href="https://github.com/scobru/tunecamp-audiofabric" target="_blank"
+                        class="btn-secondary text-sm !py-2 !px-4"><i class="fab fa-github mr-2"></i>View on GitHub</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 py-12 px-6 bg-bg-surface-alt/30">
+        <div class="max-w-6xl mx-auto flex flex-col items-center">
+            <nav class="flex gap-8 mb-8">
+                <a href="https://scobru.github.io/tunecamp/" target="_blank"
+                    class="text-text-muted hover:text-white transition-colors"><i class="fas fa-book mr-2"></i>Docs</a>
+                <a href="https://github.com/scobru/tunecamp"
+                    class="text-text-muted hover:text-white transition-colors"><i
+                        class="fab fa-github mr-2"></i>GitHub</a>
+                <a href="https://web.telegram.org/a/#-1004480953180"
+                    class="text-text-muted hover:text-white transition-colors" target="_blank"><i
+                        class="fab fa-telegram mr-2"></i>Telegram</a>
+                <a href="https://buymeacoffee.com/scobru" class="text-text-muted hover:text-white transition-colors"><i
+                        class="fas fa-mug-hot mr-2"></i>Support</a>
+                <a href="legal.html" class="text-text-muted hover:text-white transition-colors"><i
+                        class="fas fa-scale-balanced mr-2"></i>Legal</a>
+            </nav>
+            <p class="text-sm text-text-muted">
+                Tunecamp is MIT Licensed. Made with ❤️ for independent music.
+            </p>
+        </div>
+    </footer>
+</body>
+
+</html>
