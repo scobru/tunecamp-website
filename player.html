@@ -394,7 +394,7 @@
             // and reducing network congestion during initial directory load.
             container.innerHTML = filteredTracks.map((t, i) => {
                 const active = currentTrackIndex === i;
-                const cover = t.coverUrl ? `<img src="${escapeHtml(t.coverUrl)}" class="w-full h-full object-cover" loading="lazy">` : '<i class="fas fa-music text-xs"></i>';
+                const cover = t.coverUrl ? `<img src="${escapeHtml(sanitizeUrl(t.coverUrl, true))}" class="w-full h-full object-cover" loading="lazy">` : '<i class="fas fa-music text-xs"></i>';
                 const time = t.duration ? `${Math.floor(t.duration/60)}:${Math.floor(t.duration%60).toString().padStart(2,'0')}` : '';
                 const escapedTitle = escapeHtml(t.title);
                 const escapedArtist = escapeHtml(t.artistName);
@@ -506,6 +506,18 @@
             return `${m}:${se.toString().padStart(2,'0')}`;
         }
         function escapeHtml(s) { return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'):''; }
+
+        function sanitizeUrl(url, allowData = false) {
+            if (!url) return '#';
+            try {
+                const parsed = new URL(url, window.location.origin);
+                if (['javascript:', 'vbscript:'].includes(parsed.protocol)) return '#';
+                if (parsed.protocol === 'data:' && !allowData) return '#';
+                return parsed.href;
+            } catch (e) {
+                return '#';
+            }
+        }
         
         window.filterTracks = filterTracks;
         window.playTrackIndex = playTrackIndex;
