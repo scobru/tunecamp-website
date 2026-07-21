@@ -384,7 +384,7 @@
         function renderTracks() {
             const container = document.getElementById('tracksContainer');
             if (filteredTracks.length === 0) {
-                container.innerHTML = `<div class="p-8 text-center text-text-muted">No tracks match your search.</div>`;
+                container.innerHTML = `<div class="p-8 text-center flex flex-col items-center justify-center gap-4"><div class="text-text-muted">No tracks match your search.</div><button onclick="window.clearFiltersPlayer()" class="bg-primary/20 text-primary border border-primary/30 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-primary/30 transition-all">Clear Filters</button></div>`;
                 return;
             }
 
@@ -509,6 +509,11 @@
         
         window.filterTracks = filterTracks;
         window.playTrackIndex = playTrackIndex;
+        window.clearFiltersPlayer = function() {
+            const si = document.getElementById("searchInput"); if (si) si.value = "";
+            const af = document.getElementById("artistFilter"); if (af) af.value = "";
+            filterTracks();
+        };
     </script>
 </body>
 </html>

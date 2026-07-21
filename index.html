@@ -675,7 +675,7 @@
         function renderTracks() {
             const grid = document.getElementById('tracksGrid');
             if (filteredTracks.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-12 text-center text-text-muted">No tracks match your search.</div>`;
+                grid.innerHTML = `<div class="col-span-full py-12 text-center flex flex-col items-center justify-center gap-4"><div class="text-text-muted">No tracks match your search.</div><button onclick="window.clearFiltersIndex()" class="bg-primary/20 text-primary border border-primary/30 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-primary/30 transition-all">Clear Filters</button></div>`;
                 return;
             }
 
@@ -781,6 +781,13 @@
         window.filterTracks = filterTracks;
         window.playTrackIndex = playTrackIndex;
         window.playTrackByKey = playTrackByKey;
+        window.clearFiltersIndex = function() {
+            const di = document.getElementById("searchInput"); if (di) di.value = "";
+            const mi = document.getElementById("mobileSearchInput"); if (mi) mi.value = "";
+            const af = document.getElementById("artistFilter"); if (af) af.value = "";
+            const gf = document.getElementById("genreFilter"); if (gf) gf.value = "";
+            filterTracks(false);
+        };
     </script>
 </body>
 
