@@ -12,3 +12,7 @@
 ## 2024-07-11 - Missing ARIA Labels on Implicitly Unlabeled Forms
 **Learning:** Found several input elements (e.g. search bars, volume sliders, filtering select dropdowns) throughout the site that lacked explicit `<label>` associations and also lacked an `aria-label`. Without either, these controls are announced poorly by screen readers, creating an accessibility barrier. Specifically, custom range inputs used for volume sliders also lacked clear focus indicators.
 **Action:** When adding inputs like custom search fields or range sliders without visible labels, always include an `aria-label` explaining the input's purpose, and ensure `focus-visible` utility classes (like `focus-visible:ring-2`) are applied for keyboard accessibility.
+
+## 2024-11-20 - Added actionable recovery path for zero-result states
+**Learning:** Found that the zero-result empty state for filtering and searching only displayed a static message ("No tracks match your search"). Without an actionable recovery path, users must manually clear each filter input to see tracks again, which is poor UX.
+**Action:** When implementing zero-result empty states for filtering or searching, always include an actionable button (like "Clear Filters") that programmatically resets input values and re-triggers the list render to provide a clear recovery path.
