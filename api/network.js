@@ -20,8 +20,16 @@
 
 const fs = require("fs");
 const path = require("path");
+const dns = require("dns").promises;
 
 const FETCH_TIMEOUT = 5000;   // ms per request
+
+function isPrivateIP(ip) {
+    if (ip.includes(":")) return ip === "::1" || /^f[c-d]/i.test(ip) || /^fe80:/i.test(ip);
+    const parts = ip.split(".").map(Number);
+    return parts[0] === 10 || (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) ||
+           (parts[0] === 192 && parts[1] === 168) || parts[0] === 127 || parts[0] === 169 || parts[0] === 0;
+}
 const MAX_NODES = 80;         // safety cap, mirrors the browser crawler
 const MAX_DEPTH = 3;
 
@@ -48,6 +56,10 @@ function normOrigin(raw) {
 
 async function fetchJson(url) {
     try {
+        const u = new URL(url);
+        const { address } = await dns.lookup(u.hostname);
+        if (isPrivateIP(address)) return null;
+
         const res = await fetch(url, {
             signal: AbortSignal.timeout(FETCH_TIMEOUT),
             headers: { Accept: "application/json", "User-Agent": "TuneCamp-Website-Graph/1.0 (+https://www.tunecamp.org/network-graph.html)" },
