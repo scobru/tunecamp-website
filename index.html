@@ -638,10 +638,19 @@
             Array.from(genresSet).sort().forEach(g => { gsel.innerHTML += `<option value="${escapeHtml(g)}" class="bg-bg-surface">${escapeHtml(g)}</option>`; });
             gsel.value = gcurrent;
 
-            filterTracks();
+            executeFilterTracks();
         }
 
+        // ⚡ Bolt Performance Optimization:
+        // Debounce frequent high-cost operations.
+        // Prevents rapid full DOM rebuilds on keypress which blocks the main thread.
+        let filterTimeout;
         function filterTracks(isMobile) {
+            clearTimeout(filterTimeout);
+            filterTimeout = setTimeout(() => executeFilterTracks(isMobile), 300);
+        }
+
+        function executeFilterTracks(isMobile) {
             const desktopInput = document.getElementById('searchInput');
             const mobileInput = document.getElementById('mobileSearchInput');
             
