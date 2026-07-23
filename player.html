@@ -367,10 +367,19 @@
             });
             select.value = current;
 
-            filterTracks();
+            executeFilterTracks();
         }
 
+        // ⚡ Bolt Performance Optimization:
+        // Debounce frequent high-cost operations.
+        // Prevents rapid full DOM rebuilds on keypress which blocks the main thread.
+        let filterTimeout;
         function filterTracks() {
+            clearTimeout(filterTimeout);
+            filterTimeout = setTimeout(() => executeFilterTracks(), 300);
+        }
+
+        function executeFilterTracks() {
             const q = document.getElementById('searchInput').value.toLowerCase();
             const a = document.getElementById('artistFilter').value;
             filteredTracks = allTracks.filter(t => {
