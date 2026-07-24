@@ -170,6 +170,7 @@
                             artistName: p.artistName || 'Unknown Artist',
                             license: p.license || 'cc0', sampleCount: p.sampleCount || 0,
                             pageUrl: `${origin}/samples/pack/${p.id}`,
+                            coverUrl: `${origin}/api/sample-packs/${p.id}/cover`,
                             createdAt: p.createdAt || Date.now(),
                         });
                         licensesSet.add(p.license || 'cc0');
@@ -261,7 +262,7 @@
             }
             const packCards = filteredPacks.map(p => `
                 <a href="${escapeHtml(p.pageUrl)}" class="sample-card">
-                    <div class="pack-cover"><i class="fas fa-box-open"></i></div>
+                    <div class="pack-cover"><img src="${escapeHtml(p.coverUrl)}" alt="${escapeHtml(p.title)}" class="w-full h-full object-cover" loading="lazy"></div>
                     <div>
                         <div class="text-white font-medium truncate">${escapeHtml(p.title)}</div>
                         <div class="text-xs text-primary truncate">${escapeHtml(p.artistName)}</div>
