@@ -28,8 +28,25 @@
             @apply bg-white/5 backdrop-blur-2xl border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.5)];
         }
         .sample-card {
-            @apply bg-white/5 backdrop-blur-2xl border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.5)] rounded-2xl p-5 flex flex-col gap-3 hover:border-primary/30 transition-colors;
+            @apply bg-white/5 backdrop-blur-2xl border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.5)] rounded-2xl p-5 flex flex-col gap-3 hover:border-primary/30 hover:-translate-y-0.5 transition-all;
         }
+        .sample-cover {
+            @apply relative h-24 rounded-xl overflow-hidden cursor-pointer bg-gradient-to-br from-primary/15 via-white/5 to-transparent flex items-center justify-center;
+        }
+        .sample-wave, .sample-wave-progress {
+            position: absolute; inset: 0.75rem;
+            -webkit-mask-size: 100% 100%; mask-size: 100% 100%;
+            -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+        }
+        .sample-wave { background-color: rgba(255,255,255,0.25); }
+        .sample-wave-progress { background-color: #22c55e; clip-path: inset(0 100% 0 0); }
+        .sample-play {
+            @apply absolute inset-0 flex items-center justify-center bg-black/0 hover:bg-black/30 transition-colors;
+        }
+        .sample-play i {
+            @apply w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs opacity-0 scale-90 transition-all;
+        }
+        .sample-cover:hover .sample-play i { @apply opacity-100 scale-100; }
         .badge {
             @apply px-2 py-0.5 rounded-full text-[11px] font-mono bg-white/5 border border-white/10 text-text-muted;
         }
@@ -123,6 +140,7 @@
                             license: s.license || 'cc0', format: s.format,
                             downloadCount: s.downloadCount || 0,
                             downloadUrl: `${origin}/api/samples/${s.id}/download`,
+                            waveformUrl: `${origin}/api/samples/${s.id}/waveform`,
                             createdAt: s.createdAt || Date.now(),
                         };
                         samplesMap.set(`${origin}:${sd.id}`, sd);
@@ -205,12 +223,16 @@
                 ].filter(Boolean).join('');
                 return `
                     <div class="sample-card">
+                        <div class="sample-cover" onmouseenter="previewSample(this, '${escapeHtml(s.downloadUrl)}')" onmouseleave="stopPreview(this)">
+                            <div class="sample-wave" style="-webkit-mask-image:url('${escapeHtml(s.waveformUrl)}');mask-image:url('${escapeHtml(s.waveformUrl)}')"></div>
+                            <div class="sample-wave-progress" style="-webkit-mask-image:url('${escapeHtml(s.waveformUrl)}');mask-image:url('${escapeHtml(s.waveformUrl)}')"></div>
+                            <div class="sample-play"><i class="fas fa-play"></i></div>
+                        </div>
                         <div>
                             <div class="text-white font-medium truncate">${escapeHtml(s.title)}</div>
                             <div class="text-xs text-primary truncate">${escapeHtml(s.artistName)}</div>
                         </div>
                         <div class="flex flex-wrap gap-1.5">${badges}</div>
-                        <audio controls preload="none" class="w-full h-9" src="${escapeHtml(s.downloadUrl)}"></audio>
                         <a href="${escapeHtml(s.downloadUrl)}" class="text-center bg-primary/20 text-primary border border-primary/30 rounded-xl py-2 hover:bg-primary/30 transition-colors text-sm font-medium">
                             <i class="fas fa-download mr-1.5"></i>Download
                         </a>
@@ -221,7 +243,30 @@
 
         function escapeHtml(s) { return s ? String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;') : ''; }
 
+        const previewAudio = new Audio();
+        let previewEl = null;
+        previewAudio.addEventListener('timeupdate', () => {
+            if (!previewEl || !previewAudio.duration) return;
+            const pct = (1 - previewAudio.currentTime / previewAudio.duration) * 100;
+            previewEl.querySelector('.sample-wave-progress').style.clipPath = `inset(0 ${pct}% 0 0)`;
+        });
+
+        function previewSample(el, url) {
+            previewEl = el;
+            previewAudio.src = url;
+            previewAudio.currentTime = 0;
+            previewAudio.play().catch(() => {});
+        }
+
+        function stopPreview(el) {
+            previewAudio.pause();
+            el.querySelector('.sample-wave-progress').style.clipPath = 'inset(0 100% 0 0)';
+            previewEl = null;
+        }
+
         window.filterSamples = filterSamples;
+        window.previewSample = previewSample;
+        window.stopPreview = stopPreview;
         loadSamples();
     </script>
 </body>
