@@ -64,7 +64,7 @@
             </a>
             <div class="relative flex-1 max-w-md hidden lg:block">
                 <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-text-muted text-sm"></i>
-                <input type="text" id="searchInput" aria-label="Search tracks and artists" placeholder="Search tracks and artists" oninput="filterTracks(false)"
+                <input type="text" id="searchInput" aria-label="Search tracks and artists" placeholder="Search tracks and artists" oninput="debouncedFilterTracks(false)"
                     class="w-full bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-primary/50 placeholder-text-muted" />
             </div>
             <div class="hidden lg:flex items-center gap-5 text-sm font-medium ml-auto">
@@ -100,7 +100,7 @@
                 <!-- Mobile search input -->
                 <div class="relative w-full">
                     <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-text-muted text-sm"></i>
-                    <input type="text" id="mobileSearchInput" aria-label="Search tracks and artists" placeholder="Search tracks and artists" oninput="filterTracks(true)"
+                    <input type="text" id="mobileSearchInput" aria-label="Search tracks and artists" placeholder="Search tracks and artists" oninput="debouncedFilterTracks(true)"
                         class="w-full bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-primary/50 placeholder-text-muted" />
                 </div>
                 <div class="flex flex-col gap-1">
@@ -641,6 +641,16 @@
             filterTracks();
         }
 
+        // ⚡ Bolt Performance Optimization:
+        // Debounced search input to prevent rapid full DOM rebuilds of the track grid.
+        // When a user types quickly, filterTracks() recalculates and re-renders the DOM repeatedly,
+        // causing significant main thread blocking. Debouncing delays execution until typing pauses.
+        let filterTimeout;
+        function debouncedFilterTracks(isMobile) {
+            clearTimeout(filterTimeout);
+            filterTimeout = setTimeout(() => filterTracks(isMobile), 250);
+        }
+
         function filterTracks(isMobile) {
             const desktopInput = document.getElementById('searchInput');
             const mobileInput = document.getElementById('mobileSearchInput');
@@ -779,6 +789,7 @@
         function escapeHtml(s) { return s ? s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;') : ''; }
 
         window.filterTracks = filterTracks;
+        window.debouncedFilterTracks = debouncedFilterTracks;
         window.playTrackIndex = playTrackIndex;
         window.playTrackByKey = playTrackByKey;
     </script>
