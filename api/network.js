@@ -20,6 +20,9 @@
 
 const fs = require("fs");
 const path = require("path");
+const dns = require("dns").promises;
+const http = require("http");
+const https = require("https");
 
 const FETCH_TIMEOUT = 5000;   // ms per request
 const MAX_NODES = 80;         // safety cap, mirrors the browser crawler
@@ -48,13 +51,50 @@ function normOrigin(raw) {
 
 async function fetchJson(url) {
     try {
-        const res = await fetch(url, {
-            signal: AbortSignal.timeout(FETCH_TIMEOUT),
-            headers: { Accept: "application/json", "User-Agent": "TuneCamp-Website-Graph/1.0 (+https://www.tunecamp.org/network-graph.html)" },
-            redirect: "error", // a redirect could point the crawler somewhere we didn't vet
+        const u = new URL(url);
+        // DNS SSRF Protection: Resolve hostname and check if it points to a private/internal IP
+        const { address } = await dns.lookup(u.hostname);
+        if (!address || /^(0\.|10\.|127\.|169\.254\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|::1$|f[cd][0-9a-f]{2}:|fe80:)/i.test(address)) {
+            return null;
+        }
+
+        return await new Promise((resolve, reject) => {
+            const isHttps = u.protocol === 'https:';
+            const mod = isHttps ? https : http;
+
+            // Pin the resolved IP address to prevent DNS rebinding TOCTOU attacks
+            const req = mod.request({
+                host: address,
+                port: u.port || (isHttps ? 443 : 80),
+                path: u.pathname + u.search,
+                method: 'GET',
+                headers: {
+                    'Host': u.hostname,
+                    'Accept': 'application/json',
+                    'User-Agent': 'TuneCamp-Website-Graph/1.0 (+https://www.tunecamp.org/network-graph.html)'
+                },
+                servername: isHttps ? u.hostname : undefined, // Necessary for SNI validation
+                timeout: FETCH_TIMEOUT
+            }, (res) => {
+                if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+                    reject(new Error('Redirects not followed'));
+                    return;
+                }
+                if (res.statusCode < 200 || res.statusCode >= 300) {
+                    resolve(null);
+                    return;
+                }
+                let data = '';
+                res.on('data', chunk => data += chunk);
+                res.on('end', () => {
+                    try { resolve(JSON.parse(data)); } catch { resolve(null); }
+                });
+            });
+
+            req.on('error', () => resolve(null));
+            req.on('timeout', () => { req.destroy(); resolve(null); });
+            req.end();
         });
-        if (!res.ok) return null;
-        return await res.json();
     } catch {
         return null;
     }
