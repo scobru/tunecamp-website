@@ -87,6 +87,9 @@
             <select id="licenseFilter" aria-label="Filter by license" onchange="filterSamples()" class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary/50 text-white appearance-none">
                 <option value="" class="bg-bg-surface text-white">All Licenses</option>
             </select>
+            <select id="tagFilter" aria-label="Filter by tag" onchange="filterSamples()" class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary/50 text-white appearance-none">
+                <option value="" class="bg-bg-surface text-white">All Tags</option>
+            </select>
         </div>
 
         <div id="samplesContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -121,6 +124,7 @@
         async function loadSamples() {
             const samplesMap = new Map();
             const licensesSet = new Set();
+            const tagsSet = new Set();
             const processedSites = new Set();
 
             const processSite = async (siteUrl) => {
@@ -145,8 +149,9 @@
                         };
                         samplesMap.set(`${origin}:${sd.id}`, sd);
                         licensesSet.add(sd.license);
+                        sd.tags.forEach(t => tagsSet.add(t));
                     });
-                    updateSamplesList(samplesMap, licensesSet);
+                    updateSamplesList(samplesMap, licensesSet, tagsSet);
                 } catch (err) {}
             };
 
@@ -182,7 +187,7 @@
             }, 5000);
         }
 
-        function updateSamplesList(samplesMap, licensesSet) {
+        function updateSamplesList(samplesMap, licensesSet, tagsSet) {
             allSamples = Array.from(samplesMap.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             document.getElementById('sampleCount').textContent = allSamples.length;
 
@@ -194,16 +199,26 @@
             });
             select.value = current;
 
+            const tagSelect = document.getElementById('tagFilter');
+            const currentTag = tagSelect.value;
+            tagSelect.innerHTML = '<option value="" class="bg-bg-surface text-white">All Tags</option>';
+            Array.from(tagsSet).sort().forEach(t => {
+                tagSelect.innerHTML += `<option value="${escapeHtml(t)}" class="bg-bg-surface text-white">${escapeHtml(t)}</option>`;
+            });
+            tagSelect.value = currentTag;
+
             filterSamples();
         }
 
         function filterSamples() {
             const q = document.getElementById('searchInput').value.toLowerCase();
             const lic = document.getElementById('licenseFilter').value;
+            const tag = document.getElementById('tagFilter').value;
             filteredSamples = allSamples.filter(s => {
                 const mq = !q || s.title.toLowerCase().includes(q) || s.artistName.toLowerCase().includes(q);
                 const ml = !lic || s.license === lic;
-                return mq && ml;
+                const mt = !tag || s.tags.includes(tag);
+                return mq && ml && mt;
             });
             renderSamples();
         }
