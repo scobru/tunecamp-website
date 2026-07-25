@@ -282,7 +282,7 @@
                 ].filter(Boolean).join('');
                 return `
                     <div class="sample-card">
-                        <div class="sample-cover" onmouseenter="previewSample(this, '${escapeHtml(s.downloadUrl)}')" onmouseleave="stopPreview(this)">
+                        <div class="sample-cover" data-preview-url="${escapeHtml(s.downloadUrl)}" onmouseenter="previewSample(this)" onmouseleave="stopPreview(this)">
                             <div class="sample-wave" style="-webkit-mask-image:url('${escapeHtml(s.waveformUrl)}');mask-image:url('${escapeHtml(s.waveformUrl)}')"></div>
                             <div class="sample-wave-progress" style="-webkit-mask-image:url('${escapeHtml(s.waveformUrl)}');mask-image:url('${escapeHtml(s.waveformUrl)}')"></div>
                             <div class="sample-play"><i class="fas fa-play"></i></div>
@@ -311,9 +311,9 @@
             previewEl.querySelector('.sample-wave-progress').style.clipPath = `inset(0 ${pct}% 0 0)`;
         });
 
-        function previewSample(el, url) {
+        function previewSample(el) {
             previewEl = el;
-            previewAudio.src = url;
+            previewAudio.src = el.getAttribute('data-preview-url');
             previewAudio.currentTime = 0;
             previewAudio.play().catch(() => {});
         }
