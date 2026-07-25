@@ -335,13 +335,13 @@
                 if (existing.length === 0) return;
 
                 instancesList.innerHTML = existing.map(item => `
-                    <div class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between">
+                    <div class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between" id="inst-card-${(item.instanceDomain || '').replace(/[^a-z0-9]/gi, '_')}">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-primary/20 text-primary flex items-center justify-center">
+                            <div class="w-10 h-10 rounded-lg bg-primary/20 text-primary flex items-center justify-center overflow-hidden" id="inst-avatar-${(item.instanceDomain || '').replace(/[^a-z0-9]/gi, '_')}">
                                 <i class="fa-solid fa-server"></i>
                             </div>
                             <div>
-                                <div class="font-bold text-sm text-white">${item.instanceDomain || item.instanceUrl}</div>
+                                <div class="font-bold text-sm text-white" id="inst-title-${(item.instanceDomain || '').replace(/[^a-z0-9]/gi, '_')}">${item.instanceDomain || item.instanceUrl}</div>
                                 <div class="text-xs text-text-muted">Linked: ${new Date(item.linkedAt || Date.now()).toLocaleDateString()}</div>
                             </div>
                         </div>
@@ -370,7 +370,7 @@
 
                 grid.innerHTML = `
                     <div class="sm:col-span-2 text-center py-6 text-text-muted text-xs flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-circle-notch fa-spin text-primary"></i> Fetching public releases from linked instances...
+                        <i class="fa-solid fa-circle-notch fa-spin text-primary"></i> Fetching public profiles & releases from linked instances...
                     </div>`;
 
                 let allReleases = [];
@@ -382,24 +382,61 @@
                     const protocol = inst.instanceUrl && inst.instanceUrl.startsWith('http') ? '' : 'https://';
                     const baseUrl = inst.instanceUrl || `${protocol}${domain}`;
                     const endpoint = inst.publicDataEndpoint || `${baseUrl}/api/auth/zen/user/${alias}/public`;
+                    const cardId = domain.replace(/[^a-z0-9]/gi, '_');
 
                     try {
                         const res = await fetch(endpoint);
                         if (res.ok) {
                             const data = await res.json();
-                            if (data.releases && Array.isArray(data.releases)) {
-                                data.releases.forEach(rel => {
-                                    allReleases.push({ ...rel, instanceDomain: domain });
+
+                            // 1. Update Linked Instance card with user profile picture & artist name if available
+                            const prof = data.publicProfile || data.user || data.profile;
+                            if (prof) {
+                                const titleEl = document.getElementById(`inst-title-${cardId}`);
+                                const avatarEl = document.getElementById(`inst-avatar-${cardId}`);
+                                const artistDisplayName = prof.artistName || prof.displayName || prof.username || alias;
+                                if (titleEl) {
+                                    titleEl.innerHTML = `${artistDisplayName} <span class="text-xs font-normal text-text-muted">(${domain})</span>`;
+                                }
+                                const avatarUrl = prof.imageUrl || prof.avatar;
+                                if (avatarEl && avatarUrl) {
+                                    avatarEl.innerHTML = `<img src="${avatarUrl}" alt="${artistDisplayName}" class="w-full h-full object-cover" />`;
+                                }
+                            }
+
+                            // 2. Parse releases from response (handling publicReleases or releases)
+                            const relList = data.publicReleases || data.releases || [];
+                            if (Array.isArray(relList)) {
+                                relList.forEach(rel => {
+                                    allReleases.push({
+                                        id: rel.id,
+                                        title: rel.title,
+                                        artist: prof?.artistName || prof?.displayName || alias,
+                                        coverUrl: rel.cover_url || rel.coverUrl || prof?.imageUrl || prof?.avatar,
+                                        releaseDate: rel.release_date || rel.releaseDate,
+                                        type: rel.type || 'Release',
+                                        instanceDomain: domain
+                                    });
                                 });
                             }
-                            if (data.tracks && Array.isArray(data.tracks)) {
-                                data.tracks.forEach(tr => {
-                                    allReleases.push({ id: tr.id, title: tr.title, artist: tr.artist || data.user?.displayName || alias, coverUrl: tr.coverUrl || data.user?.avatar, instanceDomain: domain });
+
+                            // 3. Also parse public tracks if separate
+                            const trackList = data.publicTracks || data.tracks || [];
+                            if (Array.isArray(trackList)) {
+                                trackList.forEach(tr => {
+                                    allReleases.push({
+                                        id: tr.id,
+                                        title: tr.title,
+                                        artist: tr.artist || prof?.artistName || alias,
+                                        coverUrl: tr.cover_url || tr.coverUrl || prof?.imageUrl,
+                                        type: 'Track',
+                                        instanceDomain: domain
+                                    });
                                 });
                             }
                         }
                     } catch (err) {
-                        console.warn(`[Zen Aggregator] Could not fetch public releases from ${domain}:`, err);
+                        console.warn(`[Zen Aggregator] Could not fetch public profile/releases from ${domain}:`, err);
                     }
                 }
 
@@ -419,7 +456,10 @@
                         <div class="min-w-0 flex-1">
                             <div class="font-bold text-sm text-white truncate">${rel.title || 'Untitled Release'}</div>
                             <div class="text-xs text-text-muted truncate">${rel.artist || alias}</div>
-                            <div class="text-[10px] text-primary/80 font-mono mt-0.5"><i class="fa-solid fa-server text-[9px]"></i> ${rel.instanceDomain}</div>
+                            <div class="flex items-center gap-2 text-[10px] text-primary/80 font-mono mt-1">
+                                <span><i class="fa-solid fa-server text-[9px]"></i> ${rel.instanceDomain}</span>
+                                ${rel.type ? `<span class="px-1.5 py-0.5 rounded bg-white/10 text-white/70">${rel.type}</span>` : ''}
+                            </div>
                         </div>
                     </div>
                 `).join('');
