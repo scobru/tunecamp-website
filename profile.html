@@ -241,11 +241,10 @@
         document.addEventListener('DOMContentLoaded', () => {
             const relay = window.ZEN_RELAY || "wss://delay.scobrudot.dev/zen";
             let zen = null;
-            let zenUser = null;
+            let currentPair = null;
 
             if (window.Zen) {
                 zen = window.Zen({ peers: [relay] });
-                zenUser = zen.user();
             }
 
             const loginForm = document.getElementById('loginForm');
@@ -267,46 +266,47 @@
             if (savedSession) {
                 try {
                     const parsed = JSON.parse(savedSession);
-                    showLoggedIn(parsed.alias, parsed.pub);
+                    if (parsed.pair) {
+                        currentPair = parsed.pair;
+                        showLoggedIn(parsed.alias, parsed.pair.pub);
+                    }
                 } catch(e){}
             }
 
-            loginForm.addEventListener('submit', (e) => {
+            loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const alias = aliasInput.value.trim();
                 const pass = passphraseInput.value.trim();
                 if (!alias || !pass) return;
 
-                if (zenUser) {
-                    zenUser.auth(alias, pass, (ack) => {
-                        if (ack.err) {
-                            // Try creating user if auth fails
-                            zenUser.create(alias, pass, (createAck) => {
-                                if (createAck.err) {
-                                    alert('Auth failed: ' + createAck.err);
-                                } else {
-                                    zenUser.auth(alias, pass, (finalAck) => {
-                                        if (finalAck.pub) {
-                                            saveAndShowUser(alias, finalAck.pub);
-                                        }
-                                    });
-                                }
-                            });
-                        } else if (ack.pub) {
-                            saveAndShowUser(alias, ack.pub);
-                        }
-                    });
-                } else {
-                    // Local fallback mock
-                    const mockPub = 'QmZenFallback_' + btoa(alias).slice(0, 16);
-                    saveAndShowUser(alias, mockPub);
+                const submitBtn = loginForm.querySelector('button[type="submit"]');
+                const originalHtml = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i>Authenticating...';
+                
+                try {
+                    if (window.Zen) {
+                        window.Zen.pair((pair) => {
+                            if (pair && pair.pub) {
+                                currentPair = pair;
+                                saveAndShowUser(alias, pair);
+                            } else {
+                                alert("Failed to generate identity.");
+                            }
+                            submitBtn.innerHTML = originalHtml;
+                        }, { seed: alias + ':' + pass });
+                    } else {
+                        throw new Error("Zen SEA library not loaded");
+                    }
+                } catch(err) {
+                    alert('Auth error: ' + err.message);
+                    submitBtn.innerHTML = originalHtml;
                 }
             });
 
-            function saveAndShowUser(alias, pub) {
-                const sessionData = { alias, pub };
+            function saveAndShowUser(alias, pair) {
+                const sessionData = { alias, pair };
                 localStorage.setItem('tunecamp_zen_user', JSON.stringify(sessionData));
-                showLoggedIn(alias, pub);
+                showLoggedIn(alias, pair.pub);
             }
 
             function showLoggedIn(alias, pub) {
@@ -319,9 +319,10 @@
 
             logoutBtn.addEventListener('click', () => {
                 localStorage.removeItem('tunecamp_zen_user');
-                loggedInView.classList.add('hidden');
+                currentPair = null;
                 loginForm.classList.remove('hidden');
-                if (zenUser) zenUser.leave();
+                loggedInView.classList.add('hidden');
+                instancesList.innerHTML = '';
             });
 
             copyPubKeyBtn.addEventListener('click', () => {
@@ -382,6 +383,13 @@
 
                 existing.push(passport);
                 localStorage.setItem('tunecamp_linked_instances', JSON.stringify(existing));
+                
+                // Sync to Zen relay if authenticated
+                if (zen && currentPair) {
+                    const safeId = key.replace(/[^a-z0-9]/gi, '_');
+                    zen.get('~' + currentPair.pub).get('instances').get(safeId).put(passport, null, { authenticator: currentPair });
+                }
+
                 const activeUser = (JSON.parse(localStorage.getItem('tunecamp_zen_user') || '{}')).alias;
                 loadLinkedInstances(activeUser);
             }
@@ -395,6 +403,13 @@
                     return key !== keyToUnlink && domain !== keyToUnlink;
                 });
                 localStorage.setItem('tunecamp_linked_instances', JSON.stringify(existing));
+                
+                // Sync to Zen relay if authenticated
+                if (zen && currentPair) {
+                    const safeId = keyToUnlink.replace(/[^a-z0-9]/gi, '_');
+                    zen.get('~' + currentPair.pub).get('instances').get(safeId).put(null, null, { authenticator: currentPair });
+                }
+
                 const activeUser = (JSON.parse(localStorage.getItem('tunecamp_zen_user') || '{}')).alias;
                 loadLinkedInstances(activeUser);
             };
@@ -404,7 +419,7 @@
                 const activeUser = alias || (JSON.parse(localStorage.getItem('tunecamp_zen_user') || '{}')).alias;
 
                 const seen = new Set();
-                const existing = rawExisting.filter(item => {
+                let existing = rawExisting.filter(item => {
                     const domain = item.instanceDomain || item.instanceUrl;
                     const user = item.localUsername || item.username || activeUser || '';
                     const key = `${domain}::${user}`;
@@ -413,52 +428,85 @@
                     return true;
                 });
 
-                if (existing.length === 0) {
-                    instancesList.innerHTML = `
-                        <div class="text-center py-8 text-text-muted text-sm italic">
-                            No instances or artist accounts linked yet. Authenticate above and click "Link Instance" to bind your TuneCamp node accounts.
-                        </div>`;
-                    const grid = document.getElementById('publicReleasesGrid');
-                    if (grid) {
-                        grid.innerHTML = `
-                            <div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">
-                                Connect your accounts to view aggregated public releases across the network.
+                const renderInstances = (instancesListToRender) => {
+                    if (instancesListToRender.length === 0) {
+                        instancesList.innerHTML = `
+                            <div class="text-center py-8 text-text-muted text-sm italic">
+                                No instances or artist accounts linked yet. Authenticate above and click "Link Instance" to bind your TuneCamp node accounts.
                             </div>`;
+                        const grid = document.getElementById('publicReleasesGrid');
+                        if (grid) {
+                            grid.innerHTML = `
+                                <div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">
+                                    Connect your accounts to view aggregated public releases across the network.
+                                </div>`;
+                        }
+                        return;
                     }
-                    return;
-                }
 
-                instancesList.innerHTML = existing.map(item => {
-                    const domain = item.instanceDomain || item.instanceUrl;
-                    const localUser = item.localUsername || item.username || activeUser || '';
-                    const key = `${domain}::${localUser}`;
-                    const safeId = key.replace(/[^a-z0-9]/gi, '_');
-                    return `
-                    <div class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between gap-4" id="inst-card-${safeId}">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div class="w-10 h-10 rounded-lg bg-primary/20 text-primary flex items-center justify-center overflow-hidden shrink-0" id="inst-avatar-${safeId}">
-                                <i class="fa-solid fa-user-astronaut"></i>
-                            </div>
-                            <div class="min-w-0">
-                                <div class="font-bold text-sm text-white truncate" id="inst-title-${safeId}">
-                                    @${localUser} <span class="text-xs font-normal text-text-muted">(${domain})</span>
+                    instancesList.innerHTML = instancesListToRender.map(item => {
+                        const domain = item.instanceDomain || item.instanceUrl;
+                        const localUser = item.localUsername || item.username || activeUser || '';
+                        const key = `${domain}::${localUser}`;
+                        const safeId = key.replace(/[^a-z0-9]/gi, '_');
+                        return `
+                        <div class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between gap-4" id="inst-card-${safeId}">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-10 h-10 rounded-lg bg-primary/20 text-primary flex items-center justify-center overflow-hidden shrink-0" id="inst-avatar-${safeId}">
+                                    <i class="fa-solid fa-user-astronaut"></i>
                                 </div>
-                                <div class="text-xs text-text-muted">Linked: ${new Date(item.linkedAt || Date.now()).toLocaleDateString()}</div>
+                                <div class="min-w-0">
+                                    <div class="font-bold text-sm text-white truncate" id="inst-title-${safeId}">
+                                        @${localUser} <span class="text-xs font-normal text-text-muted">(${domain})</span>
+                                    </div>
+                                    <div class="text-xs text-text-muted">Linked: ${new Date(item.linkedAt || Date.now()).toLocaleDateString()}</div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <span class="px-2.5 py-1 text-xs rounded-full badge-verified font-medium">
-                                <i class="fa-solid fa-shield-check"></i> Verified
-                            </span>
-                            <button type="button" onclick="unlinkInstance('${key}')" title="Unlink Account" class="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs transition-colors">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </div>
-                    </div>`;
-                }).join('');
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span class="px-2.5 py-1 text-xs rounded-full badge-verified font-medium">
+                                    <i class="fa-solid fa-shield-check"></i> Verified
+                                </span>
+                                <button type="button" onclick="unlinkInstance('${key}')" title="Unlink Account" class="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs transition-colors">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </div>`;
+                    }).join('');
 
-                if (activeUser) {
-                    fetchAggregatedPublicReleases(activeUser, existing);
+                    if (activeUser) {
+                        fetchAggregatedPublicReleases(activeUser, instancesListToRender);
+                    }
+                };
+
+                // Initial local render
+                renderInstances(existing);
+
+                // Sync from Zen network
+                if (zen && currentPair) {
+                    zen.get('~' + currentPair.pub).get('instances').map().once((data, safeId) => {
+                        if (data === null) {
+                            // Instance unlinked remotely
+                            existing = existing.filter(item => {
+                                const domain = item.instanceDomain || item.instanceUrl;
+                                const user = item.localUsername || item.username || activeUser || '';
+                                const key = `${domain}::${user}`;
+                                return key.replace(/[^a-z0-9]/gi, '_') !== safeId;
+                            });
+                        } else if (data && data.instanceDomain) {
+                            // Instance linked remotely
+                            const domain = data.instanceDomain || data.instanceUrl;
+                            const user = data.localUsername || data.username || activeUser || '';
+                            const key = `${domain}::${user}`;
+                            if (!seen.has(key)) {
+                                seen.add(key);
+                                existing.push(data);
+                            }
+                        }
+                        
+                        // Update local cache and UI
+                        localStorage.setItem('tunecamp_linked_instances', JSON.stringify(existing));
+                        renderInstances(existing);
+                    });
                 }
             }
 
