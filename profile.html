@@ -146,16 +146,53 @@
                     </div>
                 </div>
 
-                <!-- Aggregated Public Catalog -->
-                <div class="glass-card p-6 space-y-4">
-                    <h2 class="font-display text-lg font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-compact-disc text-amber-400"></i> Aggregated Public Releases
-                    </h2>
-                    <p class="text-xs text-text-muted">Public tracks and releases aggregated from your verified instances</p>
+                <!-- Aggregated Public Catalog & Activity -->
+                <div class="glass-card p-6 space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+                        <div>
+                            <h2 class="font-display text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-layer-group text-amber-400"></i> Unified Activity & Catalog
+                            </h2>
+                            <p class="text-xs text-text-muted">Public releases, starred favorites, and playlists aggregated across your linked TuneCamp nodes</p>
+                        </div>
+                        <!-- Section Tabs -->
+                        <div class="flex items-center gap-2 bg-black/40 p-1 rounded-lg border border-white/10 text-xs">
+                            <button type="button" id="tabReleasesBtn" onclick="switchProfileTab('releases')" class="px-3 py-1.5 rounded-md font-medium text-white bg-primary transition-colors">
+                                <i class="fa-solid fa-compact-disc"></i> Releases (<span id="releasesCount">0</span>)
+                            </button>
+                            <button type="button" id="tabLikesBtn" onclick="switchProfileTab('likes')" class="px-3 py-1.5 rounded-md font-medium text-text-muted hover:text-white transition-colors">
+                                <i class="fa-solid fa-heart text-rose-400"></i> Favorites (<span id="likesCount">0</span>)
+                            </button>
+                            <button type="button" id="tabPlaylistsBtn" onclick="switchProfileTab('playlists')" class="px-3 py-1.5 rounded-md font-medium text-text-muted hover:text-white transition-colors">
+                                <i class="fa-solid fa-list-music text-purple-400"></i> Playlists (<span id="playlistsCount">0</span>)
+                            </button>
+                        </div>
+                    </div>
 
-                    <div id="publicReleasesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                        <div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">
-                            Connect your accounts to view aggregated public releases across the network.
+                    <!-- Tab Content: Releases -->
+                    <div id="tabReleasesContent">
+                        <div id="publicReleasesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">
+                                Connect your accounts to view aggregated public releases across the network.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Content: Starred Favorites -->
+                    <div id="tabLikesContent" class="hidden">
+                        <div id="publicLikesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">
+                                No starred favorites aggregated yet.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Content: Playlists -->
+                    <div id="tabPlaylistsContent" class="hidden">
+                        <div id="publicPlaylistsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">
+                                No public playlists aggregated yet.
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -425,23 +462,49 @@
                 }
             }
 
+            window.switchProfileTab = function(tab) {
+                const releasesBtn = document.getElementById('tabReleasesBtn');
+                const likesBtn = document.getElementById('tabLikesBtn');
+                const playlistsBtn = document.getElementById('tabPlaylistsBtn');
+
+                const releasesContent = document.getElementById('tabReleasesContent');
+                const likesContent = document.getElementById('tabLikesContent');
+                const playlistsContent = document.getElementById('tabPlaylistsContent');
+
+                [releasesBtn, likesBtn, playlistsBtn].forEach(b => {
+                    if (b) {
+                        b.className = 'px-3 py-1.5 rounded-md font-medium text-text-muted hover:text-white transition-colors';
+                    }
+                });
+                [releasesContent, likesContent, playlistsContent].forEach(c => {
+                    if (c) c.classList.add('hidden');
+                });
+
+                if (tab === 'releases') {
+                    if (releasesBtn) releasesBtn.className = 'px-3 py-1.5 rounded-md font-medium text-white bg-primary transition-colors';
+                    if (releasesContent) releasesContent.classList.remove('hidden');
+                } else if (tab === 'likes') {
+                    if (likesBtn) likesBtn.className = 'px-3 py-1.5 rounded-md font-medium text-white bg-primary transition-colors';
+                    if (likesContent) likesContent.classList.remove('hidden');
+                } else if (tab === 'playlists') {
+                    if (playlistsBtn) playlistsBtn.className = 'px-3 py-1.5 rounded-md font-medium text-white bg-primary transition-colors';
+                    if (playlistsContent) playlistsContent.classList.remove('hidden');
+                }
+            };
+
             async function fetchAggregatedPublicReleases(alias, instances) {
-                const grid = document.getElementById('publicReleasesGrid');
-                if (!grid) return;
+                const relGrid = document.getElementById('publicReleasesGrid');
+                const likesGrid = document.getElementById('publicLikesGrid');
+                const plGrid = document.getElementById('publicPlaylistsGrid');
+
                 if (!instances || instances.length === 0) {
-                    grid.innerHTML = `
-                        <div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">
-                            Connect your accounts to view aggregated public releases across the network.
-                        </div>`;
+                    if (relGrid) relGrid.innerHTML = `<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">Connect your accounts to view aggregated public releases across the network.</div>`;
                     return;
                 }
 
-                grid.innerHTML = `
-                    <div class="sm:col-span-2 text-center py-6 text-text-muted text-xs flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-circle-notch fa-spin text-primary"></i> Fetching public profiles & releases from linked accounts...
-                    </div>`;
-
                 let allReleases = [];
+                let allLikes = [];
+                let allPlaylists = [];
 
                 for (const inst of instances) {
                     const domain = inst.instanceDomain || (inst.instanceUrl ? new URL(inst.instanceUrl).hostname : '');
@@ -459,7 +522,7 @@
                         if (res.ok) {
                             const data = await res.json();
 
-                            // 1. Update Linked Instance card with user profile picture & artist name if available
+                            // 1. Update Linked Instance card with user profile picture & artist name
                             const prof = data.publicProfile || data.user || data.profile;
                             if (prof) {
                                 const titleEl = document.getElementById(`inst-title-${safeId}`);
@@ -474,7 +537,7 @@
                                 }
                             }
 
-                            // 2. Parse releases from response
+                            // 2. Parse releases/albums
                             const relList = data.publicReleases || data.releases || [];
                             if (Array.isArray(relList)) {
                                 relList.forEach(rel => {
@@ -484,23 +547,42 @@
                                         artist: prof?.artistName || prof?.displayName || targetUser,
                                         coverUrl: rel.cover_url || rel.coverUrl || prof?.imageUrl || prof?.avatar,
                                         releaseDate: rel.release_date || rel.releaseDate,
-                                        type: rel.type || 'Release',
+                                        type: rel.type || 'Album',
+                                        linkUrl: `${baseUrl}/#album-${rel.id}`,
                                         instanceDomain: domain,
                                         localUsername: targetUser
                                     });
                                 });
                             }
 
-                            // 3. Also parse public tracks if separate
-                            const trackList = data.publicTracks || data.tracks || [];
-                            if (Array.isArray(trackList)) {
-                                trackList.forEach(tr => {
-                                    allReleases.push({
-                                        id: tr.id,
-                                        title: tr.title,
-                                        artist: tr.artist || prof?.artistName || targetUser,
-                                        coverUrl: tr.cover_url || tr.coverUrl || prof?.imageUrl,
-                                        type: 'Track',
+                            // 3. Parse starred/likes
+                            const likeList = data.publicLikes || data.likes || [];
+                            if (Array.isArray(likeList)) {
+                                likeList.forEach(lk => {
+                                    allLikes.push({
+                                        id: lk.id,
+                                        title: lk.album_title || lk.track_title || `Item #${lk.id}`,
+                                        artist: lk.track_artist || prof?.artistName || targetUser,
+                                        coverUrl: lk.album_cover || prof?.imageUrl,
+                                        type: lk.type || 'Favorite',
+                                        linkUrl: `${baseUrl}`,
+                                        instanceDomain: domain,
+                                        localUsername: targetUser
+                                    });
+                                });
+                            }
+
+                            // 4. Parse playlists
+                            const plList = data.publicPlaylists || data.playlists || [];
+                            if (Array.isArray(plList)) {
+                                plList.forEach(pl => {
+                                    allPlaylists.push({
+                                        id: pl.id,
+                                        title: pl.name || pl.title || 'Playlist',
+                                        artist: targetUser,
+                                        coverUrl: pl.cover_url || prof?.imageUrl,
+                                        type: 'Playlist',
+                                        linkUrl: `${baseUrl}`,
                                         instanceDomain: domain,
                                         localUsername: targetUser
                                     });
@@ -508,33 +590,81 @@
                             }
                         }
                     } catch (err) {
-                        console.warn(`[Zen Aggregator] Could not fetch public profile/releases for @${targetUser} from ${domain}:`, err);
+                        console.warn(`[Zen Aggregator] Could not fetch public data for @${targetUser} from ${domain}:`, err);
                     }
                 }
 
-                if (allReleases.length === 0) {
-                    grid.innerHTML = `
-                        <div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">
-                            No public releases found yet for linked accounts on your instances.
-                        </div>`;
-                    return;
+                // Update counters
+                document.getElementById('releasesCount').textContent = allReleases.length;
+                document.getElementById('likesCount').textContent = allLikes.length;
+                document.getElementById('playlistsCount').textContent = allPlaylists.length;
+
+                // Render Releases
+                if (relGrid) {
+                    if (allReleases.length === 0) {
+                        relGrid.innerHTML = `<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No public releases found yet for linked accounts on your instances.</div>`;
+                    } else {
+                        relGrid.innerHTML = allReleases.map(rel => `
+                            <a href="${rel.linkUrl}" target="_blank" rel="noopener" class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4 hover:border-primary/40 hover:bg-white/[0.07] transition-all group">
+                                <div class="w-12 h-12 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
+                                    ${rel.coverUrl ? `<img src="${rel.coverUrl}" alt="${rel.title}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-compact-disc text-amber-400 text-xl"></i>`}
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="font-bold text-sm text-white truncate group-hover:text-primary transition-colors">${rel.title || 'Untitled Release'}</div>
+                                    <div class="text-xs text-text-muted truncate">${rel.artist || rel.localUsername}</div>
+                                    <div class="flex items-center gap-2 text-[10px] text-primary/80 font-mono mt-1">
+                                        <span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> ${rel.instanceDomain} (@${rel.localUsername})</span>
+                                        ${rel.type ? `<span class="px-1.5 py-0.5 rounded bg-white/10 text-white/70">${rel.type}</span>` : ''}
+                                    </div>
+                                </div>
+                            </a>
+                        `).join('');
+                    }
                 }
 
-                grid.innerHTML = allReleases.map(rel => `
-                    <div class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4 hover:border-primary/40 transition-colors">
-                        <div class="w-12 h-12 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
-                            ${rel.coverUrl ? `<img src="${rel.coverUrl}" alt="${rel.title}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-compact-disc text-amber-400 text-xl"></i>`}
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <div class="font-bold text-sm text-white truncate">${rel.title || 'Untitled Release'}</div>
-                            <div class="text-xs text-text-muted truncate">${rel.artist || rel.localUsername}</div>
-                            <div class="flex items-center gap-2 text-[10px] text-primary/80 font-mono mt-1">
-                                <span><i class="fa-solid fa-server text-[9px]"></i> ${rel.instanceDomain} (@${rel.localUsername})</span>
-                                ${rel.type ? `<span class="px-1.5 py-0.5 rounded bg-white/10 text-white/70">${rel.type}</span>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
+                // Render Favorites
+                if (likesGrid) {
+                    if (allLikes.length === 0) {
+                        likesGrid.innerHTML = `<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No starred favorites found for linked accounts.</div>`;
+                    } else {
+                        likesGrid.innerHTML = allLikes.map(lk => `
+                            <a href="${lk.linkUrl}" target="_blank" rel="noopener" class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4 hover:border-rose-400/40 hover:bg-white/[0.07] transition-all group">
+                                <div class="w-12 h-12 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
+                                    ${lk.coverUrl ? `<img src="${lk.coverUrl}" alt="${lk.title}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-heart text-rose-400 text-xl"></i>`}
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="font-bold text-sm text-white truncate group-hover:text-rose-400 transition-colors">${lk.title}</div>
+                                    <div class="text-xs text-text-muted truncate">${lk.artist}</div>
+                                    <div class="flex items-center gap-2 text-[10px] text-rose-400/80 font-mono mt-1">
+                                        <span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> ${lk.instanceDomain}</span>
+                                    </div>
+                                </div>
+                            </a>
+                        `).join('');
+                    }
+                }
+
+                // Render Playlists
+                if (plGrid) {
+                    if (allPlaylists.length === 0) {
+                        plGrid.innerHTML = `<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No public playlists found for linked accounts.</div>`;
+                    } else {
+                        plGrid.innerHTML = allPlaylists.map(pl => `
+                            <a href="${pl.linkUrl}" target="_blank" rel="noopener" class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4 hover:border-purple-400/40 hover:bg-white/[0.07] transition-all group">
+                                <div class="w-12 h-12 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
+                                    ${pl.coverUrl ? `<img src="${pl.coverUrl}" alt="${pl.title}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-list-music text-purple-400 text-xl"></i>`}
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="font-bold text-sm text-white truncate group-hover:text-purple-400 transition-colors">${pl.title}</div>
+                                    <div class="text-xs text-text-muted truncate">By @${pl.localUsername}</div>
+                                    <div class="flex items-center gap-2 text-[10px] text-purple-400/80 font-mono mt-1">
+                                        <span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> ${pl.instanceDomain}</span>
+                                    </div>
+                                </div>
+                            </a>
+                        `).join('');
+                    }
+                }
             }
         });
     </script>
