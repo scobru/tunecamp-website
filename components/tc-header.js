@@ -25,7 +25,7 @@ class TcHeader extends HTMLElement {
                     <a href="ecosystem.html" class="${active === 'ecosystem' ? 'text-primary font-semibold' : 'text-text-muted hover:text-white transition-colors'}">Ecosystem</a>
                     <a href="run.html" class="${active === 'run' ? 'text-primary font-semibold' : 'text-text-muted hover:text-white transition-colors'}">Run Instance</a>
                     <a href="profile.html" class="${active === 'profile' ? 'text-primary font-semibold flex items-center gap-1.5' : 'text-text-muted hover:text-white transition-colors flex items-center gap-1.5'}">
-                        <i class="fa-solid fa-shield-halved text-xs"></i> Zen Identity
+                        <i class="fa-solid fa-shield-halved text-xs"></i> Identity
                     </a>
                     
                     <div class="relative" id="tcHeaderMoreContainer">
@@ -60,7 +60,7 @@ class TcHeader extends HTMLElement {
                 <a href="about.html" class="block py-2 text-sm ${active === 'about' ? 'text-primary font-semibold' : 'text-text-muted'}">Overview</a>
                 <a href="ecosystem.html" class="block py-2 text-sm ${active === 'ecosystem' ? 'text-primary font-semibold' : 'text-text-muted'}">Ecosystem</a>
                 <a href="run.html" class="block py-2 text-sm ${active === 'run' ? 'text-primary font-semibold' : 'text-text-muted'}">Run Instance</a>
-                <a href="profile.html" class="block py-2 text-sm ${active === 'profile' ? 'text-primary font-semibold' : 'text-text-muted'}"><i class="fa-solid fa-shield-halved text-xs"></i> Zen Identity</a>
+                <a href="profile.html" class="block py-2 text-sm ${active === 'profile' ? 'text-primary font-semibold' : 'text-text-muted'}"><i class="fa-solid fa-shield-halved text-xs"></i> Identity</a>
                 <a href="network-graph.html" class="block py-2 text-sm ${active === 'network-graph' ? 'text-primary font-semibold' : 'text-text-muted'}">Network Graph</a>
                 <a href="player.html" class="block py-2 text-sm ${active === 'player' ? 'text-primary font-semibold' : 'text-text-muted'}">Player</a>
                 <a href="samples.html" class="block py-2 text-sm ${active === 'samples' ? 'text-primary font-semibold' : 'text-text-muted'}">Samples</a>
