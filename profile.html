@@ -14,6 +14,7 @@
     <script src="theme.js"></script>
     <script src="config.js"></script>
     <script src="vendor/zen.min.js"></script>
+    <script src="components/tc-header.js"></script>
     <style type="text/tailwindcss">
         @theme {
         --color-primary: #2997ff;
@@ -47,22 +48,7 @@
 
 <body class="min-h-screen flex flex-col relative pb-24">
     <!-- Top Nav -->
-    <nav class="sticky top-0 left-0 w-full z-40 bg-black/70 backdrop-blur-lg border-b border-white/10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <a href="index.html" class="flex items-center gap-3 group">
-                <img src="tunecamp.svg" alt="TuneCamp Logo" class="w-8 h-8 transition-transform group-hover:scale-105" />
-                <span class="font-display font-bold text-xl tracking-tight text-white">TuneCamp</span>
-            </a>
-            <div class="flex items-center gap-6 text-sm font-medium">
-                <a href="index.html" class="text-text-muted hover:text-white transition-colors">Home</a>
-                <a href="player.html" class="text-text-muted hover:text-white transition-colors">Player</a>
-                <a href="about.html" class="text-text-muted hover:text-white transition-colors">About</a>
-                <a href="profile.html" class="text-primary font-semibold flex items-center gap-2">
-                    <i class="fa-solid fa-shield-halved"></i> Zen Identity
-                </a>
-            </div>
-        </div>
-    </nav>
+    <tc-header active="profile"></tc-header>
 
     <!-- Main Container -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 w-full space-y-8">

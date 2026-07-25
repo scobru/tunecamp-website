@@ -48,64 +48,12 @@
         background-position: 0 0, 10px 10px;
       }
     </style>
+    <script src="components/tc-header.js"></script>
 </head>
 
 <body class="min-h-screen flex flex-col relative">
     <!-- Top Nav -->
-    <nav class="fixed top-0 left-0 w-full z-50 bg-black/60 backdrop-blur-lg border-b border-white/10">
-        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-            <a href="index.html" class="flex items-center gap-2 font-display font-bold text-lg">
-                <img src="tunecamp.svg" alt="Tunecamp" class="w-7 h-7" /> Tunecamp
-            </a>
-            <div class="hidden lg:flex items-center gap-6 text-sm font-medium">
-                <a href="about.html" class="text-text-muted hover:text-white transition-colors">Overview</a>
-                <a href="index.html" class="text-text-muted hover:text-white transition-colors">Explore</a>
-                <a href="ecosystem.html" class="text-text-muted hover:text-white transition-colors whitespace-nowrap">Ecosystem</a>
-                <a href="run.html" class="text-text-muted hover:text-white transition-colors whitespace-nowrap">Run Instance</a>
-                <div class="relative">
-                    <button id="moreBtn" class="text-text-muted hover:text-white transition-colors flex items-center gap-1">More <i class="fas fa-chevron-down text-[10px]"></i></button>
-                    <div id="moreMenu" class="hidden absolute right-0 top-full mt-2 w-44 bg-black/95 backdrop-blur-lg border border-white/10 rounded-xl py-1 z-50 shadow-xl">
-                        <a href="network-graph.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Network Graph</a>
-                        <a href="usecases.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Use Cases</a>
-                        <a href="manifesto.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Manifesto</a>
-                        <a href="player.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Player</a>
-                        <a href="press.html" class="block px-4 py-2.5 text-white hover:bg-white/5 transition-colors">Press Kit</a>
-                        <a href="legal.html" class="block px-4 py-2.5 text-text-muted hover:text-white hover:bg-white/5 transition-colors">Legal</a>
-                    </div>
-                </div>
-                <a href="https://scobru.github.io/tunecamp/" target="_blank" class="text-text-muted hover:text-white transition-colors">Docs</a>
-                <a href="https://github.com/scobru/tunecamp" class="text-text-muted hover:text-white transition-colors"><i class="fab fa-github"></i></a>
-                <button onclick="toggleTheme()" aria-label="Toggle theme" class="text-text-muted hover:text-white transition-colors w-8 h-8 flex items-center justify-center">
-                    <i data-theme-icon class="fas fa-sun text-sm"></i>
-                </button>
-            </div>
-            <!-- Mobile hamburger -->
-            <button id="menuToggle" aria-label="Menu" aria-expanded="false" class="lg:hidden w-10 h-10 -mr-2 flex items-center justify-center text-text-muted hover:text-white transition-colors">
-                <i class="fas fa-bars text-lg"></i>
-            </button>
-        </div>
-        <!-- Mobile menu panel -->
-        <div id="mobileMenu" class="hidden lg:hidden border-t border-white/10 bg-black/90 backdrop-blur-lg">
-            <div class="px-6 py-4 flex flex-col gap-1 text-sm font-medium">
-                <a href="about.html" class="py-2 text-text-muted hover:text-white transition-colors">Overview</a>
-                <a href="index.html" class="py-2 text-text-muted hover:text-white transition-colors">Explore</a>
-                <a href="ecosystem.html" class="py-2 text-text-muted hover:text-white transition-colors">Ecosystem</a>
-                <a href="player.html" class="py-2 text-text-muted hover:text-white transition-colors">Player</a>
-                <a href="run.html" class="py-2 text-text-muted hover:text-white transition-colors">Run Instance</a>
-                <a href="network-graph.html" class="py-2 text-text-muted hover:text-white transition-colors">Network Graph</a>
-                <a href="usecases.html" class="py-2 text-text-muted hover:text-white transition-colors">Use Cases</a>
-                <a href="manifesto.html" class="py-2 text-text-muted hover:text-white transition-colors">Manifesto</a>
-                <a href="press.html" class="py-2 text-white">Press Kit</a>
-                <a href="legal.html" class="py-2 text-text-muted hover:text-white transition-colors">Legal</a>
-                <a href="https://scobru.github.io/tunecamp/" target="_blank" class="py-2 text-text-muted hover:text-white transition-colors">Docs</a>
-                <a href="https://github.com/scobru/tunecamp" class="py-2 text-text-muted hover:text-white transition-colors"><i class="fab fa-github mr-2"></i>GitHub</a>
-                <button onclick="toggleTheme()" class="py-2 flex items-center gap-2 text-text-muted hover:text-white transition-colors">
-                    <i data-theme-icon class="fas fa-sun text-sm w-4 text-center"></i>
-                    <span>Toggle theme</span>
-                </button>
-            </div>
-        </div>
-    </nav>
+    <tc-header active="press"></tc-header>
     <script>
         (function () {
             const btn = document.getElementById('menuToggle');
