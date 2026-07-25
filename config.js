@@ -17,3 +17,7 @@ window.TUNECAMP_DIRECTORY = [
     "https://tunecamp.fdalabs.net"
 ];
 
+/** Zen P2P Relay Server for SEA Identity & Passports */
+window.ZEN_RELAY = "wss://delay.scobrudot.dev/zen";
+
+

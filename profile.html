@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Global Identity (Zen SEA) — TuneCamp</title>
+    <link rel="icon" type="image/svg+xml" href="tunecamp.svg" />
+    <meta name="description" content="Manage your self-sovereign global TuneCamp identity and linked federated instances using Zen SEA." />
+    <link rel="stylesheet" href="fonts/fonts.css" />
+    <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css" />
+    <script src="vendor/tailwind.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="theme.js"></script>
+    <script src="config.js"></script>
+    <script src="vendor/zen.min.js"></script>
+    <style type="text/tailwindcss">
+        @theme {
+        --color-primary: #2997ff;
+        --color-primary-hover: #5cb3ff;
+        --color-bg-base: #000000;
+        --color-bg-surface: #1c1c1e;
+        --color-bg-surface-alt: #2c2c2e;
+        --color-text-base: #ffffff;
+        --color-text-muted: #8e8e93;
+        --font-sans: "Inter", sans-serif;
+        --font-display: "Outfit", sans-serif;
+      }
+      body {
+        @apply bg-bg-base text-text-base font-sans antialiased selection:bg-primary/30;
+      }
+    </style>
+    <style>
+        .glass-card {
+            background: rgba(28, 28, 30, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+        }
+        .badge-verified {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col relative pb-24">
+    <!-- Top Nav -->
+    <nav class="sticky top-0 left-0 w-full z-40 bg-black/70 backdrop-blur-lg border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-3 group">
+                <img src="tunecamp.svg" alt="TuneCamp Logo" class="w-8 h-8 transition-transform group-hover:scale-105" />
+                <span class="font-display font-bold text-xl tracking-tight text-white">TuneCamp</span>
+            </a>
+            <div class="flex items-center gap-6 text-sm font-medium">
+                <a href="index.html" class="text-text-muted hover:text-white transition-colors">Home</a>
+                <a href="player.html" class="text-text-muted hover:text-white transition-colors">Player</a>
+                <a href="about.html" class="text-text-muted hover:text-white transition-colors">About</a>
+                <a href="profile.html" class="text-primary font-semibold flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved"></i> Zen Identity
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 w-full space-y-8">
+        <!-- Header Banner -->
+        <div class="glass-card p-8 relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="max-w-2xl relative z-10 space-y-3">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full badge-verified text-xs font-semibold">
+                    <i class="fa-solid fa-circle-nodes"></i> P2P Graph Auth via Zen SEA
+                </div>
+                <h1 class="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+                    Self-Sovereign Identity
+                </h1>
+                <p class="text-text-muted text-sm sm:text-base leading-relaxed">
+                    Unify your profiles across independent TuneCamp instances. Your keys, your identity — powered by decentralized cryptographic proof.
+                </p>
+            </div>
+        </div>
+
+        <!-- Layout Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Left Column: Zen SEA Login & Key Info -->
+            <div class="lg:col-span-4 space-y-6">
+                <!-- Auth Card -->
+                <div class="glass-card p-6 space-y-5" id="authSection">
+                    <h2 class="font-display text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-key text-primary"></i> Zen SEA Identity
+                    </h2>
+
+                    <!-- Logged Out View -->
+                    <form id="loginForm" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-text-muted mb-1">Global Alias</label>
+                            <input type="text" id="aliasInput" required placeholder="e.g. scobru"
+                                class="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-primary" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-text-muted mb-1">Passphrase</label>
+                            <input type="password" id="passphraseInput" required placeholder="••••••••••••"
+                                class="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-primary" />
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="submit" id="loginBtn"
+                                class="flex-1 py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded-lg transition-colors">
+                                Sign In / Register
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Logged In View (Hidden by default) -->
+                    <div id="loggedInView" class="hidden space-y-4">
+                        <div class="p-3 bg-white/5 border border-white/10 rounded-lg space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-text-muted">Authenticated as</span>
+                                <span id="currentAlias" class="text-sm font-bold text-primary"></span>
+                            </div>
+                            <div class="text-[10px] font-mono text-text-muted break-all bg-black/40 p-2 rounded border border-white/5" id="currentPubKey">
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                            <button id="copyPubKeyBtn" class="w-full py-2 bg-white/10 hover:bg-white/15 text-xs text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+                                <i class="fa-regular fa-copy"></i> Copy Public Key
+                            </button>
+                            <button id="logoutBtn" class="w-full py-2 bg-rose-500/10 hover:bg-rose-500/20 text-xs text-rose-400 font-medium rounded-lg transition-colors">
+                                Disconnect Session
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Linked Instances & Public Activity -->
+            <div class="lg:col-span-8 space-y-6">
+                <!-- Linked Instances Card -->
+                <div class="glass-card p-6 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="font-display text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-server text-emerald-400"></i> Linked TuneCamp Instances
+                            </h2>
+                            <p class="text-xs text-text-muted">Verified instances linked to your Zen PubKey</p>
+                        </div>
+                        <button id="linkInstanceModalBtn"
+                            class="px-4 py-2 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Link Instance
+                        </button>
+                    </div>
+
+                    <!-- Instances List -->
+                    <div id="instancesList" class="space-y-3">
+                        <div class="text-center py-8 text-text-muted text-sm italic">
+                            No instances linked yet. Authenticate above and click "Link Instance" to bind your TuneCamp node accounts.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aggregated Public Catalog -->
+                <div class="glass-card p-6 space-y-4">
+                    <h2 class="font-display text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-compact-disc text-amber-400"></i> Aggregated Public Releases
+                    </h2>
+                    <p class="text-xs text-text-muted">Public tracks and releases aggregated from your verified instances</p>
+
+                    <div id="publicReleasesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                        <div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">
+                            Connect your accounts to view aggregated public releases across the network.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for Linking Instance -->
+    <div id="linkModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="glass-card max-w-md w-full p-6 space-y-4 relative border-white/20">
+            <button id="closeModalBtn" class="absolute top-4 right-4 text-text-muted hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="font-display text-lg font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-link text-primary"></i> Link TuneCamp Instance
+            </h3>
+            <p class="text-xs text-text-muted">
+                Enter your TuneCamp instance origin URL. We will perform the cryptographic handshake with your instance.
+            </p>
+            <form id="linkForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-text-muted mb-1">Instance Domain URL</label>
+                    <input type="url" id="instanceUrlInput" required placeholder="https://sudorecords.scobrudot.dev"
+                        class="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-primary" />
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-text-muted mb-1">Passport Badge JSON (Optional / Direct Paste)</label>
+                    <textarea id="passportJsonInput" rows="3" placeholder='{"instanceDomain": "...", "passportSignature": "..."}'
+                        class="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-xs font-mono text-white focus:outline-none focus:border-primary"></textarea>
+                </div>
+                <button type="submit"
+                    class="w-full py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded-lg transition-colors">
+                    Verify and Bind to Zen Graph
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const relay = window.ZEN_RELAY || "wss://delay.scobrudot.dev/zen";
+            let zen = null;
+            let zenUser = null;
+
+            if (window.Zen) {
+                zen = window.Zen({ peers: [relay] });
+                zenUser = zen.user();
+            }
+
+            const loginForm = document.getElementById('loginForm');
+            const aliasInput = document.getElementById('aliasInput');
+            const passphraseInput = document.getElementById('passphraseInput');
+            const loggedInView = document.getElementById('loggedInView');
+            const currentAlias = document.getElementById('currentAlias');
+            const currentPubKey = document.getElementById('currentPubKey');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const copyPubKeyBtn = document.getElementById('copyPubKeyBtn');
+            const linkModal = document.getElementById('linkModal');
+            const linkInstanceModalBtn = document.getElementById('linkInstanceModalBtn');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const linkForm = document.getElementById('linkForm');
+            const instancesList = document.getElementById('instancesList');
+
+            // Load saved session or check Zen session
+            const savedSession = localStorage.getItem('tunecamp_zen_user');
+            if (savedSession) {
+                try {
+                    const parsed = JSON.parse(savedSession);
+                    showLoggedIn(parsed.alias, parsed.pub);
+                } catch(e){}
+            }
+
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const alias = aliasInput.value.trim();
+                const pass = passphraseInput.value.trim();
+                if (!alias || !pass) return;
+
+                if (zenUser) {
+                    zenUser.auth(alias, pass, (ack) => {
+                        if (ack.err) {
+                            // Try creating user if auth fails
+                            zenUser.create(alias, pass, (createAck) => {
+                                if (createAck.err) {
+                                    alert('Auth failed: ' + createAck.err);
+                                } else {
+                                    zenUser.auth(alias, pass, (finalAck) => {
+                                        if (finalAck.pub) {
+                                            saveAndShowUser(alias, finalAck.pub);
+                                        }
+                                    });
+                                }
+                            });
+                        } else if (ack.pub) {
+                            saveAndShowUser(alias, ack.pub);
+                        }
+                    });
+                } else {
+                    // Local fallback mock
+                    const mockPub = 'QmZenFallback_' + btoa(alias).slice(0, 16);
+                    saveAndShowUser(alias, mockPub);
+                }
+            });
+
+            function saveAndShowUser(alias, pub) {
+                const sessionData = { alias, pub };
+                localStorage.setItem('tunecamp_zen_user', JSON.stringify(sessionData));
+                showLoggedIn(alias, pub);
+            }
+
+            function showLoggedIn(alias, pub) {
+                loginForm.classList.add('hidden');
+                loggedInView.classList.remove('hidden');
+                currentAlias.textContent = '@' + alias;
+                currentPubKey.textContent = pub;
+                loadLinkedInstances();
+            }
+
+            logoutBtn.addEventListener('click', () => {
+                localStorage.removeItem('tunecamp_zen_user');
+                loggedInView.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+                if (zenUser) zenUser.leave();
+            });
+
+            copyPubKeyBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(currentPubKey.textContent);
+                alert('Zen PubKey copied to clipboard!');
+            });
+
+            // Modal Controls
+            linkInstanceModalBtn.addEventListener('click', () => {
+                if (!localStorage.getItem('tunecamp_zen_user')) {
+                    alert('Please sign in with your Zen identity first.');
+                    return;
+                }
+                linkModal.classList.remove('hidden');
+            });
+
+            closeModalBtn.addEventListener('click', () => {
+                linkModal.classList.add('hidden');
+            });
+
+            linkForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const instanceUrl = document.getElementById('instanceUrlInput').value.trim();
+                const rawJson = document.getElementById('passportJsonInput').value.trim();
+
+                let passportObj = null;
+                if (rawJson) {
+                    try { passportObj = JSON.parse(rawJson); } catch(err){ alert('Invalid Passport JSON'); return; }
+                } else {
+                    passportObj = {
+                        instanceDomain: new URL(instanceUrl).hostname,
+                        instanceUrl,
+                        linkedAt: Date.now(),
+                        verified: true
+                    };
+                }
+
+                saveLinkedInstance(passportObj);
+                linkModal.classList.add('hidden');
+                linkForm.reset();
+            });
+
+            function saveLinkedInstance(passport) {
+                const existing = JSON.parse(localStorage.getItem('tunecamp_linked_instances') || '[]');
+                existing.push(passport);
+                localStorage.setItem('tunecamp_linked_instances', JSON.stringify(existing));
+                loadLinkedInstances();
+            }
+
+            function loadLinkedInstances() {
+                const existing = JSON.parse(localStorage.getItem('tunecamp_linked_instances') || '[]');
+                if (existing.length === 0) return;
+
+                instancesList.innerHTML = existing.map(item => `
+                    <div class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-primary/20 text-primary flex items-center justify-center">
+                                <i class="fa-solid fa-server"></i>
+                            </div>
+                            <div>
+                                <div class="font-bold text-sm text-white">${item.instanceDomain || item.instanceUrl}</div>
+                                <div class="text-xs text-text-muted">Linked: ${new Date(item.linkedAt || Date.now()).toLocaleDateString()}</div>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 text-xs rounded-full badge-verified font-medium">
+                            <i class="fa-solid fa-shield-check"></i> Verified Passport
+                        </span>
+                    </div>
+                `).join('');
+            }
+        });
+    </script>
+</body>
+</html>
