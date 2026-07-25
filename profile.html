@@ -272,7 +272,7 @@
                 loggedInView.classList.remove('hidden');
                 currentAlias.textContent = '@' + alias;
                 currentPubKey.textContent = pub;
-                loadLinkedInstances();
+                loadLinkedInstances(alias);
             }
 
             logoutBtn.addEventListener('click', () => {
@@ -310,8 +310,8 @@
                     try { passportObj = JSON.parse(rawJson); } catch(err){ alert('Invalid Passport JSON'); return; }
                 } else {
                     passportObj = {
-                        instanceDomain: new URL(instanceUrl).hostname,
-                        instanceUrl,
+                        instanceDomain: new URL(instanceUrl.startsWith('http') ? instanceUrl : 'https://' + instanceUrl).hostname,
+                        instanceUrl: instanceUrl.startsWith('http') ? instanceUrl : 'https://' + instanceUrl,
                         linkedAt: Date.now(),
                         verified: true
                     };
@@ -326,10 +326,11 @@
                 const existing = JSON.parse(localStorage.getItem('tunecamp_linked_instances') || '[]');
                 existing.push(passport);
                 localStorage.setItem('tunecamp_linked_instances', JSON.stringify(existing));
-                loadLinkedInstances();
+                const activeUser = (JSON.parse(localStorage.getItem('tunecamp_zen_user') || '{}')).alias;
+                loadLinkedInstances(activeUser);
             }
 
-            function loadLinkedInstances() {
+            function loadLinkedInstances(alias) {
                 const existing = JSON.parse(localStorage.getItem('tunecamp_linked_instances') || '[]');
                 if (existing.length === 0) return;
 
@@ -347,6 +348,79 @@
                         <span class="px-2.5 py-1 text-xs rounded-full badge-verified font-medium">
                             <i class="fa-solid fa-shield-check"></i> Verified Passport
                         </span>
+                    </div>
+                `).join('');
+
+                const activeUser = alias || (JSON.parse(localStorage.getItem('tunecamp_zen_user') || '{}')).alias;
+                if (activeUser) {
+                    fetchAggregatedPublicReleases(activeUser, existing);
+                }
+            }
+
+            async function fetchAggregatedPublicReleases(alias, instances) {
+                const grid = document.getElementById('publicReleasesGrid');
+                if (!grid) return;
+                if (!instances || instances.length === 0 || !alias) {
+                    grid.innerHTML = `
+                        <div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">
+                            Connect your accounts to view aggregated public releases across the network.
+                        </div>`;
+                    return;
+                }
+
+                grid.innerHTML = `
+                    <div class="sm:col-span-2 text-center py-6 text-text-muted text-xs flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-circle-notch fa-spin text-primary"></i> Fetching public releases from linked instances...
+                    </div>`;
+
+                let allReleases = [];
+
+                for (const inst of instances) {
+                    const domain = inst.instanceDomain || (inst.instanceUrl ? new URL(inst.instanceUrl).hostname : '');
+                    if (!domain) continue;
+
+                    const protocol = inst.instanceUrl && inst.instanceUrl.startsWith('http') ? '' : 'https://';
+                    const baseUrl = inst.instanceUrl || `${protocol}${domain}`;
+                    const endpoint = inst.publicDataEndpoint || `${baseUrl}/api/auth/zen/user/${alias}/public`;
+
+                    try {
+                        const res = await fetch(endpoint);
+                        if (res.ok) {
+                            const data = await res.json();
+                            if (data.releases && Array.isArray(data.releases)) {
+                                data.releases.forEach(rel => {
+                                    allReleases.push({ ...rel, instanceDomain: domain });
+                                });
+                            }
+                            if (data.tracks && Array.isArray(data.tracks)) {
+                                data.tracks.forEach(tr => {
+                                    allReleases.push({ id: tr.id, title: tr.title, artist: tr.artist || data.user?.displayName || alias, coverUrl: tr.coverUrl || data.user?.avatar, instanceDomain: domain });
+                                });
+                            }
+                        }
+                    } catch (err) {
+                        console.warn(`[Zen Aggregator] Could not fetch public releases from ${domain}:`, err);
+                    }
+                }
+
+                if (allReleases.length === 0) {
+                    grid.innerHTML = `
+                        <div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">
+                            No public releases found yet for <strong>@${alias}</strong> on linked instances.
+                        </div>`;
+                    return;
+                }
+
+                grid.innerHTML = allReleases.map(rel => `
+                    <div class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4 hover:border-primary/40 transition-colors">
+                        <div class="w-12 h-12 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
+                            ${rel.coverUrl ? `<img src="${rel.coverUrl}" alt="${rel.title}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-compact-disc text-amber-400 text-xl"></i>`}
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="font-bold text-sm text-white truncate">${rel.title || 'Untitled Release'}</div>
+                            <div class="text-xs text-text-muted truncate">${rel.artist || alias}</div>
+                            <div class="text-[10px] text-primary/80 font-mono mt-0.5"><i class="fa-solid fa-server text-[9px]"></i> ${rel.instanceDomain}</div>
+                        </div>
                     </div>
                 `).join('');
             }
