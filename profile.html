@@ -217,23 +217,13 @@
                 <i class="fa-solid fa-link text-primary"></i> Link TuneCamp Instance
             </h3>
             <p class="text-xs text-text-muted">
-                Enter your TuneCamp instance origin URL. We will perform the cryptographic handshake with your instance.
+                Incolla il JSON del Passaporto generato dalla tua istanza locale per completare il collegamento crittografico.
             </p>
             <form id="linkForm" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-medium text-text-muted mb-1">Instance Domain URL</label>
-                    <input type="url" id="instanceUrlInput" required placeholder="https://sudorecords.scobrudot.dev"
-                        class="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-primary" />
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-text-muted mb-1">Local Username / Artist Handle</label>
-                    <input type="text" id="localUsernameInput" placeholder="e.g. scobru (defaults to your Zen alias)"
-                        class="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-primary" />
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-text-muted mb-1">Passport Badge JSON (Optional / Direct Paste)</label>
-                    <textarea id="passportJsonInput" rows="3" placeholder='{"instanceDomain": "...", "localUsername": "...", "passportSignature": "..."}'
-                        class="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-xs font-mono text-white focus:outline-none focus:border-primary"></textarea>
+                    <label class="block text-xs font-medium text-text-muted mb-1">Passaporto JSON</label>
+                    <textarea id="passportJsonInput" required rows="5" placeholder='{"instanceDomain": "...", "localUsername": "...", "passportSignature": "..."}'
+                        class="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-sm text-white font-mono text-xs focus:outline-none focus:border-primary resize-none"></textarea>
                 </div>
                 <button type="submit"
                     class="w-full py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded-lg transition-colors">
@@ -352,30 +342,56 @@
                 linkModal.classList.add('hidden');
             });
 
-            linkForm.addEventListener('submit', (e) => {
+            linkForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const instanceUrl = document.getElementById('instanceUrlInput').value.trim();
-                const customUsername = document.getElementById('localUsernameInput')?.value.trim();
                 const rawJson = document.getElementById('passportJsonInput').value.trim();
-                const activeUser = (JSON.parse(localStorage.getItem('tunecamp_zen_user') || '{}')).alias;
-
+                
                 let passportObj = null;
-                if (rawJson) {
-                    try { passportObj = JSON.parse(rawJson); } catch(err){ alert('Invalid Passport JSON'); return; }
-                } else {
-                    const parsedUrl = new URL(instanceUrl.startsWith('http') ? instanceUrl : 'https://' + instanceUrl);
-                    passportObj = {
-                        instanceDomain: parsedUrl.hostname,
-                        instanceUrl: parsedUrl.origin,
-                        localUsername: customUsername || activeUser || 'scobru',
-                        linkedAt: Date.now(),
-                        verified: true
-                    };
+                try {
+                    passportObj = JSON.parse(rawJson);
+                } catch(err) {
+                    alert('Invalid Passport JSON Format');
+                    return;
                 }
 
-                saveLinkedInstance(passportObj);
-                linkModal.classList.add('hidden');
-                linkForm.reset();
+                if (!passportObj.instanceDomain || !passportObj.passportSignature) {
+                    alert('Invalid Passport: Missing required fields.');
+                    return;
+                }
+
+                if (passportObj.zenPubKey !== currentPair.pub) {
+                    alert('Security Error: This passport belongs to a different Zen PubKey!');
+                    return;
+                }
+
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                const originalHtml = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i>Verifying...';
+                submitBtn.disabled = true;
+
+                try {
+                    const protocol = passportObj.instanceDomain.includes('localhost') ? 'http' : 'https';
+                    const verifyUrl = `${protocol}://${passportObj.instanceDomain}/api/auth/zen/verify`;
+                    const res = await fetch(verifyUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(passportObj)
+                    });
+                    
+                    const data = await res.json();
+                    if (!res.ok || !data.valid) {
+                        throw new Error(data.error || "Cryptographic signature verification failed");
+                    }
+
+                    saveLinkedInstance(passportObj);
+                    linkModal.classList.add('hidden');
+                    linkForm.reset();
+                } catch (err) {
+                    alert('Verification failed: ' + err.message);
+                } finally {
+                    submitBtn.innerHTML = originalHtml;
+                    submitBtn.disabled = false;
+                }
             });
 
             function saveLinkedInstance(passport) {
