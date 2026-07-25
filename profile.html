@@ -244,14 +244,16 @@
     </div>
 
     <!-- Script Logic -->
-    <script>
+    <script type="module">
+        import Zen from './vendor/zen.min.js';
+
         document.addEventListener('DOMContentLoaded', () => {
             const relay = window.ZEN_RELAY || "wss://delay.scobrudot.dev/zen";
             let zen = null;
             let currentPair = null;
 
-            if (window.Zen) {
-                zen = window.Zen({ peers: [relay] });
+            if (Zen) {
+                zen = new Zen({ peers: [relay] });
             }
 
             const loginForm = document.getElementById('loginForm');
@@ -291,8 +293,8 @@
                 submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i>Authenticating...';
                 
                 try {
-                    if (window.Zen) {
-                        window.Zen.pair((pair) => {
+                    if (Zen) {
+                        Zen.pair((pair) => {
                             if (pair && pair.pub) {
                                 currentPair = pair;
                                 saveAndShowUser(alias, pair);
