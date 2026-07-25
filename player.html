@@ -381,10 +381,23 @@
             renderTracks();
         }
 
+        window.clearFilters = function() {
+            const sInput = document.getElementById('searchInput');
+            const aFilter = document.getElementById('artistFilter');
+            if(sInput) sInput.value = '';
+            if(aFilter) aFilter.value = '';
+            filterTracks();
+        };
+
         function renderTracks() {
             const container = document.getElementById('tracksContainer');
             if (filteredTracks.length === 0) {
-                container.innerHTML = `<div class="p-8 text-center text-text-muted">No tracks match your search.</div>`;
+                container.innerHTML = `
+                    <div class="p-8 flex flex-col items-center justify-center text-center h-full">
+                        <i class="fas fa-search text-3xl text-white/20 mb-3"></i>
+                        <p class="text-text-muted mb-4">No tracks match your search or filters.</p>
+                        <button onclick="clearFilters()" class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-xl transition-colors text-sm font-medium focus-visible:ring-2 focus-visible:ring-primary/50 focus:outline-none">Clear Filters</button>
+                    </div>`;
                 return;
             }
 
