@@ -700,6 +700,14 @@
                 }
             };
 
+            function toAbsoluteUrl(url, base) {
+                if (!url) return '';
+                if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
+                const cleanBase = base.replace(/\/+$/, '');
+                const cleanPath = url.startsWith('/') ? url : `/${url}`;
+                return `${cleanBase}${cleanPath}`;
+            }
+
             async function fetchAggregatedPublicReleases(alias, instances) {
                 const relGrid = document.getElementById('publicReleasesGrid');
                 const likesGrid = document.getElementById('publicLikesGrid');
@@ -739,8 +747,9 @@
                                 if (titleEl) {
                                     titleEl.innerHTML = `${artistDisplayName} <span class="text-xs font-normal text-text-muted">(@${targetUser} on ${domain})</span>`;
                                 }
-                                const avatarUrl = prof.imageUrl || prof.avatar;
-                                if (avatarEl && avatarUrl) {
+                                const rawAvatar = prof.imageUrl || prof.avatar;
+                                if (avatarEl && rawAvatar) {
+                                    const avatarUrl = toAbsoluteUrl(rawAvatar, baseUrl);
                                     avatarEl.innerHTML = `<img src="${avatarUrl}" alt="${artistDisplayName}" class="w-full h-full object-cover" />`;
                                 }
                             }
@@ -749,11 +758,12 @@
                             const relList = data.publicReleases || data.releases || [];
                             if (Array.isArray(relList)) {
                                 relList.forEach(rel => {
+                                    const rawCover = rel.cover_url || rel.coverUrl || prof?.imageUrl || prof?.avatar;
                                     allReleases.push({
                                         id: rel.id,
                                         title: rel.title,
                                         artist: prof?.artistName || prof?.displayName || targetUser,
-                                        coverUrl: rel.cover_url || rel.coverUrl || prof?.imageUrl || prof?.avatar,
+                                        coverUrl: toAbsoluteUrl(rawCover, baseUrl),
                                         releaseDate: rel.release_date || rel.releaseDate,
                                         type: rel.type || 'Album',
                                         linkUrl: `${baseUrl}/#album-${rel.id}`,
@@ -767,11 +777,12 @@
                             const likeList = data.publicLikes || data.likes || [];
                             if (Array.isArray(likeList)) {
                                 likeList.forEach(lk => {
+                                    const rawCover = lk.album_cover || prof?.imageUrl;
                                     allLikes.push({
                                         id: lk.id,
                                         title: lk.album_title || lk.track_title || `Item #${lk.id}`,
                                         artist: lk.track_artist || prof?.artistName || targetUser,
-                                        coverUrl: lk.album_cover || prof?.imageUrl,
+                                        coverUrl: toAbsoluteUrl(rawCover, baseUrl),
                                         type: lk.type || 'Favorite',
                                         linkUrl: `${baseUrl}`,
                                         instanceDomain: domain,
@@ -784,11 +795,12 @@
                             const plList = data.publicPlaylists || data.playlists || [];
                             if (Array.isArray(plList)) {
                                 plList.forEach(pl => {
+                                    const rawCover = pl.cover_url || prof?.imageUrl;
                                     allPlaylists.push({
                                         id: pl.id,
                                         title: pl.name || pl.title || 'Playlist',
                                         artist: targetUser,
-                                        coverUrl: pl.cover_url || prof?.imageUrl,
+                                        coverUrl: toAbsoluteUrl(rawCover, baseUrl),
                                         type: 'Playlist',
                                         linkUrl: `${baseUrl}`,
                                         instanceDomain: domain,
@@ -810,7 +822,7 @@
                 // Render Releases
                 if (relGrid) {
                     if (allReleases.length === 0) {
-                        relGrid.innerHTML = `<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No public releases found yet for linked accounts on your instances.</div>`;
+                        relGrid.innerHTML = `<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No public releases found yet for linked accounts. Make sure your albums/releases are set to Public or Released status on your TuneCamp nodes.</div>`;
                     } else {
                         relGrid.innerHTML = allReleases.map(rel => `
                             <a href="${rel.linkUrl}" target="_blank" rel="noopener" class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4 hover:border-primary/40 hover:bg-white/[0.07] transition-all group">
