@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FID Single Sign-On (SSO) — TuneCamp</title>
+    <link rel="icon" type="image/svg+xml" href="tunecamp.svg" />
+    <link rel="stylesheet" href="fonts/fonts.css" />
+    <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css" />
+    <script src="vendor/tailwind.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="theme.js"></script>
+    <style type="text/tailwindcss">
+        @theme {
+        --color-primary: #2997ff;
+        --color-primary-hover: #5cb3ff;
+        --color-bg-base: #000000;
+        --color-bg-surface: #1c1c1e;
+        --color-bg-surface-alt: #2c2c2e;
+        --color-text-base: #ffffff;
+        --color-text-muted: #8e8e93;
+        --font-sans: "Inter", sans-serif;
+        --font-display: "Outfit", sans-serif;
+      }
+      body {
+        @apply bg-bg-base text-text-base font-sans antialiased selection:bg-primary/30;
+      }
+    </style>
+    <style>
+        .glass-card {
+            background: rgba(28, 28, 30, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="glass-card max-w-md w-full p-8 text-center space-y-6">
+        <div class="flex justify-center">
+            <div class="w-16 h-16 rounded-full bg-primary/20 text-primary flex items-center justify-center">
+                <i class="fas fa-shield-alt text-3xl"></i>
+            </div>
+        </div>
+        
+        <div>
+            <h1 class="text-xl font-display font-bold text-white mb-2">Richiesta Accesso FID</h1>
+            <p class="text-text-muted text-sm" id="statusMessage">
+                Verifica in corso...
+            </p>
+        </div>
+
+        <div id="authActions" class="hidden space-y-4 pt-4">
+            <div class="bg-black/40 border border-white/10 rounded-lg p-4 text-left">
+                <p class="text-xs text-text-muted mb-1">Destinazione (Istanza):</p>
+                <p class="font-mono text-sm text-primary break-all" id="targetInstance">-</p>
+                
+                <p class="text-xs text-text-muted mt-3 mb-1">Identità FID Globale:</p>
+                <p class="font-mono text-sm break-all text-emerald-400" id="globalIdentity">-</p>
+            </div>
+            
+            <p class="text-xs text-text-muted text-left">
+                L'istanza riceverà la tua firma crittografica per autenticarti e deriverà un'identità ActivityPub in automatico usando il protocollo zero-knowledge.
+            </p>
+
+            <button id="authorizeBtn" class="w-full py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded-lg transition-colors">
+                Autorizza Accesso
+            </button>
+            <button id="cancelBtn" class="w-full py-2.5 bg-transparent hover:bg-white/5 text-text-muted hover:text-white text-sm font-semibold rounded-lg transition-colors">
+                Annulla
+            </button>
+        </div>
+
+        <div id="errorState" class="hidden space-y-4 pt-4">
+            <p class="text-rose-400 text-sm font-medium" id="errorMsg"></p>
+            <button onclick="window.location.href='profile.html'" class="btn btn-primary w-full">
+                Gestisci la tua Identità
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const clientId = urlParams.get('clientId');
+            const redirectUri = urlParams.get('redirectUri');
+            const instanceDomain = urlParams.get('instanceDomain');
+
+            const statusMessage = document.getElementById('statusMessage');
+            const authActions = document.getElementById('authActions');
+            const targetInstance = document.getElementById('targetInstance');
+            const globalIdentity = document.getElementById('globalIdentity');
+            const authorizeBtn = document.getElementById('authorizeBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const errorState = document.getElementById('errorState');
+            const errorMsg = document.getElementById('errorMsg');
+
+            function showError(msg) {
+                statusMessage.classList.add('hidden');
+                authActions.classList.add('hidden');
+                errorState.classList.remove('hidden');
+                errorMsg.textContent = msg;
+            }
+
+            if (!clientId || !redirectUri || !instanceDomain) {
+                showError("Parametri SSO mancanti. Riprova dall'istanza TuneCamp.");
+                return;
+            }
+
+            const savedSessionStr = localStorage.getItem('tunecamp_zen_user');
+            if (!savedSessionStr) {
+                showError("Non sei autenticato. Crea o sblocca la tua Identità FID dalla pagina Profilo prima di fare l'accesso.");
+                return;
+            }
+
+            let savedSession;
+            try {
+                savedSession = JSON.parse(savedSessionStr);
+                if (!savedSession.pair || !savedSession.pair.priv || !savedSession.pair.pub) throw new Error();
+            } catch(e) {
+                showError("Sessione FID non valida. Riprova.");
+                return;
+            }
+
+            const username = savedSession.alias || savedSession.username || 'user';
+            const masterPrivKey = savedSession.pair.priv;
+            const masterPubKey = savedSession.pair.pub;
+
+            targetInstance.textContent = instanceDomain;
+            globalIdentity.textContent = `${username} (PubKey: ${masterPubKey.slice(0, 12)}...)`;
+            
+            statusMessage.textContent = "Un'applicazione richiede l'accesso tramite la tua Identità FID.";
+            authActions.classList.remove('hidden');
+
+            cancelBtn.addEventListener('click', () => {
+                window.location.href = redirectUri + "#error=access_denied";
+            });
+
+            authorizeBtn.addEventListener('click', async () => {
+                authorizeBtn.disabled = true;
+                authorizeBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i>Generazione firma e identità AP...';
+                
+                try {
+                    const enc = new TextEncoder();
+                    
+                    // 1. Generate SSO Token (Mocking FidSsoHandler issuance)
+                    const issuedAt = Date.now();
+                    // We generate a nonce. In a true secure flow, the instance provides this, but the instance relies on the token signature here.
+                    const nonce = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+                        .map(b => b.toString(16).padStart(2, '0')).join('');
+                    
+                    const tokenPayload = `${clientId}:${instanceDomain}:${username}:${masterPubKey}:${issuedAt}:${nonce}`;
+                    
+                    // HMAC-SHA256 per la firma del token
+                    const hmacKey = await window.crypto.subtle.importKey(
+                        "raw", enc.encode(masterPrivKey),
+                        { name: "HMAC", hash: "SHA-256" },
+                        false, ["sign"]
+                    );
+                    const signatureBuffer = await window.crypto.subtle.sign("HMAC", hmacKey, enc.encode(tokenPayload));
+                    const signature = Array.from(new Uint8Array(signatureBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+                    
+                    const ssoToken = {
+                        clientId,
+                        instanceDomain,
+                        username,
+                        zenPubKey: masterPubKey,
+                        issuedAt,
+                        signature,
+                        nonce
+                    };
+
+                    // 2. Derive AP Seed deterministically via PBKDF2 (per FID spec)
+                    const saltStr = `fid:activitypub:${instanceDomain.toLowerCase()}:${username.toLowerCase()}`;
+                    const pbkdf2Key = await window.crypto.subtle.importKey(
+                        "raw", enc.encode(masterPrivKey),
+                        { name: "PBKDF2" },
+                        false, ["deriveBits"]
+                    );
+                    const derivedBits = await window.crypto.subtle.deriveBits(
+                        { name: "PBKDF2", salt: enc.encode(saltStr), iterations: 10000, hash: "SHA-256" },
+                        pbkdf2Key, 256
+                    );
+                    const apSeed = Array.from(new Uint8Array(derivedBits)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+                    // 3. Reindirizza all'istanza con payload nascosto in fragment (implicit flow)
+                    const payload = { ssoToken, apSeed };
+                    window.location.href = `${redirectUri}#payload=${encodeURIComponent(JSON.stringify(payload))}`;
+                    
+                } catch(err) {
+                    console.error(err);
+                    showError("Errore durante la generazione crittografica.");
+                }
+            });
+        });
+    </script>
+</body>
+</html>
