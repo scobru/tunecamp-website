@@ -576,7 +576,10 @@
             filterTracks();
         }
 
+        let _filterTracksTimer;
         function filterTracks(isMobile) {
+            clearTimeout(_filterTracksTimer);
+            _filterTracksTimer = setTimeout(() => {
             const desktopInput = document.getElementById('searchInput');
             const mobileInput = document.getElementById('mobileSearchInput');
             
@@ -600,7 +603,11 @@
                 const mg = !g || t.genre.split(',').map(s => s.trim()).includes(g);
                 return mq && ma && mg;
             });
+            // ⚡ Bolt Performance Optimization:
+            // Debounce search input to prevent rapid full DOM rebuilds via innerHTML.
+            // This prevents main thread blocking when users type quickly.
             renderTracks();
+            }, 250);
         }
 
         function trackStableKey(t) {

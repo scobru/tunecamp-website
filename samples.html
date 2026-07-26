@@ -236,7 +236,10 @@
             filterSamples();
         }
 
+        let _filterSamplesTimer;
         function filterSamples() {
+            clearTimeout(_filterSamplesTimer);
+            _filterSamplesTimer = setTimeout(() => {
             const q = document.getElementById('searchInput').value.toLowerCase();
             const lic = document.getElementById('licenseFilter').value;
             const tag = document.getElementById('tagFilter').value;
@@ -251,7 +254,11 @@
                 const ml = !lic || p.license === lic;
                 return mq && ml && !tag;
             });
+            // ⚡ Bolt Performance Optimization:
+            // Debounce search input to prevent rapid full DOM rebuilds via innerHTML.
+            // This prevents main thread blocking when users type quickly.
             renderSamples();
+            }, 250);
         }
 
         function renderSamples() {

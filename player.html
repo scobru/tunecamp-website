@@ -370,7 +370,10 @@
             filterTracks();
         }
 
+        let _filterTracksTimer;
         function filterTracks() {
+            clearTimeout(_filterTracksTimer);
+            _filterTracksTimer = setTimeout(() => {
             const q = document.getElementById('searchInput').value.toLowerCase();
             const a = document.getElementById('artistFilter').value;
             filteredTracks = allTracks.filter(t => {
@@ -378,7 +381,11 @@
                 const ma = !a || t.artistName === a;
                 return mq && ma;
             });
+            // ⚡ Bolt Performance Optimization:
+            // Debounce search input to prevent rapid full DOM rebuilds via innerHTML.
+            // This prevents main thread blocking when users type quickly.
             renderTracks();
+            }, 250);
         }
 
         function renderTracks() {
