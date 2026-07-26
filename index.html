@@ -576,6 +576,18 @@
             filterTracks();
         }
 
+        window.clearFilters = function() {
+            const desktopInput = document.getElementById('searchInput');
+            if (desktopInput) desktopInput.value = '';
+            const mobileInput = document.getElementById('mobileSearchInput');
+            if (mobileInput) mobileInput.value = '';
+            const artistFilter = document.getElementById('artistFilter');
+            if (artistFilter) artistFilter.value = '';
+            const genreFilter = document.getElementById('genreFilter');
+            if (genreFilter) genreFilter.value = '';
+            filterTracks();
+        };
+
         function filterTracks(isMobile) {
             const desktopInput = document.getElementById('searchInput');
             const mobileInput = document.getElementById('mobileSearchInput');
@@ -610,7 +622,17 @@
         function renderTracks() {
             const grid = document.getElementById('tracksGrid');
             if (filteredTracks.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-12 text-center text-text-muted">No tracks match your search.</div>`;
+                grid.innerHTML = `
+                    <div class="col-span-full py-16 flex flex-col items-center justify-center text-center">
+                        <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                            <i class="fas fa-search text-2xl text-white/20"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-white mb-2">No tracks found</h3>
+                        <p class="text-text-muted mb-6 max-w-sm">We couldn't find any tracks matching your current filters. Try adjusting your search or clearing the filters.</p>
+                        <button onclick="clearFilters()" class="bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-primary/50 focus:outline-none">
+                            Clear all filters
+                        </button>
+                    </div>`;
                 return;
             }
 
