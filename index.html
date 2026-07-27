@@ -603,6 +603,20 @@
             renderTracks();
         }
 
+        function clearFilters() {
+            const searchInput = document.getElementById('searchInput');
+            const mobileInput = document.getElementById('mobileSearchInput');
+            const artistFilter = document.getElementById('artistFilter');
+            const genreFilter = document.getElementById('genreFilter');
+
+            if (searchInput) searchInput.value = '';
+            if (mobileInput) mobileInput.value = '';
+            if (artistFilter) artistFilter.value = '';
+            if (genreFilter) genreFilter.value = '';
+
+            filterTracks();
+        }
+
         function trackStableKey(t) {
             return `${t.siteUrl}::${t.id}`;
         }
@@ -610,7 +624,16 @@
         function renderTracks() {
             const grid = document.getElementById('tracksGrid');
             if (filteredTracks.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-12 text-center text-text-muted">No tracks match your search.</div>`;
+                // 🎨 Palette UX Improvement:
+                // Added an actionable empty state with a "Clear Filters" button
+                // to provide users a clear recovery path when a search yields no results.
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 flex flex-col items-center justify-center text-center">
+                        <div class="text-text-muted mb-4">No tracks match your search.</div>
+                        <button onclick="clearFilters()" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors font-medium text-sm focus-visible:ring-2 focus-visible:ring-primary/50 focus:outline-none">
+                            Clear Filters
+                        </button>
+                    </div>`;
                 return;
             }
 
@@ -716,6 +739,7 @@
         window.filterTracks = filterTracks;
         window.playTrackIndex = playTrackIndex;
         window.playTrackByKey = playTrackByKey;
+        window.clearFilters = clearFilters;
     </script>
 </body>
 
