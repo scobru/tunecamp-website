@@ -996,8 +996,10 @@
             return btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
         }
 
-        // Minimal CBOR decoder, sufficient for a flat COSE_Key map (ints, byte strings, no nesting beyond one map)
-        function parseCoseKey(bytes) {
+        // Minimal generic CBOR decoder - handles the subset WebAuthn actually emits
+        // (uints, negints, byte/text strings, arrays, maps). Used both for attestationObject
+        // (fmt/authData/attStmt) and for the COSE_Key map inside authData.
+        function parseCbor(bytes) {
             let offset = 0;
             const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
             function readItem() {
@@ -1054,14 +1056,16 @@
 
                 const credential = await navigator.credentials.create({ publicKey });
 
-                // Extract public key from the COSE_Key structure inside authenticatorData
-                // (the key does NOT live at a fixed offset like "last 32 bytes" - it's a CBOR map
-                // whose position depends on the credentialId length, and whose layout depends on alg)
-                const authData = new Uint8Array(credential.response.authenticatorData);
-                if (!(authData[32] & 0x40)) throw new Error('Authenticator did not return attested credential data.');
+                // Parse authData out of attestationObject (CBOR: {fmt, authData, attStmt}) rather than
+                // relying on the AuthenticatorAttestationResponse.authenticatorData convenience getter,
+                // which isn't reliably populated across browsers - matches fid's canonical approach.
+                const attestationObject = new Uint8Array(credential.response.attestationObject);
+                const attObj = parseCbor(attestationObject);
+                const authData = attObj.get('authData');
+                if (!authData || !(authData[32] & 0x40)) throw new Error('Authenticator did not return attested credential data.');
                 const credIdLen = (authData[53] << 8) | authData[54];
                 const coseKeyBytes = authData.slice(55 + credIdLen);
-                const coseKey = parseCoseKey(coseKeyBytes);
+                const coseKey = parseCbor(coseKeyBytes);
 
                 // Matches fid's canonical WebAuthn algorithm support (ES256 / RS256) - see fid/src/crypto/webauthn.ts.
                 // Ed25519 is never used for the WebAuthn key itself; it's only used later for the derived AP identity key.
