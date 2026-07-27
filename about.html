@@ -482,6 +482,263 @@
         </div>
     </section>
 
+    <!-- FID Identity Section -->
+    <section class="py-24 px-6 relative overflow-hidden" id="fid-identity">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 blur-[130px] rounded-full pointer-events-none -z-10"></div>
+
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-12">
+                <p class="text-xs font-semibold uppercase tracking-widest text-primary/70 mb-4">FID Protocol</p>
+                <h2 class="font-display text-4xl md:text-5xl font-bold mb-4">
+                    One identity, every instance
+                </h2>
+                <p class="text-text-muted text-lg max-w-2xl mx-auto">
+                    FID is TuneCamp's federated identity layer. A single master key deterministically derives your session, your signature, and your Fediverse persona — with nothing stored on a central server.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <!-- Left Column: Info card -->
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="glass-card bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 hover:border-primary/30 transition-all duration-300">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div id="info-icon-container-fid" class="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xl transition-colors duration-300">
+                                <i id="info-icon-fid" class="fas fa-id-badge"></i>
+                            </div>
+                            <div>
+                                <span id="info-tag-fid" class="inline-block text-[0.65rem] font-semibold uppercase tracking-widest px-2 py-0.5 rounded-full border border-primary/30 bg-primary/10 text-primary transition-colors duration-300">Cross-Instance SSO</span>
+                                <h3 id="info-title-fid" class="font-display text-xl font-bold text-white mt-1">FID — Federated Identity</h3>
+                            </div>
+                        </div>
+                        <p id="info-desc-fid" class="text-text-muted text-sm leading-relaxed min-h-[160px] transition-opacity duration-200">
+                            FID lets you keep one identity across every TuneCamp instance. A single master key deterministically derives everything you need — profile signatures, session tokens, and your ActivityPub persona — with nothing stored server-side.
+                        </p>
+                    </div>
+
+                    <div class="p-4 bg-white/3 border border-white/5 rounded-xl text-xs text-text-muted flex items-center gap-3">
+                        <i class="fas fa-info-circle text-primary text-sm shrink-0"></i>
+                        <span>Hover or tap on the nodes in the diagram to see how a single login becomes a portable identity across the network.</span>
+                    </div>
+                </div>
+
+                <!-- Right Column: Interactive Node Graph -->
+                <div class="lg:col-span-7 flex justify-center relative select-none min-h-[450px] w-full">
+                    <div id="container-fid-graph" class="w-full max-w-[500px] aspect-square relative flex items-center justify-center transition-all duration-300">
+                        <svg class="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+                            <line id="line-fid-zensea" x1="50%" y1="50%" x2="15%" y2="15%" stroke="rgba(255,255,255,0.15)" stroke-width="2" class="transition-all duration-300"></line>
+                            <line id="line-fid-passkey" x1="50%" y1="50%" x2="85%" y2="15%" stroke="rgba(255,255,255,0.15)" stroke-width="2" class="transition-all duration-300"></line>
+                            <line id="line-fid-derivation" x1="50%" y1="50%" x2="15%" y2="85%" stroke="rgba(255,255,255,0.15)" stroke-width="2" class="transition-all duration-300"></line>
+                            <line id="line-fid-seed" x1="50%" y1="50%" x2="85%" y2="85%" stroke="rgba(255,255,255,0.15)" stroke-width="2" class="transition-all duration-300"></line>
+                            <line id="line-fid-instance" x1="50%" y1="50%" x2="90%" y2="50%" stroke="rgba(255,255,255,0.15)" stroke-width="2" class="transition-all duration-300"></line>
+                        </svg>
+
+                        <div id="glow-pulse-fid" class="absolute w-24 h-24 bg-primary/20 rounded-full blur-xl pointer-events-none transition-all duration-500 scale-0"></div>
+
+                        <!-- Central Node: FID Identity -->
+                        <div id="node-fid-hub" class="absolute z-10 w-24 h-24 rounded-full bg-gradient-to-br from-primary to-purple-600 border border-primary/40 flex flex-col items-center justify-center shadow-[0_0_30px_oklch(65%_0.28_290_/_0.3)] cursor-pointer transition-all duration-300 hover:scale-105" onclick="selectFidNode('hub')">
+                            <div class="text-3xl text-white mb-1"><i class="fas fa-id-badge"></i></div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-white text-center leading-none">FID</span>
+                        </div>
+
+                        <!-- Zen SEA (Top Left) -->
+                        <div id="node-fid-zensea" class="absolute top-[5%] left-[5%] z-10 w-20 h-20 rounded-2xl bg-bg-surface border border-white/10 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-primary/40" onclick="selectFidNode('zensea')">
+                            <div class="text-2xl text-text-muted mb-1 transition-colors"><i class="fas fa-key"></i></div>
+                            <span class="text-[9px] font-semibold text-text-muted text-center leading-none px-1">Zen SEA</span>
+                        </div>
+
+                        <!-- Passkey (Top Right) -->
+                        <div id="node-fid-passkey" class="absolute top-[5%] right-[5%] z-10 w-20 h-20 rounded-2xl bg-bg-surface border border-white/10 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-primary/40" onclick="selectFidNode('passkey')">
+                            <div class="text-2xl text-text-muted mb-1 transition-colors"><i class="fas fa-fingerprint"></i></div>
+                            <span class="text-[9px] font-semibold text-text-muted text-center leading-none px-1">Passkey</span>
+                        </div>
+
+                        <!-- Derivation (Bottom Left) -->
+                        <div id="node-fid-derivation" class="absolute bottom-[5%] left-[5%] z-10 w-20 h-20 rounded-2xl bg-bg-surface border border-white/10 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-primary/40" onclick="selectFidNode('derivation')">
+                            <div class="text-2xl text-text-muted mb-1 transition-colors"><i class="fas fa-shuffle"></i></div>
+                            <span class="text-[9px] font-semibold text-text-muted text-center leading-none px-1">PBKDF2</span>
+                        </div>
+
+                        <!-- AP Seed (Bottom Right) -->
+                        <div id="node-fid-seed" class="absolute bottom-[5%] right-[5%] z-10 w-20 h-20 rounded-2xl bg-bg-surface border border-white/10 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-primary/40" onclick="selectFidNode('seed')">
+                            <div class="text-2xl text-text-muted mb-1 transition-colors"><i class="fas fa-seedling"></i></div>
+                            <span class="text-[9px] font-semibold text-text-muted text-center leading-none px-1">AP Seed</span>
+                        </div>
+
+                        <!-- Target Instance (Right Center) -->
+                        <div id="node-fid-instance" class="absolute right-[2%] top-[40%] z-10 w-20 h-20 rounded-2xl bg-bg-surface border border-white/10 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-primary/40" onclick="selectFidNode('instance')">
+                            <div class="text-2xl text-text-muted mb-1 transition-colors"><i class="fas fa-door-open"></i></div>
+                            <span class="text-[9px] font-semibold text-text-muted text-center leading-none px-1">SSO Login</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Script for FID Identity Interactive Elements -->
+    <script>
+        const fidNodesData = {
+            hub: {
+                title: "FID — Federated Identity",
+                tag: "Cross-Instance SSO",
+                icon: "fa-id-badge",
+                iconColor: "text-primary",
+                desc: "FID lets you keep one identity across every TuneCamp instance. A single master key deterministically derives everything you need — profile signatures, session tokens, and your ActivityPub persona — with nothing stored server-side.",
+                color: "#8b5cf6"
+            },
+            zensea: {
+                title: "Zen SEA Master Key",
+                tag: "Password-Derived",
+                icon: "fa-key",
+                iconColor: "text-amber-400",
+                desc: "Your master keypair is derived client-side from a username/password pair using Gun.js SEA (secp256k1). It never leaves your browser — only signatures and derived seeds are ever transmitted.",
+                color: "#fbbf24"
+            },
+            passkey: {
+                title: "Passkey / WebAuthn",
+                tag: "Biometric Alternative",
+                icon: "fa-fingerprint",
+                iconColor: "text-emerald-400",
+                desc: "Instead of a password, you can register a device passkey (FaceID, TouchID, Windows Hello, YubiKey). The browser extracts an ES256 or RS256 public key straight from the platform authenticator — nothing to remember, nothing to leak.",
+                color: "#34d399"
+            },
+            derivation: {
+                title: "Deterministic Derivation",
+                tag: "PBKDF2 · Client-Side",
+                icon: "fa-shuffle",
+                iconColor: "text-blue-400",
+                desc: "From your master key and a per-instance salt (instance domain + username), PBKDF2 deterministically derives a 32-byte seed. Same inputs always produce the same seed — no identity database to sync or breach.",
+                color: "#60a5fa"
+            },
+            seed: {
+                title: "AP Seed → Ed25519 Key",
+                tag: "ActivityPub Identity",
+                icon: "fa-seedling",
+                iconColor: "text-pink-400",
+                desc: "The derived seed is wrapped server-side into an Ed25519 PKCS#8 keypair — the same cryptographic identity ActivityPub/Fediverse expects. Log into ten instances, get the same portable Fediverse persona on each.",
+                color: "#f472b6"
+            },
+            instance: {
+                title: "Target Instance (SSO)",
+                tag: "One-Time Signed Token",
+                icon: "fa-door-open",
+                iconColor: "text-indigo-400",
+                desc: "A short-lived, signed SSO token (max 15 min) carries your public key and signature to the destination instance. The instance verifies the Zen SEA signature server-side and logs you in — no shared password database between instances.",
+                color: "#818cf8"
+            }
+        };
+
+        let activeFidNodeKey = 'hub';
+
+        function selectFidNode(key) {
+            if (!fidNodesData[key]) return;
+            activeFidNodeKey = key;
+            const data = fidNodesData[key];
+
+            const infoIcon = document.getElementById('info-icon-fid');
+            const infoIconContainer = document.getElementById('info-icon-container-fid');
+            const infoTag = document.getElementById('info-tag-fid');
+            const infoTitle = document.getElementById('info-title-fid');
+            const infoDesc = document.getElementById('info-desc-fid');
+
+            infoDesc.style.opacity = '0';
+            setTimeout(() => {
+                infoIcon.className = `fas ${data.icon} ${data.iconColor}`;
+                infoIconContainer.style.borderColor = `${data.color}40`;
+                infoIconContainer.style.backgroundColor = `${data.color}15`;
+                infoTag.innerText = data.tag;
+                infoTag.style.color = data.color;
+                infoTag.style.borderColor = `${data.color}30`;
+                infoTag.style.backgroundColor = `${data.color}10`;
+                infoTitle.innerText = data.title;
+                infoDesc.innerText = data.desc;
+                infoDesc.style.opacity = '1';
+            }, 150);
+
+            const nodeKeys = Object.keys(fidNodesData);
+            nodeKeys.forEach(k => {
+                const nodeEl = document.getElementById(`node-fid-${k}`);
+                if (!nodeEl) return;
+                const iconEl = nodeEl.querySelector('i');
+                const textEl = nodeEl.querySelector('span');
+
+                if (k === key) {
+                    if (k === 'hub') {
+                        nodeEl.style.transform = 'scale(1.08)';
+                        nodeEl.style.boxShadow = `0 0 40px ${data.color}60`;
+                    } else {
+                        nodeEl.style.transform = 'scale(1.08)';
+                        nodeEl.style.borderColor = data.color;
+                        nodeEl.style.boxShadow = `0 0 30px ${data.color}30`;
+                        nodeEl.style.backgroundColor = `${data.color}08`;
+                        if (iconEl) iconEl.className = `fas ${fidNodesData[k].icon} ${data.iconColor}`;
+                        if (textEl) {
+                            textEl.classList.remove('text-text-muted');
+                            textEl.classList.add('text-white');
+                        }
+                    }
+                } else {
+                    if (k === 'hub') {
+                        nodeEl.style.transform = 'scale(1)';
+                        nodeEl.style.boxShadow = `0 0 20px ${fidNodesData[k].color}20`;
+                    } else {
+                        nodeEl.style.transform = 'scale(1)';
+                        nodeEl.style.borderColor = 'rgba(255,255,255,0.1)';
+                        nodeEl.style.boxShadow = 'none';
+                        nodeEl.style.backgroundColor = 'rgba(255,255,255,0.05)';
+                        if (iconEl) iconEl.className = `fas ${fidNodesData[k].icon} text-text-muted`;
+                        if (textEl) {
+                            textEl.classList.add('text-text-muted');
+                            textEl.classList.remove('text-white');
+                        }
+                    }
+                }
+            });
+
+            nodeKeys.forEach(k => {
+                if (k === 'hub') return;
+                const lineEl = document.getElementById(`line-fid-${k}`);
+                if (!lineEl) return;
+                if (k === key) {
+                    lineEl.setAttribute('stroke', data.color);
+                    lineEl.setAttribute('stroke-width', '3');
+                    lineEl.style.strokeDasharray = 'none';
+                } else {
+                    lineEl.setAttribute('stroke', 'rgba(255,255,255,0.15)');
+                    lineEl.setAttribute('stroke-width', '2');
+                }
+            });
+
+            const glowPulse = document.getElementById('glow-pulse-fid');
+            if (key === 'hub') {
+                glowPulse.style.transform = 'scale(0)';
+            } else {
+                glowPulse.style.backgroundColor = `${data.color}20`;
+                const positions = {
+                    zensea: { top: '15%', left: '15%' },
+                    passkey: { top: '15%', left: '85%' },
+                    derivation: { top: '85%', left: '15%' },
+                    seed: { top: '85%', left: '85%' },
+                    instance: { top: '50%', left: '90%' }
+                };
+                glowPulse.style.top = `calc(${positions[key].top} - 2rem)`;
+                glowPulse.style.left = `calc(${positions[key].left} - 2rem)`;
+                glowPulse.style.transform = 'scale(1.5)';
+            }
+        }
+
+        (function() {
+            setTimeout(() => { selectFidNode('hub'); }, 100);
+        })();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            Object.keys(fidNodesData).forEach(k => {
+                const el = document.getElementById(`node-fid-${k}`);
+                if (el) el.addEventListener('mouseenter', () => selectFidNode(k));
+            });
+        });
+    </script>
+
     <!-- Script for Network Architecture Interactive Elements -->
     <script>
         const nodesData = {
