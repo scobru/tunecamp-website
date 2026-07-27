@@ -79,7 +79,9 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import Zen from './vendor/zen.min.js';
+
         document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const clientId = urlParams.get('clientId');
@@ -151,14 +153,13 @@
                     
                     const tokenPayload = `${clientId}:${instanceDomain}:${username}:${masterPubKey}:${issuedAt}:${nonce}`;
                     
-                    // HMAC-SHA256 per la firma del token
-                    const hmacKey = await window.crypto.subtle.importKey(
-                        "raw", enc.encode(masterPrivKey),
-                        { name: "HMAC", hash: "SHA-256" },
-                        false, ["sign"]
-                    );
-                    const signatureBuffer = await window.crypto.subtle.sign("HMAC", hmacKey, enc.encode(tokenPayload));
-                    const signature = Array.from(new Uint8Array(signatureBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+                    // Real Zen SEA secp256k1 signature, verifiable server-side against zenPubKey
+                    const signature = await new Promise((resolve, reject) => {
+                        Zen.sign(tokenPayload, { priv: masterPrivKey }, (out) => {
+                            if (typeof out === "string") resolve(out);
+                            else reject(new Error("Zen.sign failed"));
+                        });
+                    });
                     
                     const ssoToken = {
                         clientId,
