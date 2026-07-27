@@ -33,6 +33,11 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 1rem;
         }
+        .badge-verified {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center p-4">
@@ -42,7 +47,7 @@
                 <i class="fas fa-shield-alt text-3xl"></i>
             </div>
         </div>
-        
+
         <div>
             <h1 class="text-xl font-display font-bold text-white mb-2">Richiesta Accesso FID</h1>
             <p class="text-text-muted text-sm" id="statusMessage">
@@ -50,32 +55,60 @@
             </p>
         </div>
 
-        <div id="authActions" class="hidden space-y-4 pt-4">
-            <div class="bg-black/40 border border-white/10 rounded-lg p-4 text-left">
-                <p class="text-xs text-text-muted mb-1">Destinazione (Istanza):</p>
-                <p class="font-mono text-sm text-primary break-all" id="targetInstance">-</p>
-                
-                <p class="text-xs text-text-muted mt-3 mb-1">Identità FID Globale:</p>
-                <p class="font-mono text-sm break-all text-emerald-400" id="globalIdentity">-</p>
-            </div>
-            
-            <p class="text-xs text-text-muted text-left">
-                L'istanza riceverà la tua firma crittografica per autenticarti e deriverà un'identità ActivityPub in automatico usando il protocollo zero-knowledge.
-            </p>
-
-            <button id="authorizeBtn" class="w-full py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded-lg transition-colors">
-                Autorizza Accesso
-            </button>
-            <button id="cancelBtn" class="w-full py-2.5 bg-transparent hover:bg-white/5 text-text-muted hover:text-white text-sm font-semibold rounded-lg transition-colors">
-                Annulla
-            </button>
+        <!-- Auth Tabs -->
+        <div class="flex gap-2 border-b border-white/10 mb-4" role="tablist">
+            <button id="tabZen" role="tab" aria-selected="true" class="px-3 py-2 text-xs font-mono text-white border-b-2 border-primary font-medium">Zen SEA</button>
+            <button id="tabPasskey" role="tab" aria-selected="false" class="px-3 py-2 text-xs font-mono text-text-muted border-b-2 border-transparent hover:text-white">Passkey / WebAuthn</button>
         </div>
 
-        <div id="errorState" class="hidden space-y-4 pt-4">
-            <p class="text-rose-400 text-sm font-medium" id="errorMsg"></p>
-            <button onclick="window.location.href='profile.html'" class="btn btn-primary w-full">
-                Gestisci la tua Identità
+        <!-- Zen SEA Auth Pane -->
+        <div id="zenAuthPane" role="tabpanel">
+            <div id="authActions" class="hidden space-y-4 pt-4">
+                <div class="bg-black/40 border border-white/10 rounded-lg p-4 text-left">
+                    <p class="text-xs text-text-muted mb-1">Destinazione (Istanza):</p>
+                    <p class="font-mono text-sm text-primary break-all" id="targetInstance">-</p>
+
+                    <p class="text-xs text-text-muted mt-3 mb-1">Identità FID Globale:</p>
+                    <p class="font-mono text-sm break-all text-emerald-400" id="globalIdentity">-</p>
+                </div>
+
+                <p class="text-xs text-text-muted text-left">
+                    L'istanza riceverà la tua firma crittografica per autenticarti e deriverà un'identità ActivityPub in automatico usando il protocollo zero-knowledge.
+                </p>
+
+                <button id="authorizeBtn" class="w-full py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded-lg transition-colors">
+                    Autorizza Accesso
+                </button>
+                <button id="cancelBtn" class="w-full py-2.5 bg-transparent hover:bg-white/5 text-text-muted hover:text-white text-sm font-semibold rounded-lg transition-colors">
+                    Annulla
+                </button>
+            </div>
+
+            <div id="errorState" class="hidden space-y-4 pt-4">
+                <p class="text-rose-400 text-sm font-medium" id="errorMsg"></p>
+                <button onclick="window.location.href='profile.html'" class="btn btn-primary w-full">
+                    Gestisci la tua Identità
+                </button>
+            </div>
+        </div>
+
+        <!-- Passkey Auth Pane -->
+        <div id="passkeyAuthPane" role="tabpanel" hidden class="space-y-4 pt-4">
+            <p class="text-xs text-text-muted leading-relaxed">
+                Autenticati con la tua Passkey (FaceID, TouchID, Windows Hello, YubiKey).
+            </p>
+
+            <div class="space-y-3">
+                <label class="block text-xs font-medium text-text-muted mb-1">Username</label>
+                <input type="text" id="pkLoginUser" required placeholder="username"
+                    class="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-primary transition-colors" />
+            </div>
+
+            <button id="pkAuthBtn" class="w-full py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
+                <i class="fa-solid fa-fingerprint"></i> Autentica con Passkey
             </button>
+
+            <div id="pkStatus" class="text-xs text-text-muted hidden p-2 bg-black/40 rounded-lg border border-white/5"></div>
         </div>
     </div>
 
@@ -90,12 +123,39 @@
 
             const statusMessage = document.getElementById('statusMessage');
             const authActions = document.getElementById('authActions');
+            const errorState = document.getElementById('errorState');
+            const errorMsg = document.getElementById('errorMsg');
             const targetInstance = document.getElementById('targetInstance');
             const globalIdentity = document.getElementById('globalIdentity');
             const authorizeBtn = document.getElementById('authorizeBtn');
             const cancelBtn = document.getElementById('cancelBtn');
-            const errorState = document.getElementById('errorState');
-            const errorMsg = document.getElementById('errorMsg');
+
+            // Tab switching
+            const tabZen = document.getElementById('tabZen');
+            const tabPasskey = document.getElementById('tabPasskey');
+            const zenAuthPane = document.getElementById('zenAuthPane');
+            const passkeyAuthPane = document.getElementById('passkeyAuthPane');
+
+            function switchAuthTab(tab) {
+                if (tab === 'zen') {
+                    tabZen.className = 'px-3 py-2 text-xs font-mono text-white border-b-2 border-primary font-medium';
+                    tabZen.setAttribute('aria-selected', 'true');
+                    tabPasskey.className = 'px-3 py-2 text-xs font-mono text-text-muted border-b-2 border-transparent hover:text-white';
+                    tabPasskey.setAttribute('aria-selected', 'false');
+                    zenAuthPane.hidden = false;
+                    passkeyAuthPane.hidden = true;
+                } else {
+                    tabPasskey.className = 'px-3 py-2 text-xs font-mono text-white border-b-2 border-primary font-medium';
+                    tabPasskey.setAttribute('aria-selected', 'true');
+                    tabZen.className = 'px-3 py-2 text-xs font-mono text-text-muted border-b-2 border-transparent hover:text-white';
+                    tabZen.setAttribute('aria-selected', 'false');
+                    zenAuthPane.hidden = true;
+                    passkeyAuthPane.hidden = false;
+                }
+            }
+
+            tabZen.addEventListener('click', () => switchAuthTab('zen'));
+            tabPasskey.addEventListener('click', () => switchAuthTab('passkey'));
 
             function showError(msg) {
                 statusMessage.classList.add('hidden');
@@ -109,90 +169,207 @@
                 return;
             }
 
-            const savedSessionStr = localStorage.getItem('tunecamp_zen_user');
-            if (!savedSessionStr) {
+            // Check for Zen SEA session
+            const zenSessionStr = localStorage.getItem('tunecamp_zen_user');
+            // Check for WebAuthn session
+            const webauthnSessionStr = localStorage.getItem('tunecamp_webauthn_user');
+
+            let session = null;
+            let authSource = 'zen';
+
+            if (zenSessionStr) {
+                try {
+                    const parsed = JSON.parse(zenSessionStr);
+                    if (parsed.pair && parsed.pair.priv && parsed.pair.pub) {
+                        session = parsed;
+                        authSource = 'zen';
+                    }
+                } catch(e) {}
+            }
+
+            if (!session && webauthnSessionStr) {
+                try {
+                    const parsed = JSON.parse(webauthnSessionStr);
+                    if (parsed.alias && parsed.publicKeyPem) {
+                        session = parsed;
+                        authSource = 'webauthn';
+                    }
+                } catch(e) {}
+            }
+
+            if (!session) {
                 showError("Non sei autenticato. Crea o sblocca la tua Identità FID dalla pagina Profilo prima di fare l'accesso.");
                 return;
             }
 
-            let savedSession;
-            try {
-                savedSession = JSON.parse(savedSessionStr);
-                if (!savedSession.pair || !savedSession.pair.priv || !savedSession.pair.pub) throw new Error();
-            } catch(e) {
-                showError("Sessione FID non valida. Riprova.");
-                return;
+            const username = session.alias || session.username || 'user';
+            targetInstance.textContent = instanceDomain;
+
+            if (authSource === 'zen') {
+                const masterPubKey = session.pair.pub;
+                globalIdentity.textContent = `${username} (PubKey: ${masterPubKey.slice(0, 12)}...)`;
+                statusMessage.textContent = "Un'applicazione richiede l'accesso tramite la tua Identità FID.";
+                authActions.classList.remove('hidden');
+
+                cancelBtn.addEventListener('click', () => {
+                    window.location.href = redirectUri + "#error=access_denied";
+                });
+
+                authorizeBtn.addEventListener('click', async () => {
+                    authorizeBtn.disabled = true;
+                    authorizeBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i>Generazione firma e identità AP...';
+
+                    try {
+                        const enc = new TextEncoder();
+                        const issuedAt = Date.now();
+                        const nonce = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+                            .map(b => b.toString(16).padStart(2, '0')).join('');
+
+                        const tokenPayload = `${clientId}:${instanceDomain}:${username}:${session.pair.pub}:${issuedAt}:${nonce}`;
+
+                        const signature = await new Promise((resolve, reject) => {
+                            Zen.sign(tokenPayload, { priv: session.pair.priv }, (out) => {
+                                if (typeof out === "string") resolve(out);
+                                else reject(new Error("Zen.sign failed"));
+                            });
+                        });
+
+                        const ssoToken = {
+                            clientId,
+                            instanceDomain,
+                            username,
+                            zenPubKey: session.pair.pub,
+                            issuedAt,
+                            signature,
+                            nonce,
+                            masterKeySource: 'zen'
+                        };
+
+                        const saltStr = `fid:activitypub:${instanceDomain.toLowerCase()}:${username.toLowerCase()}`;
+                        const pbkdf2Key = await window.crypto.subtle.importKey(
+                            "raw", enc.encode(session.pair.priv),
+                            { name: "PBKDF2" },
+                            false, ["deriveBits"]
+                        );
+                        const derivedBits = await window.crypto.subtle.deriveBits(
+                            { name: "PBKDF2", salt: enc.encode(saltStr), iterations: 10000, hash: "SHA-256" },
+                            pbkdf2Key, 256
+                        );
+                        const apSeed = Array.from(new Uint8Array(derivedBits)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+                        const payload = { ssoToken, apSeed };
+                        window.location.href = `${redirectUri}#payload=${encodeURIComponent(JSON.stringify(payload))}`;
+                    } catch(err) {
+                        console.error(err);
+                        showError("Errore durante la generazione crittografica.");
+                    }
+                });
+            } else {
+                // WebAuthn session
+                globalIdentity.textContent = `${username} (Passkey)`;
+                statusMessage.textContent = "Un'applicazione richiede l'accesso tramite la tua Passkey FID.";
+                authActions.classList.remove('hidden');
+
+                cancelBtn.addEventListener('click', () => {
+                    window.location.href = redirectUri + "#error=access_denied";
+                });
+
+                authorizeBtn.addEventListener('click', async () => {
+                    authorizeBtn.disabled = true;
+                    authorizeBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i>Autenticazione con Passkey...';
+
+                    try {
+                        const rpId = window.location.hostname || 'tunecamp.org';
+                        const cred = await loadPasskeyCredential(rpId, username);
+
+                        if (!cred) {
+                            showError("Passkey non trovata. Crea una passkey nella pagina Profilo.");
+                            return;
+                        }
+
+                        const publicKey = {
+                            challenge: crypto.getRandomValues(new Uint8Array(32)),
+                            rpId: rpId,
+                            allowCredentials: [{ type: 'public-key', id: new Uint8Array(cred.credentialId), transports: ['internal'] }],
+                            userVerification: 'required',
+                            timeout: 60000
+                        };
+
+                        const assertion = await navigator.credentials.get({ publicKey });
+
+                        const enc = new TextEncoder();
+                        const issuedAt = Date.now();
+                        const nonce = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+                            .map(b => b.toString(16).padStart(2, '0')).join('');
+
+                        // Use the stored public key to derive the AP seed (same as Zen SEA)
+                        const saltStr = `fid:activitypub:${instanceDomain.toLowerCase()}:${username.toLowerCase()}`;
+                        // For passkey, we use a deterministic seed based on the credential
+                        const apSeed = Array.from(new Uint8Array(assertion.response.authenticatorData).slice(-32))
+                            .map(b => b.toString(16).padStart(2, '0')).join('');
+
+                        const ssoToken = {
+                            clientId,
+                            instanceDomain,
+                            username,
+                            zenPubKey: cred.publicKeyPem,
+                            issuedAt,
+                            signature: btoa(String.fromCharCode(...new Uint8Array(assertion.response.signature))),
+                            nonce,
+                            masterKeySource: 'webauthn'
+                        };
+
+                        const payload = { ssoToken, apSeed };
+                        window.location.href = `${redirectUri}#payload=${encodeURIComponent(JSON.stringify(payload))}`;
+                    } catch(err) {
+                        console.error('Passkey auth failed:', err);
+                        showError("Autenticazione passkey fallita: " + err.message);
+                    }
+                });
             }
 
-            const username = savedSession.alias || savedSession.username || 'user';
-            const masterPrivKey = savedSession.pair.priv;
-            const masterPubKey = savedSession.pair.pub;
-
-            targetInstance.textContent = instanceDomain;
-            globalIdentity.textContent = `${username} (PubKey: ${masterPubKey.slice(0, 12)}...)`;
-            
-            statusMessage.textContent = "Un'applicazione richiede l'accesso tramite la tua Identità FID.";
-            authActions.classList.remove('hidden');
-
-            cancelBtn.addEventListener('click', () => {
-                window.location.href = redirectUri + "#error=access_denied";
-            });
-
-            authorizeBtn.addEventListener('click', async () => {
-                authorizeBtn.disabled = true;
-                authorizeBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i>Generazione firma e identità AP...';
-                
-                try {
-                    const enc = new TextEncoder();
-                    
-                    // 1. Generate SSO Token (Mocking FidSsoHandler issuance)
-                    const issuedAt = Date.now();
-                    // We generate a nonce. In a true secure flow, the instance provides this, but the instance relies on the token signature here.
-                    const nonce = Array.from(crypto.getRandomValues(new Uint8Array(16)))
-                        .map(b => b.toString(16).padStart(2, '0')).join('');
-                    
-                    const tokenPayload = `${clientId}:${instanceDomain}:${username}:${masterPubKey}:${issuedAt}:${nonce}`;
-                    
-                    // Real Zen SEA secp256k1 signature, verifiable server-side against zenPubKey
-                    const signature = await new Promise((resolve, reject) => {
-                        Zen.sign(tokenPayload, { priv: masterPrivKey }, (out) => {
-                            if (typeof out === "string") resolve(out);
-                            else reject(new Error("Zen.sign failed"));
-                        });
-                    });
-                    
-                    const ssoToken = {
-                        clientId,
-                        instanceDomain,
-                        username,
-                        zenPubKey: masterPubKey,
-                        issuedAt,
-                        signature,
-                        nonce
+            // IndexedDB helpers for passkey storage
+            function openPasskeyDB() {
+                return new Promise((resolve, reject) => {
+                    const req = indexedDB.open('tunecamp_passkeys', 1);
+                    req.onupgradeneeded = (e) => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains('credentials')) {
+                            db.createObjectStore('credentials', { keyPath: 'id' });
+                        }
                     };
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => reject(req.error);
+                });
+            }
 
-                    // 2. Derive AP Seed deterministically via PBKDF2 (per FID spec)
-                    const saltStr = `fid:activitypub:${instanceDomain.toLowerCase()}:${username.toLowerCase()}`;
-                    const pbkdf2Key = await window.crypto.subtle.importKey(
-                        "raw", enc.encode(masterPrivKey),
-                        { name: "PBKDF2" },
-                        false, ["deriveBits"]
-                    );
-                    const derivedBits = await window.crypto.subtle.deriveBits(
-                        { name: "PBKDF2", salt: enc.encode(saltStr), iterations: 10000, hash: "SHA-256" },
-                        pbkdf2Key, 256
-                    );
-                    const apSeed = Array.from(new Uint8Array(derivedBits)).map(b => b.toString(16).padStart(2, '0')).join('');
+            async function storePasskeyCredential(rpId, username, credentialId, publicKeyPem) {
+                const db = await openPasskeyDB();
+                const tx = db.transaction('credentials', 'readwrite');
+                tx.objectStore('credentials').put({
+                    id: rpId + ':' + username,
+                    rpId,
+                    username,
+                    credentialId: new Uint8Array(credentialId),
+                    publicKeyPem,
+                    createdAt: new Date().toISOString()
+                });
+                return new Promise((resolve, reject) => {
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = () => reject(tx.error);
+                });
+            }
 
-                    // 3. Reindirizza all'istanza con payload nascosto in fragment (implicit flow)
-                    const payload = { ssoToken, apSeed };
-                    window.location.href = `${redirectUri}#payload=${encodeURIComponent(JSON.stringify(payload))}`;
-                    
-                } catch(err) {
-                    console.error(err);
-                    showError("Errore durante la generazione crittografica.");
-                }
-            });
+            async function loadPasskeyCredential(rpId, username) {
+                const db = await openPasskeyDB();
+                const tx = db.transaction('credentials', 'readonly');
+                const store = tx.objectStore('credentials');
+                const req = store.get(rpId + ':' + username);
+                return new Promise((resolve, reject) => {
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => reject(req.error);
+                });
+            }
         });
     </script>
 </body>

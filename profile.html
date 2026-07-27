@@ -73,7 +73,7 @@
 
         <!-- Layout Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <!-- Left Column: Zen SEA Login & Key Info -->
+            <!-- Left Column: Zen SEA + Passkey Login & Key Info -->
             <div class="lg:col-span-4 space-y-6">
                 <!-- Auth Card -->
                 <div class="glass-card p-6 space-y-5" id="authSection">
@@ -81,8 +81,15 @@
                         <i class="fa-solid fa-key text-primary"></i> Cryptographic Identity
                     </h2>
 
-                    <!-- Logged Out View -->
-                    <form id="loginForm" class="space-y-4">
+                    <!-- Auth Tabs -->
+                    <div class="flex gap-2 border-b border-white/10 mb-4" role="tablist">
+                        <button id="tabZen" role="tab" aria-selected="true" class="px-3 py-2 text-xs font-mono text-white border-b-2 border-primary font-medium">Zen SEA</button>
+                        <button id="tabPasskey" role="tab" aria-selected="false" class="px-3 py-2 text-xs font-mono text-text-muted border-b-2 border-transparent hover:text-white">Passkey / WebAuthn</button>
+                    </div>
+
+                    <!-- Zen SEA Pane -->
+                    <div id="zenAuthPane" role="tabpanel">
+                        <form id="loginForm" class="space-y-4">
                         <div class="space-y-1">
                             <label class="block text-xs font-medium text-text-muted mb-1">TuneCamp Alias</label>
                             <div class="relative">
@@ -107,8 +114,50 @@
                             </button>
                         </div>
                     </form>
+                    </div>
 
-                    <!-- Logged In View (Hidden by default) -->
+                    <!-- Passkey Pane -->
+                    <div id="passkeyAuthPane" role="tabpanel" hidden class="space-y-4">
+                        <p class="text-xs text-text-muted leading-relaxed">
+                            Use FaceID, TouchID, Windows Hello, or a security key (YubiKey). Your passkey syncs across your devices via the platform authenticator.
+                        </p>
+
+                        <!-- Create Passkey -->
+                        <div class="space-y-3">
+                            <label class="block text-xs font-medium text-text-muted mb-1">New Passkey - Username</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="pkRegisterUser" required placeholder="username"
+                                    class="flex-1 px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-primary transition-colors" />
+                                <button type="button" id="pkRegisterBtn"
+                                    class="px-4 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded-lg transition-colors">
+                                    Create
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Login with Passkey -->
+                        <div class="space-y-3">
+                            <label class="block text-xs font-medium text-text-muted mb-1">Login with Passkey</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="pkLoginUser" required placeholder="username"
+                                    class="flex-1 px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-primary transition-colors" />
+                                <button type="button" id="pkLoginBtn"
+                                    class="px-4 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded-lg transition-colors">
+                                    Authenticate
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Passkey Status -->
+                        <div id="pkStatus" class="text-xs text-text-muted hidden p-2 bg-black/40 rounded-lg border border-white/5"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Linked Instances & Public Activity -->
+            <div class="lg:col-span-8 space-y-6">
+
+
                     <div id="loggedInView" class="hidden space-y-4">
                         <div class="p-3 bg-white/5 border border-white/10 rounded-lg space-y-2">
                             <div class="flex items-center justify-between">
@@ -889,6 +938,217 @@
                     }
                 }
             }
+        // Tab Switching
+        const tabZen = document.getElementById('tabZen');
+        const tabPasskey = document.getElementById('tabPasskey');
+        const zenAuthPane = document.getElementById('zenAuthPane');
+        const passkeyAuthPane = document.getElementById('passkeyAuthPane');
+
+        function switchAuthTab(tab) {
+            if (tab === 'zen') {
+                tabZen.className = 'px-3 py-2 text-xs font-mono text-white border-b-2 border-primary font-medium';
+                tabZen.setAttribute('aria-selected', 'true');
+                tabPasskey.className = 'px-3 py-2 text-xs font-mono text-text-muted border-b-2 border-transparent hover:text-white';
+                tabPasskey.setAttribute('aria-selected', 'false');
+                zenAuthPane.hidden = false;
+                passkeyAuthPane.hidden = true;
+            } else {
+                tabPasskey.className = 'px-3 py-2 text-xs font-mono text-white border-b-2 border-primary font-medium';
+                tabPasskey.setAttribute('aria-selected', 'true');
+                tabZen.className = 'px-3 py-2 text-xs font-mono text-text-muted border-b-2 border-transparent hover:text-white';
+                tabZen.setAttribute('aria-selected', 'false');
+                zenAuthPane.hidden = true;
+                passkeyAuthPane.hidden = false;
+                checkPasskeyAvailability();
+            }
+        }
+
+        tabZen.addEventListener('click', () => switchAuthTab('zen'));
+        tabPasskey.addEventListener('click', () => switchAuthTab('passkey'));
+
+        // Passkey / WebAuthn Registration
+        async function checkPasskeyAvailability() {
+            const btn = document.getElementById('pkRegisterBtn');
+            const status = document.getElementById('pkStatus');
+            if (!btn) return;
+            if (!window.PublicKeyCredential) {
+                btn.disabled = true;
+                btn.textContent = 'Not Supported';
+                if (status) { status.classList.remove('hidden'); status.textContent = 'WebAuthn is not available in this browser.'; }
+                return;
+            }
+            try {
+                const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+                if (!available) {
+                    btn.disabled = true;
+                    btn.textContent = 'No Authenticator';
+                    if (status) { status.classList.remove('hidden'); status.textContent = 'No platform authenticator found.'; }
+                    return;
+                }
+                btn.disabled = false;
+                if (status) status.classList.add('hidden');
+            } catch(e) {
+                if (status) { status.classList.remove('hidden'); status.textContent = 'WebAuthn check failed: ' + e.message; }
+            }
+        }
+
+        document.getElementById('pkRegisterBtn').addEventListener('click', async () => {
+            const username = document.getElementById('pkRegisterUser').value.trim();
+            if (!username) { alert('Enter a username for the passkey.'); return; }
+            const status = document.getElementById('pkStatus');
+            const btn = document.getElementById('pkRegisterBtn');
+            btn.disabled = true;
+            btn.textContent = 'Creating...';
+            if (status) { status.classList.remove('hidden'); status.textContent = 'Creating passkey...'; }
+
+            try {
+                const rpId = window.location.hostname || 'tunecamp.org';
+                const userId = new TextEncoder().encode(username + '@' + rpId);
+
+                const publicKey = {
+                    challenge: crypto.getRandomValues(new Uint8Array(32)),
+                    rp: { name: 'TuneCamp', id: rpId },
+                    user: { id: userId, name: username, displayName: username },
+                    pubKeyCredParams: [
+                        { type: 'public-key', alg: -7 },
+                        { type: 'public-key', alg: -257 }
+                    ],
+                    authenticatorSelection: {
+                        authenticatorAttachment: 'platform',
+                        userVerification: 'required'
+                    },
+                    timeout: 60000
+                };
+
+                const credential = await navigator.credentials.create({ publicKey });
+
+                // Extract public key as SPKI PEM
+                const authData = new Uint8Array(credential.response.authenticatorData);
+                const publicKeyBytes = authData.slice(-32);
+                const spki = await crypto.subtle.exportKey('spki', await crypto.subtle.importKey('raw', publicKeyBytes, { name: 'Ed25519' }, false, []));
+                const base64 = btoa(String.fromCharCode(...new Uint8Array(spki)));
+                const publicKeyPem = '-----BEGIN PUBLIC KEY-----\n' + base64.match(/.{1,64}/g).join('\n') + '\n-----END PUBLIC KEY-----';
+
+                // Store in IndexedDB
+                await storePasskeyCredential(rpId, username, credential.id, publicKeyPem);
+
+                if (status) { status.classList.remove('hidden'); status.textContent = 'Passkey created! Credential ID: ' + credential.id.slice(0, 40) + '...'; }
+                if (btn) { btn.disabled = false; btn.textContent = 'Create'; }
+                showToast('Passkey created successfully!');
+            } catch(err) {
+                console.error('Passkey registration failed:', err);
+                if (status) { status.classList.remove('hidden'); status.textContent = 'Failed: ' + err.message; }
+                if (btn) { btn.disabled = false; btn.textContent = 'Create'; }
+            }
+        });
+
+        // Passkey Authentication (Login)
+        document.getElementById('pkLoginBtn').addEventListener('click', async () => {
+            const username = document.getElementById('pkLoginUser').value.trim();
+            if (!username) { alert('Enter a username to login with passkey.'); return; }
+            const status = document.getElementById('pkStatus');
+            const btn = document.getElementById('pkLoginBtn');
+            btn.disabled = true;
+            btn.textContent = 'Authenticating...';
+            if (status) { status.classList.remove('hidden'); status.textContent = 'Authenticating with passkey...'; }
+
+            try {
+                const rpId = window.location.hostname || 'tunecamp.org';
+                const cred = await loadPasskeyCredential(rpId, username);
+
+                if (!cred) {
+                    if (status) { status.classList.remove('hidden'); status.textContent = 'No passkey found for this username. Create one first.'; }
+                    btn.disabled = false;
+                    btn.textContent = 'Authenticate';
+                    return;
+                }
+
+                const publicKey = {
+                    challenge: crypto.getRandomValues(new Uint8Array(32)),
+                    rpId: rpId,
+                    allowCredentials: [{ type: 'public-key', id: new Uint8Array(credential.credentialId), transports: ['internal'] }],
+                    userVerification: 'required',
+                    timeout: 60000
+                };
+
+                const assertion = await navigator.credentials.get({ publicKey });
+
+                // Store session for passkey login
+                const sessionData = {
+                    alias: username,
+                    source: 'webauthn',
+                    credentialId: cred.credentialId,
+                    publicKeyPem: cred.publicKeyPem,
+                    rpId: rpId
+                };
+                localStorage.setItem('tunecamp_webauthn_user', JSON.stringify(sessionData));
+
+                showLoggedIn(username, cred.publicKeyPem);
+                if (status) { status.classList.remove('hidden'); status.textContent = 'Authenticated via Passkey!'; }
+                if (btn) { btn.disabled = false; btn.textContent = 'Authenticate'; }
+                showToast('Logged in with Passkey!');
+            } catch(err) {
+                console.error('Passkey login failed:', err);
+                if (status) { status.classList.remove('hidden'); status.textContent = 'Failed: ' + err.message; }
+                if (btn) { btn.disabled = false; btn.textContent = 'Authenticate'; }
+            }
+        });
+
+        // IndexedDB helpers for passkey storage
+        function openPasskeyDB() {
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open('tunecamp_passkeys', 1);
+                req.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains('credentials')) {
+                        db.createObjectStore('credentials', { keyPath: 'id' });
+                    }
+                };
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        async function storePasskeyCredential(rpId, username, credentialId, publicKeyPem) {
+            const db = await openPasskeyDB();
+            const tx = db.transaction('credentials', 'readwrite');
+            tx.objectStore('credentials').put({
+                id: rpId + ':' + username,
+                rpId,
+                username,
+                credentialId: new Uint8Array(credentialId),
+                publicKeyPem,
+                createdAt: new Date().toISOString()
+            });
+            return new Promise((resolve, reject) => {
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+
+        async function loadPasskeyCredential(rpId, username) {
+            const db = await openPasskeyDB();
+            const tx = db.transaction('credentials', 'readonly');
+            const store = tx.objectStore('credentials');
+            const req = store.get(rpId + ':' + username);
+            return new Promise((resolve, reject) => {
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        // Also support passkey session on load
+        const savedPasskeySession = localStorage.getItem('tunecamp_webauthn_user');
+        if (savedPasskeySession && !localStorage.getItem('tunecamp_zen_user')) {
+            try {
+                const parsed = JSON.parse(savedPasskeySession);
+                if (parsed.alias && parsed.publicKeyPem) {
+                    currentPair = { pub: parsed.publicKeyPem, priv: 'webauthn' };
+                    showLoggedIn(parsed.alias, parsed.publicKeyPem);
+                }
+            } catch(e) {}
+        }
+
         });
     </script>
 </body>
