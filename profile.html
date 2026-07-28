@@ -625,15 +625,18 @@
             }
 
             window.unlinkInstance = function(keyToUnlink) {
-                let existing = JSON.parse(localStorage.getItem('tunecamp_linked_instances') || '[]');
-                existing = existing.filter(item => {
+                // The panel renders both stores, so unlinking has to reach both — otherwise a
+                // FID registry entry reappears on the next render.
+                const keep = item => {
                     const domain = item.instanceDomain || item.instanceUrl;
                     const user = item.localUsername || item.username || '';
-                    const key = `${domain}::${user}`;
-                    return key !== keyToUnlink && domain !== keyToUnlink;
-                });
-                localStorage.setItem('tunecamp_linked_instances', JSON.stringify(existing));
-                
+                    return `${domain}::${user}` !== keyToUnlink && domain !== keyToUnlink;
+                };
+                for (const store of ['tunecamp_linked_instances', 'fid_registry']) {
+                    const kept = JSON.parse(localStorage.getItem(store) || '[]').filter(keep);
+                    localStorage.setItem(store, JSON.stringify(kept));
+                }
+
                 // Sync to Zen relay if authenticated
                 if (zen && currentPair) {
                     const safeId = keyToUnlink.replace(/[^a-z0-9]/gi, '_');
@@ -645,7 +648,15 @@
             };
 
             function loadLinkedInstances(alias) {
-                const rawExisting = JSON.parse(localStorage.getItem('tunecamp_linked_instances') || '[]');
+                // Two stores feed this one panel: passports from the "Link Instance" flow on
+                // this page, and entries the FID portal wrote to fid_registry. Rendering only
+                // one of them made instances linked through the other look lost.
+                const passports = JSON.parse(localStorage.getItem('tunecamp_linked_instances') || '[]');
+                const fidRegistry = JSON.parse(localStorage.getItem('fid_registry') || '[]')
+                    // Tagged so the Zen sync below writes only real passports back to
+                    // tunecamp_linked_instances instead of copying the registry into it.
+                    .map(entry => ({ ...entry, __fromFidRegistry: true }));
+                const rawExisting = [...passports, ...fidRegistry];
                 const activeUser = alias || getActiveIdentity()?.alias;
 
                 const seen = new Set();
@@ -734,7 +745,8 @@
                         }
                         
                         // Update local cache and UI
-                        localStorage.setItem('tunecamp_linked_instances', JSON.stringify(existing));
+                        localStorage.setItem('tunecamp_linked_instances',
+                            JSON.stringify(existing.filter(item => !item.__fromFidRegistry)));
                         renderInstances(existing);
                     });
                 }
@@ -1317,42 +1329,17 @@
             } catch(e) {}
         }
 
-        // Cross-Instance Unification: Load linked instances and aggregate data
-        async function loadLinkedInstances() {
+        // Cross-Instance Unification: pull public data for the FID registry entries.
+        // This used to be a second function also named loadLinkedInstances, declared after the
+        // one that renders the panel. Being a function declaration in the same scope, it won
+        // the binding, so every "instance linked!" refresh ran this one instead: it reads
+        // fid_registry while the link flow writes tunecamp_linked_instances, so a freshly
+        // linked instance was saved and then rendered away as "No instances linked yet".
+        // The panel now has a single renderer (loadLinkedInstances, which merges both stores);
+        // this function only fetches.
+        async function loadFidRegistryData() {
             const registry = JSON.parse(localStorage.getItem('fid_registry') || '[]');
-            const listEl = document.getElementById('instancesList');
-            if (!listEl) return;
 
-            if (registry.length === 0) {
-                listEl.innerHTML = '<div class="text-center py-8 text-text-muted text-sm italic">No instances linked yet. Authenticate above and click "Link Instance" to bind your TuneCamp node accounts.</div>';
-                return;
-            }
-
-            listEl.innerHTML = registry.map(entry => `
-                <div class="glass-card p-4 flex items-center justify-between gap-4">
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2">
-                            <span class="font-mono text-sm text-white font-medium">${entry.instanceDomain}</span>
-                            <span class="text-[10px] px-2 py-0.5 rounded-full ${entry.verified ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
-                                ${entry.verified ? 'Verified' : 'Pending'}
-                            </span>
-                        </div>
-                        <div class="text-[10px] text-text-muted font-mono mt-1">
-                            Artist: ${entry.artistName} (${entry.artistSlug || 'N/A'})
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button class="px-3 py-1.5 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-lg transition-colors" onclick="fetchInstanceData('${entry.instanceDomain}')">
-                            <i class="fa-solid fa-sync mr-1"></i> Sync
-                        </button>
-                        <button class="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-semibold rounded-lg transition-colors" onclick="unlinkInstance('${entry.instanceDomain}')">
-                            <i class="fa-solid fa-unlink mr-1"></i> Unlink
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-
-            // Auto-fetch data for verified instances
             for (const entry of registry) {
                 if (entry.verified) {
                     await fetchInstanceData(entry.instanceDomain);
@@ -1474,16 +1461,17 @@
             }
         }
 
-        // Call loadLinkedInstances after showing logged in view
+        // showLoggedIn already renders the panel via loadLinkedInstances; this only adds the
+        // network fetch for FID registry entries.
         const originalShowLoggedIn = showLoggedIn;
         showLoggedIn = function(alias, pubKey) {
             originalShowLoggedIn(alias, pubKey);
-            loadLinkedInstances();
+            loadFidRegistryData();
         };
 
         // Initial load if already logged in
-        if (localStorage.getItem('tunecamp_zen_user') || localStorage.getItem('tunecamp_webauthn_user')) {
-            loadLinkedInstances();
+        if (getActiveIdentity()) {
+            loadFidRegistryData();
         }
 
         });
