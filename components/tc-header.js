@@ -14,7 +14,8 @@ class TcHeader extends HTMLElement {
                 ${hasSearch ? `
                 <div class="relative flex-1 max-w-md hidden lg:block">
                     <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-text-muted text-sm"></i>
-                    <input type="text" id="searchInput" aria-label="Search tracks and artists" placeholder="Search tracks and artists" oninput="if(typeof filterTracks==='function') filterTracks(false)"
+                    <!-- ⚡ Bolt Performance Optimization: Debounce search input to prevent rapid full DOM rebuilds via innerHTML blocking the main thread -->
+                    <input type="text" id="searchInput" aria-label="Search tracks and artists" placeholder="Search tracks and artists" oninput="clearTimeout(this.filterTimeout); this.filterTimeout = setTimeout(() => { if(typeof filterTracks==='function') filterTracks(false) }, 300)"
                         class="w-full bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-primary/50 placeholder-text-muted" />
                 </div>
                 ` : ''}
