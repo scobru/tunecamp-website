@@ -55,12 +55,6 @@
             </p>
         </div>
 
-        <!-- Auth Tabs -->
-        <div class="flex gap-2 border-b border-white/10 mb-4" role="tablist">
-            <button id="tabZen" role="tab" aria-selected="true" class="px-3 py-2 text-xs font-mono text-white border-b-2 border-primary font-medium">Zen SEA</button>
-            <button id="tabPasskey" role="tab" aria-selected="false" class="px-3 py-2 text-xs font-mono text-text-muted border-b-2 border-transparent hover:text-white">Passkey / WebAuthn</button>
-        </div>
-
         <!-- Zen SEA Auth Pane -->
         <div id="zenAuthPane" role="tabpanel">
             <div id="authActions" class="hidden space-y-4 pt-4">
@@ -94,24 +88,6 @@
             </div>
         </div>
 
-        <!-- Passkey Auth Pane -->
-        <div id="passkeyAuthPane" role="tabpanel" hidden class="space-y-4 pt-4">
-            <p class="text-xs text-text-muted leading-relaxed">
-                Autenticati con la tua Passkey (FaceID, TouchID, Windows Hello, YubiKey).
-            </p>
-
-            <div class="space-y-3">
-                <label class="block text-xs font-medium text-text-muted mb-1">Username</label>
-                <input type="text" id="pkLoginUser" required placeholder="username"
-                    class="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-primary transition-colors" />
-            </div>
-
-            <button id="pkAuthBtn" class="w-full py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
-                <i class="fa-solid fa-fingerprint"></i> Autentica con Passkey
-            </button>
-
-            <div id="pkStatus" class="text-xs text-text-muted hidden p-2 bg-black/40 rounded-lg border border-white/5"></div>
-        </div>
     </div>
 
     <script type="module">
@@ -182,33 +158,6 @@
             const authorizeBtn = document.getElementById('authorizeBtn');
             const cancelBtn = document.getElementById('cancelBtn');
 
-            // Tab switching
-            const tabZen = document.getElementById('tabZen');
-            const tabPasskey = document.getElementById('tabPasskey');
-            const zenAuthPane = document.getElementById('zenAuthPane');
-            const passkeyAuthPane = document.getElementById('passkeyAuthPane');
-
-            function switchAuthTab(tab) {
-                if (tab === 'zen') {
-                    tabZen.className = 'px-3 py-2 text-xs font-mono text-white border-b-2 border-primary font-medium';
-                    tabZen.setAttribute('aria-selected', 'true');
-                    tabPasskey.className = 'px-3 py-2 text-xs font-mono text-text-muted border-b-2 border-transparent hover:text-white';
-                    tabPasskey.setAttribute('aria-selected', 'false');
-                    zenAuthPane.hidden = false;
-                    passkeyAuthPane.hidden = true;
-                } else {
-                    tabPasskey.className = 'px-3 py-2 text-xs font-mono text-white border-b-2 border-primary font-medium';
-                    tabPasskey.setAttribute('aria-selected', 'true');
-                    tabZen.className = 'px-3 py-2 text-xs font-mono text-text-muted border-b-2 border-transparent hover:text-white';
-                    tabZen.setAttribute('aria-selected', 'false');
-                    zenAuthPane.hidden = true;
-                    passkeyAuthPane.hidden = false;
-                }
-            }
-
-            tabZen.addEventListener('click', () => switchAuthTab('zen'));
-            tabPasskey.addEventListener('click', () => switchAuthTab('passkey'));
-
             function showError(msg) {
                 statusMessage.classList.add('hidden');
                 authActions.classList.add('hidden');
@@ -231,31 +180,18 @@
 
             // Check for Zen SEA session
             const zenSessionStr = localStorage.getItem('tunecamp_zen_user');
-            // Check for WebAuthn session
-            const webauthnSessionStr = localStorage.getItem('tunecamp_webauthn_user');
 
             let session = null;
-            let authSource = 'zen';
 
             if (zenSessionStr) {
                 try {
                     const parsed = JSON.parse(zenSessionStr);
                     if (parsed.pair && parsed.pair.priv && parsed.pair.pub) {
                         session = parsed;
-                        authSource = 'zen';
                     }
                 } catch(e) {}
             }
 
-            if (!session && webauthnSessionStr) {
-                try {
-                    const parsed = JSON.parse(webauthnSessionStr);
-                    if (parsed.alias && parsed.publicKeyPem) {
-                        session = parsed;
-                        authSource = 'webauthn';
-                    }
-                } catch(e) {}
-            }
 
             if (!session) {
                 showError("Non sei autenticato. Crea o sblocca la tua Identità FID dalla pagina Profilo prima di fare l'accesso.");
@@ -265,7 +201,7 @@
             const username = session.alias || session.username || 'user';
             targetInstance.textContent = instanceDomain;
 
-            if (authSource === 'zen') {
+            {
                 const masterPubKey = session.pair.pub;
                 globalIdentity.textContent = `${username} (PubKey: ${masterPubKey.slice(0, 12)}...)`;
                 statusMessage.textContent = "Un'applicazione richiede l'accesso tramite la tua Identità FID.";
@@ -327,194 +263,8 @@
                         showError("Errore durante la generazione crittografica.");
                     }
                 });
-            } else {
-                // WebAuthn session
-                globalIdentity.textContent = `${username} (Passkey)`;
-                statusMessage.textContent = "Un'applicazione richiede l'accesso tramite la tua Passkey FID.";
-                authActions.classList.remove('hidden');
-
-                cancelBtn.addEventListener('click', () => {
-                    window.location.href = redirectUri + "#error=access_denied";
-                });
-
-                authorizeBtn.addEventListener('click', async () => {
-                    authorizeBtn.disabled = true;
-                    authorizeBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i>Autenticazione con Passkey...';
-
-                    try {
-                        const rpId = window.location.hostname || 'tunecamp.org';
-                        let cred = await loadPasskeyCredential(rpId, username);
-
-                        if (!cred) {
-                            authorizeBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i>Ricerca passkey esistente...';
-                            cred = await discoverPasskeyCredential(rpId, username);
-                            if (!cred) {
-                                showError("Nessuna passkey trovata. Crea una passkey nella pagina Profilo.");
-                                return;
-                            }
-                        }
-
-                        const enc = new TextEncoder();
-                        const issuedAt = Date.now();
-                        const nonce = Array.from(crypto.getRandomValues(new Uint8Array(16)))
-                            .map(b => b.toString(16).padStart(2, '0')).join('');
-
-                        const base64url = (bytes) => btoa(String.fromCharCode(...bytes))
-                            .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-
-                        const credentialIdB64 = base64url(new Uint8Array(cred.credentialId));
-                        const saltStr = `fid:activitypub:${instanceDomain.toLowerCase()}:${username.toLowerCase()}`;
-
-                        // Bind the assertion to this exact token: the authenticator signs
-                        // SHA-256(tokenPayload), so the signature cannot be lifted onto another
-                        // token. The server recomputes the same digest and compares it against
-                        // clientDataJSON.challenge.
-                        const tokenPayload = `${clientId}:${instanceDomain}:${username}:${credentialIdB64}:${issuedAt}:${nonce}`;
-                        const challenge = new Uint8Array(await crypto.subtle.digest('SHA-256', enc.encode(tokenPayload)));
-
-                        const publicKey = {
-                            challenge,
-                            rpId: rpId,
-                            // No transports hint: a passkey synced by an external manager (Proton
-                            // Pass, 1Password, phone hybrid) is not 'internal', and the hint
-                            // filters it out.
-                            allowCredentials: [{ type: 'public-key', id: new Uint8Array(cred.credentialId) }],
-                            userVerification: 'required',
-                            // PRF gives us a per-credential secret to derive the identity from.
-                            // The old code hashed authenticatorData's tail, which is public data
-                            // and changes with the signature counter — a different identity on
-                            // every login, derivable by anyone.
-                            extensions: { prf: { eval: { first: enc.encode(saltStr) } } },
-                            timeout: 60000
-                        };
-
-                        const assertion = await navigator.credentials.get({ publicKey });
-
-                        const prfOutput = assertion.getClientExtensionResults?.().prf?.results?.first;
-                        if (!prfOutput) {
-                            showError(
-                                "L'autenticatore non supporta l'estensione PRF, necessaria per derivare " +
-                                "l'identità ActivityPub dalla passkey. Accedi con Zen SEA oppure ricrea " +
-                                "la passkey su un dispositivo compatibile."
-                            );
-                            return;
-                        }
-
-                        const pbkdf2Key = await crypto.subtle.importKey(
-                            "raw", new Uint8Array(prfOutput), { name: "PBKDF2" }, false, ["deriveBits"]
-                        );
-                        const derivedBits = await crypto.subtle.deriveBits(
-                            { name: "PBKDF2", salt: enc.encode(saltStr), iterations: 10000, hash: "SHA-256" },
-                            pbkdf2Key, 256
-                        );
-                        const apSeed = Array.from(new Uint8Array(derivedBits))
-                            .map(b => b.toString(16).padStart(2, '0')).join('');
-
-                        const ssoToken = {
-                            clientId,
-                            instanceDomain,
-                            username,
-                            zenPubKey: '',
-                            actorUri: `https://${instanceDomain}/users/${username}`,
-                            issuedAt,
-                            signature: base64url(new Uint8Array(assertion.response.signature)),
-                            nonce,
-                            masterKeySource: {
-                                type: 'webauthn',
-                                credentialId: credentialIdB64,
-                                publicKeyPem: cred.publicKeyPem
-                            },
-                            webauthnAssertion: {
-                                authenticatorData: base64url(new Uint8Array(assertion.response.authenticatorData)),
-                                clientDataJSON: base64url(new Uint8Array(assertion.response.clientDataJSON))
-                            }
-                        };
-
-                        await deliverSsoPayload(instanceDomain, redirectUri, ssoToken, apSeed, showError);
-                    } catch(err) {
-                        console.error('Passkey auth failed:', err);
-                        showError("Autenticazione passkey fallita: " + err.message);
-                    }
-                });
             }
 
-            // IndexedDB helpers for passkey storage
-            function openPasskeyDB() {
-                return new Promise((resolve, reject) => {
-                    const req = indexedDB.open('tunecamp_passkeys', 1);
-                    req.onupgradeneeded = (e) => {
-                        const db = e.target.result;
-                        if (!db.objectStoreNames.contains('credentials')) {
-                            db.createObjectStore('credentials', { keyPath: 'id' });
-                        }
-                    };
-                    req.onsuccess = () => resolve(req.result);
-                    req.onerror = () => reject(req.error);
-                });
-            }
-
-            async function storePasskeyCredential(rpId, username, credentialId, publicKeyPem) {
-                const db = await openPasskeyDB();
-                const tx = db.transaction('credentials', 'readwrite');
-                tx.objectStore('credentials').put({
-                    id: rpId + ':' + username,
-                    rpId,
-                    username,
-                    credentialId: new Uint8Array(credentialId),
-                    publicKeyPem,
-                    createdAt: new Date().toISOString()
-                });
-                return new Promise((resolve, reject) => {
-                    tx.oncomplete = () => resolve();
-                    tx.onerror = () => reject(tx.error);
-                });
-            }
-
-            async function loadPasskeyCredential(rpId, username) {
-                const db = await openPasskeyDB();
-                const tx = db.transaction('credentials', 'readonly');
-                const store = tx.objectStore('credentials');
-                const req = store.get(rpId + ':' + username);
-                return new Promise((resolve, reject) => {
-                    req.onsuccess = () => resolve(req.result);
-                    req.onerror = () => reject(req.error);
-                });
-            }
-
-            // The passkey itself lives in the authenticator / password manager and survives
-            // "clear site data"; the credentialId -> username record in IndexedDB does not.
-            // A discoverable-credential assertion (no allowCredentials) asks the authenticator
-            // which passkeys it holds for this rpId and rebuilds that record.
-            async function discoverPasskeyCredential(rpId, username) {
-                try {
-                    const publicKey = {
-                        challenge: crypto.getRandomValues(new Uint8Array(32)),
-                        rpId: rpId,
-                        userVerification: 'required',
-                        timeout: 60000
-                    };
-                    const assertion = await navigator.credentials.get({ publicKey });
-                    if (!assertion?.rawId) return null;
-
-                    // Registration set user.id to `${username}@${rpId}`. Refuse a credential
-                    // belonging to someone else rather than binding this username to it.
-                    const handle = assertion.response.userHandle;
-                    if (handle) {
-                        const decoded = new TextDecoder().decode(new Uint8Array(handle));
-                        if (decoded !== username + '@' + rpId) return null;
-                    }
-
-                    // An assertion carries no public key, so publicKeyPem stays empty. The
-                    // instance pinned it to this credentialId on first login and verifies
-                    // against the pinned copy from then on.
-                    const credentialId = new Uint8Array(assertion.rawId);
-                    await storePasskeyCredential(rpId, username, credentialId, '');
-                    return { credentialId, publicKeyPem: '' };
-                } catch(e) {
-                    console.warn('Passkey discovery failed:', e);
-                    return null;
-                }
-            }
         });
     </script>
 </body>

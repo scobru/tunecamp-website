@@ -526,7 +526,7 @@
                     <div id="container-fid-graph" class="w-full max-w-[500px] aspect-square relative flex items-center justify-center transition-all duration-300">
                         <svg class="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
                             <line id="line-fid-zensea" x1="50%" y1="50%" x2="15%" y2="15%" stroke="rgba(255,255,255,0.15)" stroke-width="2" class="transition-all duration-300"></line>
-                            <line id="line-fid-passkey" x1="50%" y1="50%" x2="85%" y2="15%" stroke="rgba(255,255,255,0.15)" stroke-width="2" class="transition-all duration-300"></line>
+                            <line id="line-fid-portable" x1="50%" y1="50%" x2="85%" y2="15%" stroke="rgba(255,255,255,0.15)" stroke-width="2" class="transition-all duration-300"></line>
                             <line id="line-fid-derivation" x1="50%" y1="50%" x2="15%" y2="85%" stroke="rgba(255,255,255,0.15)" stroke-width="2" class="transition-all duration-300"></line>
                             <line id="line-fid-seed" x1="50%" y1="50%" x2="85%" y2="85%" stroke="rgba(255,255,255,0.15)" stroke-width="2" class="transition-all duration-300"></line>
                             <line id="line-fid-instance" x1="50%" y1="50%" x2="90%" y2="50%" stroke="rgba(255,255,255,0.15)" stroke-width="2" class="transition-all duration-300"></line>
@@ -546,10 +546,10 @@
                             <span class="text-[9px] font-semibold text-text-muted text-center leading-none px-1">Zen SEA</span>
                         </div>
 
-                        <!-- Passkey (Top Right) -->
-                        <div id="node-fid-passkey" class="absolute top-[5%] right-[5%] z-10 w-20 h-20 rounded-2xl bg-bg-surface border border-white/10 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-primary/40" onclick="selectFidNode('passkey')">
-                            <div class="text-2xl text-text-muted mb-1 transition-colors"><i class="fas fa-fingerprint"></i></div>
-                            <span class="text-[9px] font-semibold text-text-muted text-center leading-none px-1">Passkey</span>
+                        <!-- Portability (Top Right) -->
+                        <div id="node-fid-portable" class="absolute top-[5%] right-[5%] z-10 w-20 h-20 rounded-2xl bg-bg-surface border border-white/10 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-primary/40" onclick="selectFidNode('portable')">
+                            <div class="text-2xl text-text-muted mb-1 transition-colors"><i class="fas fa-globe"></i></div>
+                            <span class="text-[9px] font-semibold text-text-muted text-center leading-none px-1">Portable</span>
                         </div>
 
                         <!-- Derivation (Bottom Left) -->
@@ -594,12 +594,12 @@
                 desc: "Your master keypair is derived client-side from a username/password pair using Gun.js SEA (secp256k1). It never leaves your browser — only signatures and derived seeds are ever transmitted.",
                 color: "#fbbf24"
             },
-            passkey: {
-                title: "Passkey / WebAuthn",
-                tag: "Biometric Alternative",
-                icon: "fa-fingerprint",
+            portable: {
+                title: "Portable by Derivation",
+                tag: "No Server, No Backup",
+                icon: "fa-globe",
                 iconColor: "text-emerald-400",
-                desc: "Instead of a password, you can register a device passkey (FaceID, TouchID, Windows Hello, YubiKey). The browser extracts an ES256 or RS256 public key straight from the platform authenticator — nothing to remember, nothing to leak.",
+                desc: "The same alias and passphrase reproduce the same identity on any device and through any portal. There is no account to recover and no key file to back up — and no Relying Party domain your identity depends on.",
                 color: "#34d399"
             },
             derivation: {
@@ -716,7 +716,7 @@
                 glowPulse.style.backgroundColor = `${data.color}20`;
                 const positions = {
                     zensea: { top: '15%', left: '15%' },
-                    passkey: { top: '15%', left: '85%' },
+                    portable: { top: '15%', left: '85%' },
                     derivation: { top: '85%', left: '15%' },
                     seed: { top: '85%', left: '85%' },
                     instance: { top: '50%', left: '90%' }
