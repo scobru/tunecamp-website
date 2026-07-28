@@ -1059,10 +1059,21 @@
                         authenticatorAttachment: 'platform',
                         userVerification: 'required'
                     },
+                    // PRF is what turns a passkey into usable master key material: it yields a
+                    // per-credential secret the authenticator never releases in the clear.
+                    // Without it, sso.html has nothing secret to derive the AP identity from.
+                    extensions: { prf: {} },
                     timeout: 60000
                 };
 
                 const credential = await navigator.credentials.create({ publicKey });
+
+                if (!credential.getClientExtensionResults?.().prf?.enabled) {
+                    throw new Error(
+                        "Questo autenticatore non supporta l'estensione PRF, richiesta per l'identità FID. " +
+                        "Usa un browser/dispositivo compatibile oppure crea un'identità Zen SEA."
+                    );
+                }
 
                 // Parse authData out of attestationObject (CBOR: {fmt, authData, attStmt}) rather than
                 // relying on the AuthenticatorAttestationResponse.authenticatorData convenience getter,
