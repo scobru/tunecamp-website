@@ -440,6 +440,7 @@
 
             logoutBtn.addEventListener('click', () => {
                 localStorage.removeItem('tunecamp_zen_user');
+                localStorage.removeItem('tunecamp_webauthn_user');
                 currentPair = null;
                 loginForm.classList.remove('hidden');
                 loggedInView.classList.add('hidden');
@@ -453,7 +454,7 @@
 
             // Modal Controls
             linkInstanceModalBtn.addEventListener('click', () => {
-                if (!localStorage.getItem('tunecamp_zen_user')) {
+                if (!getActiveIdentity()) {
                     alert('Please sign in with your identity first.');
                     return;
                 }
@@ -479,6 +480,14 @@
 
                 if (!challengeObj.instanceDomain || !challengeObj.nonce) {
                     alert('Challenge non valido: campo instanceDomain o nonce mancante.');
+                    return;
+                }
+
+                // Signing a challenge needs the Zen SEA private key. A passkey session has no
+                // keypair here — the private key never leaves the authenticator — so this flow
+                // is Zen-only; passkey users link instances through the FID SSO flow instead.
+                if (!currentPair?.pub) {
+                    alert('Firma challenge disponibile solo con identità Zen SEA. Con una passkey, collega l\'istanza tramite il login FID SSO.');
                     return;
                 }
 
@@ -570,8 +579,17 @@
                     return;
                 }
 
-                if (passportObj.zenPubKey !== currentPair.pub) {
-                    alert('Security Error: This passport belongs to a different Zen PubKey!');
+                // A passkey session has no Zen keypair, so currentPair is null; its identity
+                // key is the `webauthn:<credentialId>` form the instance stores as zen_pub.
+                const identity = getActiveIdentity();
+                const expectedPubKey = currentPair?.pub || identity?.displayKey || identity?.publicKeyPem;
+                if (!expectedPubKey) {
+                    alert('Please sign in with your identity first.');
+                    return;
+                }
+
+                if (passportObj.zenPubKey !== expectedPubKey) {
+                    alert('Security Error: This passport belongs to a different identity!');
                     return;
                 }
 
@@ -602,7 +620,7 @@
                     zen.get('~' + currentPair.pub).get('instances').get(safeId).put(passport, null, { authenticator: currentPair });
                 }
 
-                const activeUser = (JSON.parse(localStorage.getItem('tunecamp_zen_user') || '{}')).alias;
+                const activeUser = getActiveIdentity()?.alias;
                 loadLinkedInstances(activeUser);
             }
 
@@ -622,13 +640,13 @@
                     zen.get('~' + currentPair.pub).get('instances').get(safeId).put(null, null, { authenticator: currentPair });
                 }
 
-                const activeUser = (JSON.parse(localStorage.getItem('tunecamp_zen_user') || '{}')).alias;
+                const activeUser = getActiveIdentity()?.alias;
                 loadLinkedInstances(activeUser);
             };
 
             function loadLinkedInstances(alias) {
                 const rawExisting = JSON.parse(localStorage.getItem('tunecamp_linked_instances') || '[]');
-                const activeUser = alias || (JSON.parse(localStorage.getItem('tunecamp_zen_user') || '{}')).alias;
+                const activeUser = alias || getActiveIdentity()?.alias;
 
                 const seen = new Set();
                 let existing = rawExisting.filter(item => {
@@ -1004,6 +1022,21 @@
             return btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
         }
 
+        // A signed-in user is either a Zen SEA session or a passkey session; both are
+        // real identities. Callers that only looked at tunecamp_zen_user told passkey
+        // users to "sign in first" right after they had signed in.
+        function getActiveIdentity() {
+            for (const key of ['tunecamp_zen_user', 'tunecamp_webauthn_user']) {
+                const raw = localStorage.getItem(key);
+                if (!raw) continue;
+                try {
+                    const parsed = JSON.parse(raw);
+                    if (parsed?.alias) return parsed;
+                } catch (e) {}
+            }
+            return null;
+        }
+
         // Minimal generic CBOR decoder - handles the subset WebAuthn actually emits
         // (uints, negints, byte/text strings, arrays, maps). Used both for attestationObject
         // (fmt/authData/attStmt) and for the COSE_Key map inside authData.
@@ -1276,7 +1309,9 @@
                 const parsed = JSON.parse(savedPasskeySession);
                 const pub = parsed.publicKeyPem || parsed.displayKey;
                 if (parsed.alias && pub) {
-                    currentPair = { pub, priv: 'webauthn' };
+                    // currentPair stays null: it means "Zen SEA keypair", and a passkey has
+                    // no private key here. Code that needs one checks currentPair; code that
+                    // only needs an identity uses getActiveIdentity().
                     showLoggedIn(parsed.alias, pub);
                 }
             } catch(e) {}
