@@ -1230,6 +1230,175 @@
             } catch(e) {}
         }
 
+        // Cross-Instance Unification: Load linked instances and aggregate data
+        async function loadLinkedInstances() {
+            const registry = JSON.parse(localStorage.getItem('fid_registry') || '[]');
+            const listEl = document.getElementById('instancesList');
+            if (!listEl) return;
+
+            if (registry.length === 0) {
+                listEl.innerHTML = '<div class="text-center py-8 text-text-muted text-sm italic">No instances linked yet. Authenticate above and click "Link Instance" to bind your TuneCamp node accounts.</div>';
+                return;
+            }
+
+            listEl.innerHTML = registry.map(entry => `
+                <div class="glass-card p-4 flex items-center justify-between gap-4">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono text-sm text-white font-medium">${entry.instanceDomain}</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full ${entry.verified ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                                ${entry.verified ? 'Verified' : 'Pending'}
+                            </span>
+                        </div>
+                        <div class="text-[10px] text-text-muted font-mono mt-1">
+                            Artist: ${entry.artistName} (${entry.artistSlug || 'N/A'})
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button class="px-3 py-1.5 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-lg transition-colors" onclick="fetchInstanceData('${entry.instanceDomain}')">
+                            <i class="fa-solid fa-sync mr-1"></i> Sync
+                        </button>
+                        <button class="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-semibold rounded-lg transition-colors" onclick="unlinkInstance('${entry.instanceDomain}')">
+                            <i class="fa-solid fa-unlink mr-1"></i> Unlink
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Auto-fetch data for verified instances
+            for (const entry of registry) {
+                if (entry.verified) {
+                    await fetchInstanceData(entry.instanceDomain);
+                }
+            }
+        }
+
+        async function fetchInstanceData(instanceDomain) {
+            try {
+                const response = await fetch(`https://${instanceDomain}/api/auth/zen/user/${currentAlias}/public`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                if (data.success) {
+                    // Store the data for aggregation
+                    const instanceData = JSON.parse(localStorage.getItem('tunecamp_instance_data') || '{}');
+                    instanceData[instanceDomain] = data;
+                    localStorage.setItem('tunecamp_instance_data', JSON.stringify(instanceData));
+                    renderAggregatedData();
+                }
+            } catch (err) {
+                console.error(`[Profile] Failed to fetch data from ${instanceDomain}:`, err);
+            }
+        }
+
+        function renderAggregatedData() {
+            const instanceData = JSON.parse(localStorage.getItem('tunecamp_instance_data') || '{}');
+            const instances = Object.keys(instanceData);
+
+            // Aggregate releases
+            let allReleases = [];
+            let allLikes = [];
+            let allPlaylists = [];
+
+            for (const domain of instances) {
+                const data = instanceData[domain];
+                if (data.publicReleases) {
+                    allReleases.push(...data.publicReleases.map(r => ({ ...r, instanceDomain: domain })));
+                }
+                if (data.publicLikes) {
+                    allLikes.push(...data.publicLikes.map(l => ({ ...l, instanceDomain: domain })));
+                }
+                if (data.publicPlaylists) {
+                    allPlaylists.push(...data.publicPlaylists.map(p => ({ ...p, instanceDomain: domain })));
+                }
+            }
+
+            // Update counts
+            document.getElementById('releasesCount').textContent = allReleases.length;
+            document.getElementById('likesCount').textContent = allLikes.length;
+            document.getElementById('playlistsCount').textContent = allPlaylists.length;
+
+            // Render releases
+            const releasesGrid = document.getElementById('publicReleasesGrid');
+            if (releasesGrid) {
+                if (allReleases.length === 0) {
+                    releasesGrid.innerHTML = '<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No public releases found across linked instances.</div>';
+                } else {
+                    releasesGrid.innerHTML = allReleases.slice(0, 12).map(r => `
+                        <a href="https://${r.instanceDomain}/album/${r.slug || r.id}" target="_blank" rel="noopener" class="group glass-card p-4 flex gap-4 hover:border-primary/50 transition-colors">
+                            <div class="w-16 h-16 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
+                                ${r.cover_url ? `<img src="${r.cover_url}" alt="${r.title}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-compact-disc text-primary text-xl"></i>`}
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="font-bold text-sm text-white truncate group-hover:text-primary transition-colors">${r.title}</div>
+                                <div class="text-xs text-text-muted truncate">By @${r.artist_name || 'Unknown'}</div>
+                                <div class="flex items-center gap-2 text-[10px] text-primary/80 font-mono mt-1">
+                                    <span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> ${r.instanceDomain}</span>
+                                </div>
+                            </div>
+                        </a>
+                    `).join('');
+                }
+            }
+
+            // Render likes
+            const likesGrid = document.getElementById('publicLikesGrid');
+            if (likesGrid) {
+                if (allLikes.length === 0) {
+                    likesGrid.innerHTML = '<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No starred favorites aggregated yet.</div>';
+                } else {
+                    likesGrid.innerHTML = allLikes.slice(0, 12).map(l => `
+                        <div class="glass-card p-4 flex gap-4">
+                            <div class="w-16 h-16 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
+                                ${l.album_cover ? `<img src="${l.album_cover}" alt="${l.album_title || l.track_title}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-heart text-rose-400 text-xl"></i>`}
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="font-bold text-sm text-white truncate">${l.track_title || l.album_title || 'Unknown'}</div>
+                                <div class="text-xs text-text-muted truncate">By @${l.track_artist || 'Unknown'}</div>
+                                <div class="flex items-center gap-2 text-[10px] text-primary/80 font-mono mt-1">
+                                    <span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> ${l.instanceDomain}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            // Render playlists
+            const playlistsGrid = document.getElementById('publicPlaylistsGrid');
+            if (playlistsGrid) {
+                if (allPlaylists.length === 0) {
+                    playlistsGrid.innerHTML = '<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No public playlists aggregated yet.</div>';
+                } else {
+                    playlistsGrid.innerHTML = allPlaylists.slice(0, 12).map(pl => `
+                        <a href="https://${pl.instanceDomain}/playlist/${pl.id}" target="_blank" rel="noopener" class="group glass-card p-4 flex gap-4 hover:border-purple-400/50 transition-colors">
+                            <div class="w-16 h-16 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
+                                ${pl.coverUrl ? `<img src="${pl.coverUrl}" alt="${pl.title}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-list-music text-purple-400 text-xl"></i>`}
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="font-bold text-sm text-white truncate group-hover:text-purple-400 transition-colors">${pl.title}</div>
+                                <div class="text-xs text-text-muted truncate">By @${pl.localUsername}</div>
+                                <div class="flex items-center gap-2 text-[10px] text-purple-400/80 font-mono mt-1">
+                                    <span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> ${pl.instanceDomain}</span>
+                                </div>
+                            </div>
+                        </a>
+                    `).join('');
+                }
+            }
+        }
+
+        // Call loadLinkedInstances after showing logged in view
+        const originalShowLoggedIn = showLoggedIn;
+        showLoggedIn = function(alias, pubKey) {
+            originalShowLoggedIn(alias, pubKey);
+            loadLinkedInstances();
+        };
+
+        // Initial load if already logged in
+        if (localStorage.getItem('tunecamp_zen_user') || localStorage.getItem('tunecamp_webauthn_user')) {
+            loadLinkedInstances();
+        }
+
         });
     </script>
 </body>
