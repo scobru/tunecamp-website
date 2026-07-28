@@ -619,10 +619,31 @@
             return `${t.siteUrl}::${t.id}`;
         }
 
+        window.clearFilters = function() {
+            const dInput = document.getElementById('searchInput');
+            if (dInput) dInput.value = '';
+            const mInput = document.getElementById('mobileSearchInput');
+            if (mInput) mInput.value = '';
+
+            const aFilter = document.getElementById('artistFilter');
+            if (aFilter) aFilter.value = '';
+            const gFilter = document.getElementById('genreFilter');
+            if (gFilter) gFilter.value = '';
+
+            filterTracks();
+        };
+
         function renderTracks() {
             const grid = document.getElementById('tracksGrid');
             if (filteredTracks.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-12 text-center text-text-muted">No tracks match your search.</div>`;
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-text-muted flex flex-col items-center gap-4">
+                        <p>No tracks match your search.</p>
+                        <button onclick="clearFilters()" class="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors focus-visible:ring-2 focus-visible:ring-primary/50 focus:outline-none" aria-label="Clear all search filters">
+                            Clear Filters
+                        </button>
+                    </div>
+                `;
                 return;
             }
 
