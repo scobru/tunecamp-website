@@ -343,11 +343,15 @@
 
                     try {
                         const rpId = window.location.hostname || 'tunecamp.org';
-                        const cred = await loadPasskeyCredential(rpId, username);
+                        let cred = await loadPasskeyCredential(rpId, username);
 
                         if (!cred) {
-                            showError("Passkey non trovata. Crea una passkey nella pagina Profilo.");
-                            return;
+                            authorizeBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i>Ricerca passkey esistente...';
+                            cred = await discoverPasskeyCredential(rpId, username);
+                            if (!cred) {
+                                showError("Nessuna passkey trovata. Crea una passkey nella pagina Profilo.");
+                                return;
+                            }
                         }
 
                         const enc = new TextEncoder();
@@ -371,7 +375,10 @@
                         const publicKey = {
                             challenge,
                             rpId: rpId,
-                            allowCredentials: [{ type: 'public-key', id: new Uint8Array(cred.credentialId), transports: ['internal'] }],
+                            // No transports hint: a passkey synced by an external manager (Proton
+                            // Pass, 1Password, phone hybrid) is not 'internal', and the hint
+                            // filters it out.
+                            allowCredentials: [{ type: 'public-key', id: new Uint8Array(cred.credentialId) }],
                             userVerification: 'required',
                             // PRF gives us a per-credential secret to derive the identity from.
                             // The old code hashed authenticatorData's tail, which is public data
@@ -472,6 +479,41 @@
                     req.onsuccess = () => resolve(req.result);
                     req.onerror = () => reject(req.error);
                 });
+            }
+
+            // The passkey itself lives in the authenticator / password manager and survives
+            // "clear site data"; the credentialId -> username record in IndexedDB does not.
+            // A discoverable-credential assertion (no allowCredentials) asks the authenticator
+            // which passkeys it holds for this rpId and rebuilds that record.
+            async function discoverPasskeyCredential(rpId, username) {
+                try {
+                    const publicKey = {
+                        challenge: crypto.getRandomValues(new Uint8Array(32)),
+                        rpId: rpId,
+                        userVerification: 'required',
+                        timeout: 60000
+                    };
+                    const assertion = await navigator.credentials.get({ publicKey });
+                    if (!assertion?.rawId) return null;
+
+                    // Registration set user.id to `${username}@${rpId}`. Refuse a credential
+                    // belonging to someone else rather than binding this username to it.
+                    const handle = assertion.response.userHandle;
+                    if (handle) {
+                        const decoded = new TextDecoder().decode(new Uint8Array(handle));
+                        if (decoded !== username + '@' + rpId) return null;
+                    }
+
+                    // An assertion carries no public key, so publicKeyPem stays empty. The
+                    // instance pinned it to this credentialId on first login and verifies
+                    // against the pinned copy from then on.
+                    const credentialId = new Uint8Array(assertion.rawId);
+                    await storePasskeyCredential(rpId, username, credentialId, '');
+                    return { credentialId, publicKeyPem: '' };
+                } catch(e) {
+                    console.warn('Passkey discovery failed:', e);
+                    return null;
+                }
             }
         });
     </script>

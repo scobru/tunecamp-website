@@ -1056,7 +1056,11 @@
                         { type: 'public-key', alg: -257 }  // RS256
                     ],
                     authenticatorSelection: {
-                        authenticatorAttachment: 'platform',
+                        // Discoverable (resident) credential: without it the authenticator can
+                        // only answer an explicit allowCredentials list, so a browser that lost
+                        // its IndexedDB record could never find the passkey again.
+                        residentKey: 'required',
+                        requireResidentKey: true,
                         userVerification: 'required'
                     },
                     // PRF is what turns a passkey into usable master key material: it yields a
@@ -1135,24 +1139,35 @@
 
             try {
                 const rpId = window.location.hostname || 'tunecamp.org';
-                const cred = await loadPasskeyCredential(rpId, username);
+                let cred = await loadPasskeyCredential(rpId, username);
 
                 if (!cred) {
-                    if (status) { status.classList.remove('hidden'); status.textContent = 'No passkey found for this username. Create one first.'; }
-                    btn.disabled = false;
-                    btn.textContent = 'Authenticate';
-                    return;
+                    if (status) { status.classList.remove('hidden'); status.textContent = 'Searching for existing passkey...'; }
+                    btn.textContent = 'Searching...';
+                    cred = await discoverPasskeyCredential(rpId, username);
+                    if (!cred) {
+                        if (status) { status.classList.remove('hidden'); status.textContent = 'No passkey found for this username. Create one first.'; }
+                        btn.disabled = false;
+                        btn.textContent = 'Authenticate';
+                        return;
+                    }
                 }
 
                 const publicKey = {
                     challenge: crypto.getRandomValues(new Uint8Array(32)),
                     rpId: rpId,
-                    allowCredentials: [{ type: 'public-key', id: cred.credentialId, transports: ['internal'] }],
+                    // No transports hint: a passkey synced by an external manager (Proton Pass,
+                    // 1Password, phone hybrid) is not 'internal', and the hint filters it out.
+                    allowCredentials: [{ type: 'public-key', id: new Uint8Array(cred.credentialId) }],
                     userVerification: 'required',
                     timeout: 60000
                 };
 
                 const assertion = await navigator.credentials.get({ publicKey });
+
+                // A discovered credential has no local copy of its public key (an assertion
+                // never returns one), so fall back to the credentialId as the display identity.
+                const displayKey = cred.publicKeyPem || 'webauthn:' + base64url(new Uint8Array(cred.credentialId));
 
                 // Store session for passkey login
                 const sessionData = {
@@ -1160,11 +1175,12 @@
                     source: 'webauthn',
                     credentialId: cred.credentialId,
                     publicKeyPem: cred.publicKeyPem,
+                    displayKey,
                     rpId: rpId
                 };
                 localStorage.setItem('tunecamp_webauthn_user', JSON.stringify(sessionData));
 
-                showLoggedIn(username, cred.publicKeyPem);
+                showLoggedIn(username, displayKey);
                 if (status) { status.classList.remove('hidden'); status.textContent = 'Authenticated via Passkey!'; }
                 if (btn) { btn.disabled = false; btn.textContent = 'Authenticate'; }
                 showToast('Logged in with Passkey!');
@@ -1218,14 +1234,50 @@
             });
         }
 
+        // The passkey itself lives in the authenticator / password manager and survives
+        // "clear site data"; the credentialId -> username record in IndexedDB does not.
+        // A discoverable-credential assertion (no allowCredentials) asks the authenticator
+        // which passkeys it holds for this rpId and rebuilds that record.
+        async function discoverPasskeyCredential(rpId, username) {
+            try {
+                const publicKey = {
+                    challenge: crypto.getRandomValues(new Uint8Array(32)),
+                    rpId: rpId,
+                    userVerification: 'required',
+                    timeout: 60000
+                };
+                const assertion = await navigator.credentials.get({ publicKey });
+                if (!assertion?.rawId) return null;
+
+                // Registration set user.id to `${username}@${rpId}`. Refuse a credential
+                // belonging to someone else rather than binding this username to it.
+                const handle = assertion.response.userHandle;
+                if (handle) {
+                    const decoded = new TextDecoder().decode(new Uint8Array(handle));
+                    if (decoded !== username + '@' + rpId) return null;
+                }
+
+                // An assertion carries no public key, so publicKeyPem stays empty. The
+                // instance pinned it to this credentialId on first login and verifies
+                // against the pinned copy from then on.
+                const credentialId = new Uint8Array(assertion.rawId);
+                await storePasskeyCredential(rpId, username, credentialId, '');
+                return { credentialId, publicKeyPem: '' };
+            } catch(e) {
+                console.warn('Passkey discovery failed:', e);
+                return null;
+            }
+        }
+
         // Also support passkey session on load
         const savedPasskeySession = localStorage.getItem('tunecamp_webauthn_user');
         if (savedPasskeySession && !localStorage.getItem('tunecamp_zen_user')) {
             try {
                 const parsed = JSON.parse(savedPasskeySession);
-                if (parsed.alias && parsed.publicKeyPem) {
-                    currentPair = { pub: parsed.publicKeyPem, priv: 'webauthn' };
-                    showLoggedIn(parsed.alias, parsed.publicKeyPem);
+                const pub = parsed.publicKeyPem || parsed.displayKey;
+                if (parsed.alias && pub) {
+                    currentPair = { pub, priv: 'webauthn' };
+                    showLoggedIn(parsed.alias, pub);
                 }
             } catch(e) {}
         }
