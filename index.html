@@ -588,6 +588,7 @@
             filterTracks();
         }
 
+        let filterTimeout;
         function filterTracks(isMobile) {
             const desktopInput = document.getElementById('searchInput');
             const mobileInput = document.getElementById('mobileSearchInput');
@@ -603,16 +604,23 @@
                 qVal = desktopInput.value;
             }
             
-            const q = qVal.toLowerCase();
-            const a = document.getElementById('artistFilter').value;
-            const g = document.getElementById('genreFilter').value;
-            filteredTracks = allTracks.filter(t => {
-                const mq = !q || t.title.toLowerCase().includes(q) || (t.artistName && t.artistName.toLowerCase().includes(q)) || (t.releaseTitle && t.releaseTitle.toLowerCase().includes(q));
-                const ma = !a || t.artistName === a;
-                const mg = !g || t.genre.split(',').map(s => s.trim()).includes(g);
-                return mq && ma && mg;
-            });
-            renderTracks();
+            clearTimeout(filterTimeout);
+            filterTimeout = setTimeout(() => {
+                const q = qVal.toLowerCase();
+                const a = document.getElementById('artistFilter').value;
+                const g = document.getElementById('genreFilter').value;
+                filteredTracks = allTracks.filter(t => {
+                    const mq = !q || t.title.toLowerCase().includes(q) || (t.artistName && t.artistName.toLowerCase().includes(q)) || (t.releaseTitle && t.releaseTitle.toLowerCase().includes(q));
+                    const ma = !a || t.artistName === a;
+                    const mg = !g || t.genre.split(',').map(s => s.trim()).includes(g);
+                    return mq && ma && mg;
+                });
+
+                // ⚡ Bolt Performance Optimization:
+                // Added debouncing to prevent rapid full DOM rebuilds during fast typing,
+                // reducing main thread blocking and improving overall responsiveness.
+                renderTracks();
+            }, 300);
         }
 
         function trackStableKey(t) {
