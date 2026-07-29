@@ -241,7 +241,7 @@
             <!-- Tab Content 1: Sign Challenge -->
             <div id="modalTabSignContent" class="space-y-4">
                 <p class="text-xs text-text-muted leading-relaxed">
-                    Incolla il <strong>Challenge JSON</strong> copiato dalla tua istanza TuneCamp (Passo 1). Il sito web lo firmerà con la tua chiave Zen SEA e genererà il Passaporto.
+                    Incolla il <strong>Challenge JSON</strong> copiato dalla tua istanza TuneCamp (Passo 1). Il sito web lo firmerà con la tua chiave privata Zen SEA, che non lascia mai questo browser.
                 </p>
                 <form id="signChallengeForm" class="space-y-3">
                     <div>
@@ -251,20 +251,20 @@
                     </div>
                     <button type="submit"
                         class="w-full py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-key"></i> Firma Challenge & Genera Passaporto
+                        <i class="fa-solid fa-key"></i> Firma Challenge
                     </button>
                 </form>
 
                 <div id="signedResultBox" class="hidden p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg space-y-2 text-xs">
                     <div class="text-emerald-400 font-semibold flex items-center gap-1.5">
-                        <i class="fa-solid fa-circle-check"></i> Passaporto Firmato Generato!
+                        <i class="fa-solid fa-circle-check"></i> Firma Generata!
                     </div>
                     <p class="text-text-muted text-[11px]">
-                        Ora copia questo Passaporto JSON e incollalo nella tua istanza TuneCamp (Passo 2) per attivare la connessione.
+                        Ora copia questo JSON ({ zenPubKey, seaSignature }) e incollalo nella tua istanza TuneCamp (Passo 2) per attivare la connessione.
                     </p>
                     <button type="button" id="copyGeneratedPassportBtn"
                         class="w-full py-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1.5">
-                        <i class="fa-regular fa-copy"></i> Copia Passaporto JSON per l'Istanza
+                        <i class="fa-regular fa-copy"></i> Copia JSON per l'Istanza
                     </button>
                 </div>
             </div>
@@ -325,6 +325,16 @@
             const instancesList = document.getElementById('instancesList');
 
             let generatedPassportCache = null;
+
+            // Real Zen SEA signature over `data`, verifiable by anyone holding the matching pub key
+            function zenSign(data, priv) {
+                return new Promise((resolve, reject) => {
+                    Zen.sign(data, { priv }, (out) => {
+                        if (typeof out === "string") resolve(out);
+                        else reject(new Error("Zen.sign failed"));
+                    });
+                });
+            }
 
             // Modal Tab Switchers
             modalTabSignBtn.addEventListener('click', () => {
@@ -436,13 +446,13 @@
                     return;
                 }
 
-                if (!challengeObj.instanceDomain || !challengeObj.nonce) {
-                    alert('Challenge non valido: campo instanceDomain o nonce mancante.');
+                if (!challengeObj.instanceDomain || !challengeObj.nonce || !challengeObj.username) {
+                    alert('Challenge non valido: campo instanceDomain, username o nonce mancante.');
                     return;
                 }
 
                 // Signing a challenge needs the Zen SEA private key.
-                if (!currentPair?.pub) {
+                if (!currentPair?.pub || !currentPair?.priv) {
                     alert('Devi prima autenticarti con la tua identità Zen SEA.');
                     return;
                 }
@@ -453,59 +463,25 @@
                 submitBtn.disabled = true;
 
                 try {
-                    const protocol = challengeObj.instanceDomain.includes('localhost') ? 'http' : 'https';
-                    const linkUrl = `${protocol}://${challengeObj.instanceDomain}/api/auth/zen/link`;
-                    const seaSignature = `sea_signed_${Date.now()}_${currentPair.pub.slice(0, 8)}`;
+                    // The instance verifies the signature over `${username}:${nonce}` using the
+                    // username it resolved server-side (may be an alias), so sign what it sent
+                    // back, not currentAlias.
+                    const seaSignature = await zenSign(`${challengeObj.username}:${challengeObj.nonce}`, currentPair.priv);
 
-                    // Call instance /api/auth/zen/link
-                    const res = await fetch(linkUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            zenPubKey: currentPair.pub,
-                            challenge: challengeObj,
-                            seaSignature
-                        })
+                    const result = { zenPubKey: currentPair.pub, seaSignature };
+                    generatedPassportCache = result;
+                    saveLinkedInstance({
+                        instanceDomain: challengeObj.instanceDomain,
+                        localUsername: challengeObj.username,
+                        zenPubKey: currentPair.pub,
+                        seaSignature,
+                        signedAt: Date.now()
                     });
 
-                    const data = await res.json();
-                    let passport = null;
-
-                    if (res.ok && data.success && data.passport) {
-                        passport = data.passport;
-                    } else {
-                        // Fallback passport construction if instance API call had CORS/offline
-                        passport = {
-                            instanceDomain: challengeObj.instanceDomain,
-                            localUsername: challengeObj.username || 'user',
-                            zenPubKey: currentPair.pub,
-                            issuedAt: Date.now(),
-                            passportSignature: `HMAC_${Date.now()}_${challengeObj.nonce.slice(0, 8)}`,
-                            seaSignature,
-                            publicDataEndpoint: `${protocol}://${challengeObj.instanceDomain}/api/auth/zen/user/${challengeObj.username || 'user'}/public`
-                        };
-                    }
-
-                    generatedPassportCache = passport;
-                    saveLinkedInstance(passport);
-
                     signedResultBox.classList.remove('hidden');
-                    alert('Challenge firmato con successo! Copia il Passaporto JSON di seguito e incollalo nella tua istanza TuneCamp.');
+                    alert('Challenge firmato con successo! Copia il JSON di seguito e incollalo nella tua istanza TuneCamp.');
                 } catch (err) {
-                    // Fallback on network issue
-                    const passport = {
-                        instanceDomain: challengeObj.instanceDomain,
-                        localUsername: challengeObj.username || 'user',
-                        zenPubKey: currentPair.pub,
-                        issuedAt: Date.now(),
-                        passportSignature: `HMAC_${Date.now()}_${challengeObj.nonce.slice(0, 8)}`,
-                        seaSignature: `sea_signed_${Date.now()}`,
-                        publicDataEndpoint: `https://${challengeObj.instanceDomain}/api/auth/zen/user/${challengeObj.username || 'user'}/public`
-                    };
-                    generatedPassportCache = passport;
-                    saveLinkedInstance(passport);
-                    signedResultBox.classList.remove('hidden');
-                    alert('Challenge firmato con successo! Copia il Passaporto JSON di seguito e incollalo nella tua istanza TuneCamp.');
+                    alert('Errore firma: ' + err.message);
                 } finally {
                     submitBtn.innerHTML = originalHtml;
                     submitBtn.disabled = false;
@@ -515,7 +491,7 @@
             copyGeneratedPassportBtn.addEventListener('click', () => {
                 if (!generatedPassportCache) return;
                 navigator.clipboard.writeText(JSON.stringify(generatedPassportCache, null, 2));
-                alert('Passaporto JSON copiato negli appunti! Ora incollalo nella tua istanza TuneCamp.');
+                alert('JSON copiato negli appunti! Ora incollalo nella tua istanza TuneCamp.');
             });
 
             linkForm.addEventListener('submit', async (e) => {
