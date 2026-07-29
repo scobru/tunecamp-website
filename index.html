@@ -622,7 +622,7 @@
         function renderTracks() {
             const grid = document.getElementById('tracksGrid');
             if (filteredTracks.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-12 text-center text-text-muted">No tracks match your search.</div>`;
+                grid.innerHTML = `<div class="col-span-full py-12 flex flex-col items-center justify-center text-center text-text-muted"><p class="mb-4">No tracks match your search.</p><button onclick="clearFilters()" class="bg-primary/20 text-primary border border-primary/30 rounded-xl px-4 py-2 text-sm hover:bg-primary/30 transition-colors focus-visible:ring-2 focus-visible:ring-primary/50 focus:outline-none" aria-label="Clear all filters and search">Clear Filters</button></div>`;
                 return;
             }
 
@@ -724,6 +724,18 @@
             return `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
         }
         function escapeHtml(s) { return s ? s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;') : ''; }
+
+        window.clearFilters = function() {
+            const searchInput = document.getElementById('searchInput');
+            const mobileSearchInput = document.getElementById('mobileSearchInput');
+            if (searchInput) searchInput.value = '';
+            if (mobileSearchInput) mobileSearchInput.value = '';
+            const artistFilter = document.getElementById('artistFilter');
+            const genreFilter = document.getElementById('genreFilter');
+            if (artistFilter) artistFilter.value = '';
+            if (genreFilter) genreFilter.value = '';
+            filterTracks();
+        };
 
         window.filterTracks = filterTracks;
         window.playTrackIndex = playTrackIndex;
