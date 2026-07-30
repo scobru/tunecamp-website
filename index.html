@@ -622,7 +622,10 @@
         function renderTracks() {
             const grid = document.getElementById('tracksGrid');
             if (filteredTracks.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-12 text-center text-text-muted">No tracks match your search.</div>`;
+                grid.innerHTML = `<div class="col-span-full py-12 flex flex-col items-center justify-center gap-4 text-center text-text-muted">
+                    <p>No tracks match your search.</p>
+                    <button onclick="document.getElementById('searchInput')&&(document.getElementById('searchInput').value='');document.getElementById('mobileSearchInput')&&(document.getElementById('mobileSearchInput').value='');document.getElementById('artistFilter')&&(document.getElementById('artistFilter').value='');document.getElementById('genreFilter')&&(document.getElementById('genreFilter').value='');filterTracks()" class="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 text-white">Clear Filters</button>
+                </div>`;
                 return;
             }
 

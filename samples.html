@@ -257,7 +257,10 @@
         function renderSamples() {
             const container = document.getElementById('samplesContainer');
             if (filteredSamples.length === 0 && filteredPacks.length === 0) {
-                container.innerHTML = `<div class="col-span-full p-8 text-center text-text-muted">No samples match your search.</div>`;
+                container.innerHTML = `<div class="col-span-full p-8 flex flex-col items-center justify-center gap-4 text-center text-text-muted">
+                    <p>No samples match your search.</p>
+                    <button onclick="document.getElementById('searchInput')&&(document.getElementById('searchInput').value='');document.getElementById('mobileSearchInput')&&(document.getElementById('mobileSearchInput').value='');filterSamples()" class="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 text-white">Clear Filters</button>
+                </div>`;
                 return;
             }
             const packCards = filteredPacks.map(p => `
