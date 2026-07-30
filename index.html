@@ -588,7 +588,16 @@
             filterTracks();
         }
 
+        let filterTracksTimeout;
+
         function filterTracks(isMobile) {
+            clearTimeout(filterTracksTimeout);
+
+            // ⚡ Bolt Performance Optimization:
+            // Debounce high-frequency search input events by 300ms to prevent rapid
+            // full DOM rebuilds via innerHTML during typing, which causes significant
+            // main thread blocking. Expected impact: ~90% fewer re-renders during active typing.
+            filterTracksTimeout = setTimeout(() => {
             const desktopInput = document.getElementById('searchInput');
             const mobileInput = document.getElementById('mobileSearchInput');
             
@@ -613,6 +622,7 @@
                 return mq && ma && mg;
             });
             renderTracks();
+            }, 300);
         }
 
         function trackStableKey(t) {
