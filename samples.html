@@ -236,22 +236,29 @@
             filterSamples();
         }
 
+        let filterTimeout;
         function filterSamples() {
-            const q = document.getElementById('searchInput').value.toLowerCase();
-            const lic = document.getElementById('licenseFilter').value;
-            const tag = document.getElementById('tagFilter').value;
-            filteredSamples = allSamples.filter(s => {
-                const mq = !q || s.title.toLowerCase().includes(q) || s.artistName.toLowerCase().includes(q);
-                const ml = !lic || s.license === lic;
-                const mt = !tag || s.tags.includes(tag);
-                return mq && ml && mt;
-            });
-            filteredPacks = allPacks.filter(p => {
-                const mq = !q || p.title.toLowerCase().includes(q) || p.artistName.toLowerCase().includes(q);
-                const ml = !lic || p.license === lic;
-                return mq && ml && !tag;
-            });
-            renderSamples();
+            // ⚡ Bolt Performance Optimization:
+            // Debounce sample filtering to prevent rapid full DOM rebuilds via innerHTML replacement.
+            // Regenerating the entire sample grid on every keystroke blocks the main thread.
+            clearTimeout(filterTimeout);
+            filterTimeout = setTimeout(() => {
+                const q = document.getElementById('searchInput').value.toLowerCase();
+                const lic = document.getElementById('licenseFilter').value;
+                const tag = document.getElementById('tagFilter').value;
+                filteredSamples = allSamples.filter(s => {
+                    const mq = !q || s.title.toLowerCase().includes(q) || s.artistName.toLowerCase().includes(q);
+                    const ml = !lic || s.license === lic;
+                    const mt = !tag || s.tags.includes(tag);
+                    return mq && ml && mt;
+                });
+                filteredPacks = allPacks.filter(p => {
+                    const mq = !q || p.title.toLowerCase().includes(q) || p.artistName.toLowerCase().includes(q);
+                    const ml = !lic || p.license === lic;
+                    return mq && ml && !tag;
+                });
+                renderSamples();
+            }, 300);
         }
 
         function renderSamples() {
