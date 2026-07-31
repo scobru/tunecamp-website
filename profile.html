@@ -249,6 +249,7 @@
                         <textarea id="challengeJsonInput" required rows="3" placeholder='{"instanceDomain": "...", "username": "...", "nonce": "..."}'
                             class="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-white font-mono text-xs focus:outline-none focus:border-primary resize-none"></textarea>
                     </div>
+                    <div id="signChallengeError" class="hidden p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-xs font-medium"></div>
                     <button type="submit"
                         class="w-full py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
                         <i class="fa-solid fa-key"></i> Firma Challenge
@@ -437,23 +438,34 @@
             signChallengeForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const rawChallenge = challengeJsonInput.value.trim();
+                const errorBox = document.getElementById('signChallengeError');
+
+                // Reset error state
+                errorBox.classList.add('hidden');
+                errorBox.textContent = '';
+
+                const showError = (msg) => {
+                    errorBox.textContent = msg;
+                    errorBox.classList.remove('hidden');
+                };
+
                 let challengeObj = null;
 
                 try {
                     challengeObj = JSON.parse(rawChallenge);
                 } catch (err) {
-                    alert('Challenge JSON non valido');
+                    showError('Challenge JSON non valido');
                     return;
                 }
 
                 if (!challengeObj.instanceDomain || !challengeObj.nonce || !challengeObj.username) {
-                    alert('Challenge non valido: campo instanceDomain, username o nonce mancante.');
+                    showError('Challenge non valido: campo instanceDomain, username o nonce mancante.');
                     return;
                 }
 
                 // Signing a challenge needs the Zen SEA private key.
                 if (!currentPair?.pub || !currentPair?.priv) {
-                    alert('Devi prima autenticarti con la tua identità Zen SEA.');
+                    showError('Devi prima autenticarti con la tua identità Zen SEA.');
                     return;
                 }
 
@@ -479,9 +491,8 @@
                     });
 
                     signedResultBox.classList.remove('hidden');
-                    alert('Challenge firmato con successo! Copia il JSON di seguito e incollalo nella tua istanza TuneCamp.');
                 } catch (err) {
-                    alert('Errore firma: ' + err.message);
+                    showError('Errore firma: ' + err.message);
                 } finally {
                     submitBtn.innerHTML = originalHtml;
                     submitBtn.disabled = false;
