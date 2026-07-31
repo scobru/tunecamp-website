@@ -171,7 +171,7 @@
 
     <!-- Federated discovery over HTTP — no Zen, queries /api/community/sites -->
     <script src="config.js"></script>
-
+    <script src="utils.js"></script>
     <script type="module">
         let audio = new Audio();
         let allTracks = [];
@@ -519,12 +519,6 @@
             document.getElementById('duration').textContent = formatTime(audio.duration);
         }
 
-        function formatTime(s) {
-            if (!s || isNaN(s)) return '0:00';
-            const m = Math.floor(s / 60);
-            const se = Math.floor(s % 60);
-            return `${m}:${se.toString().padStart(2,'0')}`;
-        }
         function escapeHtml(s) { return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'):''; }
         function sanitizeUrl(urlStr, allowData = false) {
             if (!urlStr) return '#';
