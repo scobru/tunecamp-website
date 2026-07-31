@@ -7,3 +7,8 @@
 **Vulnerability:** URI-based XSS through federated data returned by the API (like avatar URLs, image covers, and instance URLs). These are assigned to `href` or `src` attributes. A malicious API payload could provide a `javascript:` or `vbscript:` URL which, when clicked, triggers code execution.
 **Learning:** `escapeHtml` only escapes HTML characters (e.g. `<`, `>`, `"`, `'`) but does not neutralize malicious URI schemes. Furthermore, when dealing with federated networks, `data:` URIs might be legitimately used for cover images and should be conditionally allowed while blocking `javascript:`/`vbscript:`. The use of `new URL()` with a base domain correctly normalizes and validates the protocol.
 **Prevention:** Always implement a strict URL sanitization function (e.g. `sanitizeUrl(urlStr, allowData = false)`) that blocks potentially dangerous protocols (`javascript:`, `vbscript:`) before passing values to `escapeHtml` or rendering them in the DOM.
+
+## 2025-02-27 - [DOM-based XSS in showcase caption]
+**Vulnerability:** DOM-based XSS via `innerHTML` injection when rendering tab captions in `sidecamp.html`.
+**Learning:** Using `innerHTML` with string values is inherently unsafe and can lead to XSS if data is fetched from untrusted sources or APIs.
+**Prevention:** Always use secure DOM manipulation methods such as `textContent` or `document.createTextNode` and `appendChild` when inserting text.
