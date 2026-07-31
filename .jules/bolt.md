@@ -9,3 +9,6 @@
 ## 2024-07-31 - Debouncing Full DOM Rebuilds on Text Inputs
 **Learning:** In the Tunecamp static frontend, rapid DOM updates via innerHTML replacement cause significant main thread blocking.
 **Action:** Always debounce high-frequency event listeners (like text inputs) that trigger full DOM rebuilds.
+## 2024-07-31 - Optimize N+1 fetching in profile.html
+**Learning:** Fetching data sequentially in a loop blocks the main event thread unnecessarily and causes an N+1 fetching bottleneck, especially noticeable when aggregating federated profiles across many instances.
+**Action:** Use `Promise.all` to map instance configurations to concurrent asynchronous fetches to drastically improve load time and avoid UI blocking.

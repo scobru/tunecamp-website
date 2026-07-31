@@ -734,9 +734,10 @@
                 let allLikes = [];
                 let allPlaylists = [];
 
-                for (const inst of instances) {
+                // ⚡ Bolt: parallelize network requests to prevent N+1 bottleneck
+                await Promise.all(instances.map(async (inst) => {
                     const domain = inst.instanceDomain || (inst.instanceUrl ? new URL(inst.instanceUrl).hostname : '');
-                    if (!domain) continue;
+                    if (!domain) return;
 
                     const targetUser = inst.localUsername || inst.username || alias;
                     const protocol = inst.instanceUrl && inst.instanceUrl.startsWith('http') ? '' : 'https://';
@@ -824,7 +825,7 @@
                     } catch (err) {
                         console.warn(`[Zen Aggregator] Could not fetch public data for @${targetUser} from ${domain}:`, err);
                     }
-                }
+                }));
 
                 // Update counters
                 document.getElementById('releasesCount').textContent = allReleases.length;
