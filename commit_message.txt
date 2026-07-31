@@ -1,0 +1,5 @@
+🛡️ Sentinel: [CRITICAL] Fix DOM XSS in profile innerHTML
+
+🎯 What: Fixed a DOM Cross-Site Scripting (XSS) vulnerability in profile.html where unescaped artist names and avatar URLs were being injected directly into innerHTML.
+⚠️ Risk: An attacker could potentially inject malicious javascript execution vectors into profile.html via specially crafted input fields such as user names or URL payloads returned from the federation API. This could lead to account takeover, unauthorized actions, or data theft.
+🛡️ Solution: Introduced an escapeHtml helper function. All dynamic variables (artistDisplayName, targetUser, domain, avatarUrl) are now HTML-escaped prior to interpolation into the DOM via innerHTML. Additionally, data: URIs are strictly validated to ensure they begin with data:image/.
