@@ -620,6 +620,11 @@
                         const localUser = item.localUsername || item.username || activeUser || '';
                         const key = `${domain}::${localUser}`;
                         const safeId = key.replace(/[^a-z0-9]/gi, '_');
+
+                        const escapedDomain = escapeHtml(domain);
+                        const escapedLocalUser = escapeHtml(localUser);
+                        const escapedKey = escapeHtml(key);
+
                         return `
                         <div class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between gap-4" id="inst-card-${safeId}">
                             <div class="flex items-center gap-3 min-w-0">
@@ -628,7 +633,7 @@
                                 </div>
                                 <div class="min-w-0">
                                     <div class="font-bold text-sm text-white truncate" id="inst-title-${safeId}">
-                                        @${localUser} <span class="text-xs font-normal text-text-muted">(${domain})</span>
+                                        @${escapedLocalUser} <span class="text-xs font-normal text-text-muted">(${escapedDomain})</span>
                                     </div>
                                     <div class="text-xs text-text-muted">Linked: ${new Date(item.linkedAt || Date.now()).toLocaleDateString()}</div>
                                 </div>
@@ -637,7 +642,7 @@
                                 <span class="px-2.5 py-1 text-xs rounded-full badge-verified font-medium">
                                     <i class="fa-solid fa-shield-check"></i> Verified
                                 </span>
-                                <button type="button" onclick="unlinkInstance('${key}')" title="Unlink Account" class="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs transition-colors">
+                                <button type="button" data-key="${escapedKey}" onclick="unlinkInstance(this.getAttribute('data-key'))" title="Unlink Account" class="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs transition-colors">
                                     <i class="fa-solid fa-trash-can"></i>
                                 </button>
                             </div>
@@ -1055,6 +1060,10 @@
         }
 
         });
+
+        function escapeHtml(s) {
+            return s ? String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;') : '';
+        }
     </script>
 </body>
 </html>
