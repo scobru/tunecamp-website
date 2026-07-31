@@ -293,6 +293,19 @@
     <script type="module">
         import Zen from './vendor/zen.min.js';
 
+        function escapeHtml(s) { return s ? s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;') : ''; }
+        function sanitizeUrl(urlStr, allowData = false) {
+            if (!urlStr) return '#';
+            try {
+                const u = new URL(urlStr, window.location.origin);
+                if (['javascript:', 'vbscript:'].includes(u.protocol)) return '#';
+                if (!allowData && u.protocol === 'data:') return '#';
+                return urlStr;
+            } catch (e) {
+                return '#';
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const relay = window.ZEN_RELAY || "wss://delay.scobrudot.dev/zen";
             let zen = null;
@@ -616,8 +629,8 @@
                     }
 
                     instancesList.innerHTML = instancesListToRender.map(item => {
-                        const domain = item.instanceDomain || item.instanceUrl;
-                        const localUser = item.localUsername || item.username || activeUser || '';
+                        const domain = escapeHtml(item.instanceDomain || item.instanceUrl);
+                        const localUser = escapeHtml(item.localUsername || item.username || activeUser || '');
                         const key = `${domain}::${localUser}`;
                         const safeId = key.replace(/[^a-z0-9]/gi, '_');
                         return `
@@ -641,7 +654,7 @@
                                     <i class="fa-solid fa-trash-can"></i>
                                 </button>
                             </div>
-                        </div>`;
+                        `
                     }).join('');
 
                     if (activeUser) {
@@ -757,12 +770,12 @@
                                 const avatarEl = document.getElementById(`inst-avatar-${safeId}`);
                                 const artistDisplayName = prof.artistName || prof.displayName || prof.username || targetUser;
                                 if (titleEl) {
-                                    titleEl.innerHTML = `${artistDisplayName} <span class="text-xs font-normal text-text-muted">(@${targetUser} on ${domain})</span>`;
+                                    titleEl.innerHTML = `${escapeHtml(artistDisplayName)} <span class="text-xs font-normal text-text-muted">(@${escapeHtml(targetUser)} on ${escapeHtml(domain)})</span>`;
                                 }
                                 const rawAvatar = prof.imageUrl || prof.avatar;
                                 if (avatarEl && rawAvatar) {
                                     const avatarUrl = toAbsoluteUrl(rawAvatar, baseUrl);
-                                    avatarEl.innerHTML = `<img src="${avatarUrl}" alt="${artistDisplayName}" class="w-full h-full object-cover" />`;
+                                    avatarEl.innerHTML = `<img src="${escapeHtml(sanitizeUrl(avatarUrl, true))}" alt="${escapeHtml(artistDisplayName)}" class="w-full h-full object-cover" />`;
                                 }
                             }
 
@@ -837,16 +850,16 @@
                         relGrid.innerHTML = `<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No public releases found yet for linked accounts. Make sure your albums/releases are set to Public or Released status on your TuneCamp nodes.</div>`;
                     } else {
                         relGrid.innerHTML = allReleases.map(rel => `
-                            <a href="${rel.linkUrl}" target="_blank" rel="noopener" class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4 hover:border-primary/40 hover:bg-white/[0.07] transition-all group">
+                            <a href="${escapeHtml(sanitizeUrl(rel.linkUrl))}" target="_blank" rel="noopener" class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4 hover:border-primary/40 hover:bg-white/[0.07] transition-all group">
                                 <div class="w-12 h-12 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
-                                    ${rel.coverUrl ? `<img src="${rel.coverUrl}" alt="${rel.title}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-compact-disc text-amber-400 text-xl"></i>`}
+                                    ${rel.coverUrl ? `<img src="${escapeHtml(sanitizeUrl(rel.coverUrl, true))}" alt="${escapeHtml(rel.title)}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-compact-disc text-amber-400 text-xl"></i>`}
                                 </div>
                                 <div class="min-w-0 flex-1">
-                                    <div class="font-bold text-sm text-white truncate group-hover:text-primary transition-colors">${rel.title || 'Untitled Release'}</div>
-                                    <div class="text-xs text-text-muted truncate">${rel.artist || rel.localUsername}</div>
+                                    <div class="font-bold text-sm text-white truncate group-hover:text-primary transition-colors">${escapeHtml(rel.title || 'Untitled Release')}</div>
+                                    <div class="text-xs text-text-muted truncate">${escapeHtml(rel.artist || rel.localUsername)}</div>
                                     <div class="flex items-center gap-2 text-[10px] text-primary/80 font-mono mt-1">
-                                        <span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> ${rel.instanceDomain} (@${rel.localUsername})</span>
-                                        ${rel.type ? `<span class="px-1.5 py-0.5 rounded bg-white/10 text-white/70">${rel.type}</span>` : ''}
+                                        <span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> ${escapeHtml(rel.instanceDomain)} (@${escapeHtml(rel.localUsername)})</span>
+                                        ${rel.type ? `<span class="px-1.5 py-0.5 rounded bg-white/10 text-white/70">${escapeHtml(rel.type)}</span>` : ''}
                                     </div>
                                 </div>
                             </a>
@@ -860,15 +873,15 @@
                         likesGrid.innerHTML = `<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No starred favorites found for linked accounts.</div>`;
                     } else {
                         likesGrid.innerHTML = allLikes.map(lk => `
-                            <a href="${lk.linkUrl}" target="_blank" rel="noopener" class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4 hover:border-rose-400/40 hover:bg-white/[0.07] transition-all group">
+                            <a href="${escapeHtml(sanitizeUrl(lk.linkUrl))}" target="_blank" rel="noopener" class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4 hover:border-rose-400/40 hover:bg-white/[0.07] transition-all group">
                                 <div class="w-12 h-12 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
-                                    ${lk.coverUrl ? `<img src="${lk.coverUrl}" alt="${lk.title}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-heart text-rose-400 text-xl"></i>`}
+                                    ${lk.coverUrl ? `<img src="${escapeHtml(sanitizeUrl(lk.coverUrl, true))}" alt="${escapeHtml(lk.title)}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-heart text-rose-400 text-xl"></i>`}
                                 </div>
                                 <div class="min-w-0 flex-1">
-                                    <div class="font-bold text-sm text-white truncate group-hover:text-rose-400 transition-colors">${lk.title}</div>
-                                    <div class="text-xs text-text-muted truncate">${lk.artist}</div>
+                                    <div class="font-bold text-sm text-white truncate group-hover:text-rose-400 transition-colors">${escapeHtml(lk.title)}</div>
+                                    <div class="text-xs text-text-muted truncate">${escapeHtml(lk.artist)}</div>
                                     <div class="flex items-center gap-2 text-[10px] text-rose-400/80 font-mono mt-1">
-                                        <span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> ${lk.instanceDomain}</span>
+                                        <span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> ${escapeHtml(lk.instanceDomain)}</span>
                                     </div>
                                 </div>
                             </a>
@@ -882,15 +895,15 @@
                         plGrid.innerHTML = `<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No public playlists found for linked accounts.</div>`;
                     } else {
                         plGrid.innerHTML = allPlaylists.map(pl => `
-                            <a href="${pl.linkUrl}" target="_blank" rel="noopener" class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4 hover:border-purple-400/40 hover:bg-white/[0.07] transition-all group">
+                            <a href="${escapeHtml(sanitizeUrl(pl.linkUrl))}" target="_blank" rel="noopener" class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4 hover:border-purple-400/40 hover:bg-white/[0.07] transition-all group">
                                 <div class="w-12 h-12 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
-                                    ${pl.coverUrl ? `<img src="${pl.coverUrl}" alt="${pl.title}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-list-music text-purple-400 text-xl"></i>`}
+                                    ${pl.coverUrl ? `<img src="${escapeHtml(sanitizeUrl(pl.coverUrl, true))}" alt="${escapeHtml(pl.title)}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-list-music text-purple-400 text-xl"></i>`}
                                 </div>
                                 <div class="min-w-0 flex-1">
-                                    <div class="font-bold text-sm text-white truncate group-hover:text-purple-400 transition-colors">${pl.title}</div>
-                                    <div class="text-xs text-text-muted truncate">By @${pl.localUsername}</div>
+                                    <div class="font-bold text-sm text-white truncate group-hover:text-purple-400 transition-colors">${escapeHtml(pl.title)}</div>
+                                    <div class="text-xs text-text-muted truncate">By @${escapeHtml(pl.localUsername)}</div>
                                     <div class="flex items-center gap-2 text-[10px] text-purple-400/80 font-mono mt-1">
-                                        <span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> ${pl.instanceDomain}</span>
+                                        <span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> ${escapeHtml(pl.instanceDomain)}</span>
                                     </div>
                                 </div>
                             </a>
@@ -978,15 +991,15 @@
                     releasesGrid.innerHTML = '<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No public releases found across linked instances.</div>';
                 } else {
                     releasesGrid.innerHTML = allReleases.slice(0, 12).map(r => `
-                        <a href="https://${r.instanceDomain}/album/${r.slug || r.id}" target="_blank" rel="noopener" class="group glass-card p-4 flex gap-4 hover:border-primary/50 transition-colors">
+                        <a href="https://${escapeHtml(r.instanceDomain)}/album/${escapeHtml(r.slug || r.id)}" target="_blank" rel="noopener" class="group glass-card p-4 flex gap-4 hover:border-primary/50 transition-colors">
                             <div class="w-16 h-16 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
-                                ${r.cover_url ? `<img src="${r.cover_url}" alt="${r.title}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-compact-disc text-primary text-xl"></i>`}
+                                ${r.cover_url ? `<img src="${escapeHtml(sanitizeUrl(r.cover_url, true))}" alt="${escapeHtml(r.title)}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-compact-disc text-primary text-xl"></i>`}
                             </div>
                             <div class="min-w-0 flex-1">
-                                <div class="font-bold text-sm text-white truncate group-hover:text-primary transition-colors">${r.title}</div>
-                                <div class="text-xs text-text-muted truncate">By @${r.artist_name || 'Unknown'}</div>
+                                <div class="font-bold text-sm text-white truncate group-hover:text-primary transition-colors">${escapeHtml(r.title)}</div>
+                                <div class="text-xs text-text-muted truncate">By @${escapeHtml(r.artist_name || 'Unknown')}</div>
                                 <div class="flex items-center gap-2 text-[10px] text-primary/80 font-mono mt-1">
-                                    <span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> ${r.instanceDomain}</span>
+                                    <span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> ${escapeHtml(r.instanceDomain)}</span>
                                 </div>
                             </div>
                         </a>
@@ -1003,13 +1016,13 @@
                     likesGrid.innerHTML = allLikes.slice(0, 12).map(l => `
                         <div class="glass-card p-4 flex gap-4">
                             <div class="w-16 h-16 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
-                                ${l.album_cover ? `<img src="${l.album_cover}" alt="${l.album_title || l.track_title}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-heart text-rose-400 text-xl"></i>`}
+                                ${l.album_cover ? `<img src="${escapeHtml(sanitizeUrl(l.album_cover, true))}" alt="${escapeHtml(l.album_title || l.track_title)}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-heart text-rose-400 text-xl"></i>`}
                             </div>
                             <div class="min-w-0 flex-1">
-                                <div class="font-bold text-sm text-white truncate">${l.track_title || l.album_title || 'Unknown'}</div>
-                                <div class="text-xs text-text-muted truncate">By @${l.track_artist || 'Unknown'}</div>
+                                <div class="font-bold text-sm text-white truncate">${escapeHtml(l.track_title || l.album_title || 'Unknown')}</div>
+                                <div class="text-xs text-text-muted truncate">By @${escapeHtml(l.track_artist || 'Unknown')}</div>
                                 <div class="flex items-center gap-2 text-[10px] text-primary/80 font-mono mt-1">
-                                    <span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> ${l.instanceDomain}</span>
+                                    <span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> ${escapeHtml(l.instanceDomain)}</span>
                                 </div>
                             </div>
                         </div>
@@ -1024,15 +1037,15 @@
                     playlistsGrid.innerHTML = '<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No public playlists aggregated yet.</div>';
                 } else {
                     playlistsGrid.innerHTML = allPlaylists.slice(0, 12).map(pl => `
-                        <a href="https://${pl.instanceDomain}/playlist/${pl.id}" target="_blank" rel="noopener" class="group glass-card p-4 flex gap-4 hover:border-purple-400/50 transition-colors">
+                        <a href="https://${escapeHtml(pl.instanceDomain)}/playlist/${escapeHtml(pl.id)}" target="_blank" rel="noopener" class="group glass-card p-4 flex gap-4 hover:border-purple-400/50 transition-colors">
                             <div class="w-16 h-16 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
-                                ${pl.coverUrl ? `<img src="${pl.coverUrl}" alt="${pl.title}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-list-music text-purple-400 text-xl"></i>`}
+                                ${pl.coverUrl ? `<img src="${escapeHtml(sanitizeUrl(pl.coverUrl, true))}" alt="${escapeHtml(pl.title)}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-list-music text-purple-400 text-xl"></i>`}
                             </div>
                             <div class="min-w-0 flex-1">
-                                <div class="font-bold text-sm text-white truncate group-hover:text-purple-400 transition-colors">${pl.title}</div>
-                                <div class="text-xs text-text-muted truncate">By @${pl.localUsername}</div>
+                                <div class="font-bold text-sm text-white truncate group-hover:text-purple-400 transition-colors">${escapeHtml(pl.title)}</div>
+                                <div class="text-xs text-text-muted truncate">By @${escapeHtml(pl.localUsername)}</div>
                                 <div class="flex items-center gap-2 text-[10px] text-purple-400/80 font-mono mt-1">
-                                    <span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> ${pl.instanceDomain}</span>
+                                    <span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> ${escapeHtml(pl.instanceDomain)}</span>
                                 </div>
                             </div>
                         </a>
