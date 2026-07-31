@@ -712,6 +712,8 @@
                 }
             };
 
+            function escapeHtml(s) { return s ? String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;') : ''; }
+
             function toAbsoluteUrl(url, base) {
                 if (!url) return '';
                 if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
@@ -757,12 +759,12 @@
                                 const avatarEl = document.getElementById(`inst-avatar-${safeId}`);
                                 const artistDisplayName = prof.artistName || prof.displayName || prof.username || targetUser;
                                 if (titleEl) {
-                                    titleEl.innerHTML = `${artistDisplayName} <span class="text-xs font-normal text-text-muted">(@${targetUser} on ${domain})</span>`;
+                                    titleEl.innerHTML = `${escapeHtml(artistDisplayName)} <span class="text-xs font-normal text-text-muted">(@${escapeHtml(targetUser)} on ${escapeHtml(domain)})</span>`;
                                 }
                                 const rawAvatar = prof.imageUrl || prof.avatar;
                                 if (avatarEl && rawAvatar) {
                                     const avatarUrl = toAbsoluteUrl(rawAvatar, baseUrl);
-                                    avatarEl.innerHTML = `<img src="${avatarUrl}" alt="${artistDisplayName}" class="w-full h-full object-cover" />`;
+                                    avatarEl.innerHTML = `<img src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(artistDisplayName)}" class="w-full h-full object-cover" />`;
                                 }
                             }
 
