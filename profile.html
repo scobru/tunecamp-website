@@ -755,14 +755,18 @@
                             if (prof) {
                                 const titleEl = document.getElementById(`inst-title-${safeId}`);
                                 const avatarEl = document.getElementById(`inst-avatar-${safeId}`);
+                                const escapeHtml = (s) => String(s || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
                                 const artistDisplayName = prof.artistName || prof.displayName || prof.username || targetUser;
                                 if (titleEl) {
-                                    titleEl.innerHTML = `${artistDisplayName} <span class="text-xs font-normal text-text-muted">(@${targetUser} on ${domain})</span>`;
+                                    titleEl.innerHTML = `${escapeHtml(artistDisplayName)} <span class="text-xs font-normal text-text-muted">(@${escapeHtml(targetUser)} on ${escapeHtml(domain)})</span>`;
                                 }
                                 const rawAvatar = prof.imageUrl || prof.avatar;
                                 if (avatarEl && rawAvatar) {
-                                    const avatarUrl = toAbsoluteUrl(rawAvatar, baseUrl);
-                                    avatarEl.innerHTML = `<img src="${avatarUrl}" alt="${artistDisplayName}" class="w-full h-full object-cover" />`;
+                                    let avatarUrl = toAbsoluteUrl(rawAvatar, baseUrl);
+                                    if (avatarUrl.startsWith('data:') && !avatarUrl.startsWith('data:image/')) {
+                                        avatarUrl = '/placeholder.png';
+                                    }
+                                    avatarEl.innerHTML = `<img src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(artistDisplayName)}" class="w-full h-full object-cover" />`;
                                 }
                             }
 

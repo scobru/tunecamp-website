@@ -7,3 +7,8 @@
 **Vulnerability:** URI-based XSS through federated data returned by the API (like avatar URLs, image covers, and instance URLs). These are assigned to `href` or `src` attributes. A malicious API payload could provide a `javascript:` or `vbscript:` URL which, when clicked, triggers code execution.
 **Learning:** `escapeHtml` only escapes HTML characters (e.g. `<`, `>`, `"`, `'`) but does not neutralize malicious URI schemes. Furthermore, when dealing with federated networks, `data:` URIs might be legitimately used for cover images and should be conditionally allowed while blocking `javascript:`/`vbscript:`. The use of `new URL()` with a base domain correctly normalizes and validates the protocol.
 **Prevention:** Always implement a strict URL sanitization function (e.g. `sanitizeUrl(urlStr, allowData = false)`) that blocks potentially dangerous protocols (`javascript:`, `vbscript:`) before passing values to `escapeHtml` or rendering them in the DOM.
+
+## 2024-05-24 - Fix DOM XSS in profile.html innerHTML
+**Vulnerability:** DOM XSS was possible via unescaped variables `artistDisplayName`, `targetUser`, `domain`, and `avatarUrl` injected directly into `innerHTML` strings.
+**Learning:** Data from external endpoints, even if somewhat trusted (like our own node federation API), must be treated as untrusted and HTML escaped before interpolation into DOM strings to prevent execution of injected malicious payloads.
+**Prevention:** Always use `escapeHtml` (or equivalent safe manipulation) for all dynamic values concatenated into `innerHTML`. Validate data: URIs and block javascript: or vbscript: schemas.
