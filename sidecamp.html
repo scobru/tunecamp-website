@@ -163,35 +163,43 @@
                 const tabData = {
                     search: {
                         img: 'screenshots/sidecamp-ingestion.png',
-                        caption: '<strong>Search:</strong> Search across Soulseek, SoundCloud, Bandcamp, Torrent, the TuneCamp network, and Internet Archive — all from one bar, all platforms at once or one at a time.'
+                        title: 'Search:',
+                        text: ' Search across Soulseek, SoundCloud, Bandcamp, Torrent, the TuneCamp network, and Internet Archive — all from one bar, all platforms at once or one at a time.'
                     },
                     network: {
                         img: 'screenshots/sidecamp-network.png',
-                        caption: '<strong>Network Explorer:</strong> Browse connected peers and the TuneCamp server catalog. View shared track libraries from other nodes and download tracks on-demand with a single click.'
+                        title: 'Network Explorer:',
+                        text: ' Browse connected peers and the TuneCamp server catalog. View shared track libraries from other nodes and download tracks on-demand with a single click.'
                     },
                     library: {
                         img: 'screenshots/sidecamp-librabry.png',
-                        caption: '<strong>Local Library:</strong> Browse all your downloaded tracks, analyze BPM/key, organize files into folders, and jump straight into the graph playlist or tag editor.'
+                        title: 'Local Library:',
+                        text: ' Browse all your downloaded tracks, analyze BPM/key, organize files into folders, and jump straight into the graph playlist or tag editor.'
                     },
                     tags: {
                         img: 'screenshots/sidecamp-tags.png',
-                        caption: '<strong>Tag Editor:</strong> Edit ID3 tags (title, artist, album) and rename files directly from the library, in place.'
+                        title: 'Tag Editor:',
+                        text: ' Edit ID3 tags (title, artist, album) and rename files directly from the library, in place.'
                     },
                     graph: {
                         img: 'screenshots/sidecamp-dynamic-graph-playlist.png',
-                        caption: '<strong>Graph Playlist:</strong> Visualize your library as a track graph, auto-linked by BPM/key/genre compatibility. Shift+click to link tracks, Ctrl+click to preview a waveform, and play a path straight through the graph.'
+                        title: 'Graph Playlist:',
+                        text: ' Visualize your library as a track graph, auto-linked by BPM/key/genre compatibility. Shift+click to link tracks, Ctrl+click to preview a waveform, and play a path straight through the graph.'
                     },
                     cues: {
                         img: 'screenshots/sidecamp-cue-points.png',
-                        caption: '<strong>Zoomable Waveform & Cue Points:</strong> Zoom and pan the waveform, snap to the beat grid, and set cue/start points precisely before mixing.'
+                        title: 'Zoomable Waveform & Cue Points:',
+                        text: ' Zoom and pan the waveform, snap to the beat grid, and set cue/start points precisely before mixing.'
                     },
                     hotcues: {
                         img: 'screenshots/sidecamp-loops-beatjump.png',
-                        caption: '<strong>Hot Cues & Loops:</strong> Pitch and filter controls, beat jump, loop rolls (1/2/4/8/16 beats), and four hot cues per track for live performance.'
+                        title: 'Hot Cues & Loops:',
+                        text: ' Pitch and filter controls, beat jump, loop rolls (1/2/4/8/16 beats), and four hot cues per track for live performance.'
                     },
                     transitions: {
                         img: 'screenshots/sidecamp-beatmatch-transitions.png',
-                        caption: '<strong>EQ-Based Transitions:</strong> Preview beat-synced crossfades with adjustable fade length and EQ transition presets (bass-swap, echo-out), against a list of BPM/key/genre-compatible tracks.'
+                        title: 'EQ-Based Transitions:',
+                        text: ' Preview beat-synced crossfades with adjustable fade length and EQ transition presets (bass-swap, echo-out), against a list of BPM/key/genre-compatible tracks.'
                     }
                 };
 
@@ -220,7 +228,13 @@
                     }, 150);
 
                     // Update Caption
-                    document.getElementById('showcase-caption').innerHTML = tabData[tabKey].caption;
+                    // 🛡️ Sentinel: Fix DOM XSS by avoiding innerHTML assignment
+                    const captionEl = document.getElementById('showcase-caption');
+                    captionEl.textContent = '';
+                    const strongEl = document.createElement('strong');
+                    strongEl.textContent = tabData[tabKey].title;
+                    captionEl.appendChild(strongEl);
+                    captionEl.appendChild(document.createTextNode(tabData[tabKey].text));
                 }
             </script>
 
