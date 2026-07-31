@@ -588,6 +588,15 @@
             filterTracks();
         }
 
+        window.clearFilters = function() {
+            const inputs = ['searchInput', 'mobileSearchInput', 'artistFilter', 'genreFilter'];
+            inputs.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            filterTracks();
+        };
+
         function filterTracks(isMobile) {
             const desktopInput = document.getElementById('searchInput');
             const mobileInput = document.getElementById('mobileSearchInput');
@@ -622,7 +631,10 @@
         function renderTracks() {
             const grid = document.getElementById('tracksGrid');
             if (filteredTracks.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-12 text-center text-text-muted">No tracks match your search.</div>`;
+                grid.innerHTML = `<div class="col-span-full py-12 text-center text-text-muted flex flex-col items-center gap-3">
+                    <p>No tracks match your search.</p>
+                    <button onclick="clearFilters()" class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm font-medium hover:bg-white/10 transition-colors">Clear Filters</button>
+                </div>`;
                 return;
             }
 
