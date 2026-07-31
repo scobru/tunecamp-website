@@ -173,6 +173,7 @@
     <script src="config.js"></script>
 
     <script type="module">
+        import { setupAudioPlayer } from './js/audio-player-init.js';
         let audio = new Audio();
         let allTracks = [];
         let filteredTracks = [];
@@ -182,7 +183,23 @@
         let isRepeat = false;
 
         loadTracks();
-        initPlayer();
+        setupAudioPlayer({
+            audio,
+            getState: () => ({ isPlaying, isShuffle, isRepeat }),
+            setState: (s) => {
+                if (s.isPlaying !== undefined) isPlaying = s.isPlaying;
+                if (s.isShuffle !== undefined) isShuffle = s.isShuffle;
+                if (s.isRepeat !== undefined) isRepeat = s.isRepeat;
+            },
+            updateProgress,
+            updateDuration,
+            playNext,
+            updatePlayButton,
+            togglePlay,
+            playPrev,
+            onPlayCallback: updateVisuals,
+            onPauseCallback: updateVisuals
+        });
 
         function setStatus(state) {
             const dot = document.getElementById('statusDot');
@@ -200,57 +217,6 @@
                 dot.style.boxShadow = '0 0 10px rgba(239, 68, 68, 0.8)';
                 text.textContent = 'Offline';
             }
-        }
-
-        function initPlayer() {
-            audio.addEventListener('timeupdate', updateProgress);
-            audio.addEventListener('loadedmetadata', updateDuration);
-            audio.addEventListener('ended', () => {
-                if(isRepeat) { audio.currentTime = 0; audio.play(); }
-                else playNext();
-            });
-            audio.addEventListener('play', () => { isPlaying = true; updatePlayButton(); updateVisuals(); });
-            audio.addEventListener('pause', () => { isPlaying = false; updatePlayButton(); updateVisuals(); });
-
-            document.getElementById('playBtn').addEventListener('click', togglePlay);
-            document.getElementById('prevBtn').addEventListener('click', playPrev);
-            document.getElementById('nextBtn').addEventListener('click', playNext);
-
-            document.getElementById('toggleShuffle').addEventListener('click', (e) => {
-                isShuffle = !isShuffle;
-                e.currentTarget.style.color = isShuffle ? 'oklch(65% 0.28 290)' : '';
-            });
-            document.getElementById('toggleRepeat').addEventListener('click', (e) => {
-                isRepeat = !isRepeat;
-                e.currentTarget.style.color = isRepeat ? 'oklch(65% 0.28 290)' : '';
-            });
-
-            const volumeSlider = document.getElementById('volumeSlider');
-            volumeSlider.addEventListener('input', (e) => { audio.volume = e.target.value / 100; });
-            audio.volume = volumeSlider.value / 100;
-
-            document.getElementById('progressBar').addEventListener('click', (e) => {
-                const rect = e.currentTarget.getBoundingClientRect();
-                const percent = (e.clientX - rect.left) / rect.width;
-                if (audio.duration) audio.currentTime = audio.duration * percent;
-            });
-
-            document.addEventListener('keydown', (e) => {
-                if (e.key === ' ' || e.code === 'Space') {
-                    const active = document.activeElement;
-                    if (active) {
-                        const tagName = active.tagName.toLowerCase();
-                        const role = active.getAttribute('role');
-                        if (['input', 'textarea', 'button', 'a', 'select'].includes(tagName) ||
-                            ['button', 'link', 'menuitem', 'tab'].includes(role) ||
-                            active.isContentEditable) {
-                            return;
-                        }
-                    }
-                    e.preventDefault();
-                    togglePlay();
-                }
-            });
         }
 
         async function loadTracks() {
