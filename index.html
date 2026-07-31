@@ -269,6 +269,7 @@
 
     <script src="config.js"></script>
     <script type="module">
+        import { getNextTrackIndex, getPrevTrackIndex, toggleAudioPlayback } from './components/audio-controller.js';
         let audio = new Audio();
         let allTracks = [];
         let filteredTracks = [];
@@ -712,25 +713,20 @@
         }
 
         function togglePlay() {
-            if (currentTrackIndex === -1 && filteredTracks.length > 0) { playTrackIndex(0); return; }
-            if (isPlaying) audio.pause(); else audio.play();
+            toggleAudioPlayback(audio, isPlaying, currentTrackIndex, filteredTracks, playTrackIndex);
         }
         function updatePlayButton() {
             document.getElementById('playIcon').className = isPlaying ? 'fas fa-pause' : 'fas fa-play';
             renderTracks();
         }
         function playNext() {
-            if (filteredTracks.length === 0) return;
-            let next = isShuffle ? Math.floor(Math.random() * filteredTracks.length) : currentTrackIndex + 1;
-            if (next >= filteredTracks.length) next = 0;
-            playTrackIndex(next);
+            const next = getNextTrackIndex(filteredTracks, currentTrackIndex, isShuffle);
+            if (next !== null) playTrackIndex(next);
         }
         function playPrev() {
-            if (filteredTracks.length === 0) return;
-            if (audio.currentTime > 3) { audio.currentTime = 0; return; }
-            let prev = currentTrackIndex - 1;
-            if (prev < 0) prev = filteredTracks.length - 1;
-            playTrackIndex(prev);
+            const prev = getPrevTrackIndex(filteredTracks, currentTrackIndex, audio.currentTime);
+            if (prev === -1) { audio.currentTime = 0; return; }
+            if (prev !== null) playTrackIndex(prev);
         }
         window.shufflePlay = function () {
             isShuffle = true;
