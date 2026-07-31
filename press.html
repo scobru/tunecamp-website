@@ -150,17 +150,23 @@
                 ['09-logo-bw', 'Logo B/W', 'bg-white'],
                 ['10-logo-color', 'Logo color', 'bg-white'],
             ];
+            function escapeHtml(s) {
+                return s ? String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;') : '';
+            }
             function card([file, label, bg], tall) {
+                const eFile = escapeHtml(file);
+                const eLabel = escapeHtml(label);
+                const eBg = escapeHtml(bg);
                 return `<div class="rounded-2xl border border-white/10 bg-white/5 overflow-hidden transition-colors hover:border-primary/50">
-                    <div class="${bg} ${tall ? 'h-40' : 'h-40'} flex items-center justify-center p-6">
-                        <img src="${base}${file}.png" alt="${label}" class="max-h-full max-w-full" loading="lazy" />
+                    <div class="${eBg} ${tall ? 'h-40' : 'h-40'} flex items-center justify-center p-6">
+                        <img src="${base}${eFile}.png" alt="${eLabel}" class="max-h-full max-w-full" loading="lazy" />
                     </div>
                     <div class="p-4 flex items-center justify-between gap-2">
-                        <span class="text-sm font-semibold">${label}</span>
+                        <span class="text-sm font-semibold">${eLabel}</span>
                         <span class="text-xs font-mono shrink-0">
-                            <a href="${base}${file}.svg" download class="text-text-muted hover:text-white transition-colors">SVG</a>
+                            <a href="${base}${eFile}.svg" download class="text-text-muted hover:text-white transition-colors">SVG</a>
                             <span class="text-white/20 mx-1">/</span>
-                            <a href="${base}${file}.png" download class="text-text-muted hover:text-white transition-colors">PNG</a>
+                            <a href="${base}${eFile}.png" download class="text-text-muted hover:text-white transition-colors">PNG</a>
                         </span>
                     </div>
                 </div>`;
