@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="styles.css" />
     <script src="theme.js"></script>
     <script src="config.js"></script>
+    <script src="js/utils/toast.js"></script>
     <script type="module" src="vendor/zen.min.js"></script>
     <script src="components/tc-header.js"></script>
     <style type="text/tailwindcss">
@@ -380,7 +381,7 @@
                                 currentPair = pair;
                                 saveAndShowUser(alias, pair);
                             } else {
-                                alert("Failed to generate identity.");
+                                    showToast("Failed to generate identity.", "error");
                             }
                             submitBtn.innerHTML = originalHtml;
                         }, { seed: alias + ':' + pass });
@@ -388,7 +389,7 @@
                         throw new Error("Zen SEA library not loaded");
                     }
                 } catch(err) {
-                    alert('Auth error: ' + err.message);
+                        showToast('Auth error: ' + err.message, "error");
                     submitBtn.innerHTML = originalHtml;
                 }
             });
@@ -417,13 +418,13 @@
 
             copyPubKeyBtn.addEventListener('click', () => {
                 navigator.clipboard.writeText(currentPubKey.textContent);
-                alert('Zen PubKey copied to clipboard!');
+                showToast('Zen PubKey copied to clipboard!', "success");
             });
 
             // Modal Controls
             linkInstanceModalBtn.addEventListener('click', () => {
                 if (!getActiveIdentity()) {
-                    alert('Please sign in with your identity first.');
+                    showToast('Please sign in with your identity first.', "error");
                     return;
                 }
                 linkModal.classList.remove('hidden');
@@ -442,18 +443,18 @@
                 try {
                     challengeObj = JSON.parse(rawChallenge);
                 } catch (err) {
-                    alert('Challenge JSON non valido');
+                    showToast('Challenge JSON non valido', 'error');
                     return;
                 }
 
                 if (!challengeObj.instanceDomain || !challengeObj.nonce || !challengeObj.username) {
-                    alert('Challenge non valido: campo instanceDomain, username o nonce mancante.');
+                    showToast('Challenge non valido: campo instanceDomain, username o nonce mancante.', 'error');
                     return;
                 }
 
                 // Signing a challenge needs the Zen SEA private key.
                 if (!currentPair?.pub || !currentPair?.priv) {
-                    alert('Devi prima autenticarti con la tua identità Zen SEA.');
+                    showToast('Devi prima autenticarti con la tua identità Zen SEA.', 'error');
                     return;
                 }
 
@@ -479,9 +480,9 @@
                     });
 
                     signedResultBox.classList.remove('hidden');
-                    alert('Challenge firmato con successo! Copia il JSON di seguito e incollalo nella tua istanza TuneCamp.');
+                    showToast('Challenge firmato con successo! Copia il JSON di seguito e incollalo nella tua istanza TuneCamp.', 'success');
                 } catch (err) {
-                    alert('Errore firma: ' + err.message);
+                    showToast('Errore firma: ' + err.message, 'error');
                 } finally {
                     submitBtn.innerHTML = originalHtml;
                     submitBtn.disabled = false;
@@ -491,7 +492,7 @@
             copyGeneratedPassportBtn.addEventListener('click', () => {
                 if (!generatedPassportCache) return;
                 navigator.clipboard.writeText(JSON.stringify(generatedPassportCache, null, 2));
-                alert('JSON copiato negli appunti! Ora incollalo nella tua istanza TuneCamp.');
+                showToast('JSON copiato negli appunti! Ora incollalo nella tua istanza TuneCamp.', 'success');
             });
 
             linkForm.addEventListener('submit', async (e) => {
@@ -502,31 +503,31 @@
                 try {
                     passportObj = JSON.parse(rawJson);
                 } catch(err) {
-                    alert('Invalid Passport JSON Format');
+                    showToast('Invalid Passport JSON Format', 'error');
                     return;
                 }
 
                 if (!passportObj.instanceDomain || !passportObj.passportSignature) {
-                    alert('Invalid Passport: Missing required fields.');
+                    showToast('Invalid Passport: Missing required fields.', 'error');
                     return;
                 }
 
                 const identity = getActiveIdentity();
                 const expectedPubKey = currentPair?.pub || identity?.displayKey;
                 if (!expectedPubKey) {
-                    alert('Please sign in with your identity first.');
+                    showToast('Please sign in with your identity first.', 'error');
                     return;
                 }
 
                 if (passportObj.zenPubKey !== expectedPubKey) {
-                    alert('Security Error: This passport belongs to a different identity!');
+                    showToast('Security Error: This passport belongs to a different identity!', 'error');
                     return;
                 }
 
                 saveLinkedInstance(passportObj);
                 linkModal.classList.add('hidden');
                 linkForm.reset();
-                alert('Istanza collegata con successo!');
+                showToast('Istanza collegata con successo!', 'success');
             });
 
             function saveLinkedInstance(passport) {
