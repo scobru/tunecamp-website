@@ -370,15 +370,22 @@
             filterTracks();
         }
 
+        let filterTimeout;
         function filterTracks() {
-            const q = document.getElementById('searchInput').value.toLowerCase();
-            const a = document.getElementById('artistFilter').value;
-            filteredTracks = allTracks.filter(t => {
-                const mq = !q || t.title.toLowerCase().includes(q) || (t.artistName && t.artistName.toLowerCase().includes(q));
-                const ma = !a || t.artistName === a;
-                return mq && ma;
-            });
-            renderTracks();
+            // ⚡ Bolt Performance Optimization:
+            // Debounce track filtering to prevent rapid full DOM rebuilds via innerHTML replacement.
+            // Regenerating the entire track grid on every keystroke blocks the main thread.
+            clearTimeout(filterTimeout);
+            filterTimeout = setTimeout(() => {
+                const q = document.getElementById('searchInput').value.toLowerCase();
+                const a = document.getElementById('artistFilter').value;
+                filteredTracks = allTracks.filter(t => {
+                    const mq = !q || t.title.toLowerCase().includes(q) || (t.artistName && t.artistName.toLowerCase().includes(q));
+                    const ma = !a || t.artistName === a;
+                    return mq && ma;
+                });
+                renderTracks();
+            }, 300);
         }
 
         function clearSearchFilters() {
