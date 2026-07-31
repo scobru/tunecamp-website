@@ -268,6 +268,7 @@
     </div>
 
     <script src="config.js"></script>
+    <script src="components/network-status.js"></script>
     <script type="module">
         let audio = new Audio();
         let allTracks = [];
@@ -281,13 +282,7 @@
         loadNetwork();
         initPlayer();
 
-        function setStatus(state) {
-            const dot = document.getElementById('statusDot');
-            const text = document.getElementById('statusText');
-            if (state === 'live') { dot.style.background = '#10b981'; text.textContent = 'Network live'; }
-            else if (state === 'connecting') { dot.style.background = '#f59e0b'; text.textContent = 'Connecting…'; }
-            else { dot.style.background = '#ef4444'; text.textContent = 'Offline'; }
-        }
+        function setStatus(state) { window.setNetworkStatus(state); }
 
         function initPlayer() {
             audio.addEventListener('timeupdate', updateProgress);
