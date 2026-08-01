@@ -370,21 +370,41 @@
             filterTracks();
         }
 
+        let filterTimeout;
         function filterTracks() {
-            const q = document.getElementById('searchInput').value.toLowerCase();
-            const a = document.getElementById('artistFilter').value;
-            filteredTracks = allTracks.filter(t => {
-                const mq = !q || t.title.toLowerCase().includes(q) || (t.artistName && t.artistName.toLowerCase().includes(q));
-                const ma = !a || t.artistName === a;
-                return mq && ma;
-            });
-            renderTracks();
+            // ⚡ Bolt Performance Optimization:
+            // Debounce track filtering to prevent rapid full DOM rebuilds via innerHTML replacement.
+            // Regenerating the entire track grid on every keystroke blocks the main thread.
+            clearTimeout(filterTimeout);
+            filterTimeout = setTimeout(() => {
+                const q = document.getElementById('searchInput').value.toLowerCase();
+                const a = document.getElementById('artistFilter').value;
+                filteredTracks = allTracks.filter(t => {
+                    const mq = !q || t.title.toLowerCase().includes(q) || (t.artistName && t.artistName.toLowerCase().includes(q));
+                    const ma = !a || t.artistName === a;
+                    return mq && ma;
+                });
+                renderTracks();
+            }, 300);
         }
+
+        function clearSearchFilters() {
+            const searchInput = document.getElementById('searchInput');
+            const artistFilter = document.getElementById('artistFilter');
+            if (searchInput) searchInput.value = '';
+            if (artistFilter) artistFilter.value = '';
+            filterTracks();
+        }
+        window.clearSearchFilters = clearSearchFilters;
 
         function renderTracks() {
             const container = document.getElementById('tracksContainer');
             if (filteredTracks.length === 0) {
-                container.innerHTML = `<div class="p-8 text-center text-text-muted">No tracks match your search.</div>`;
+                container.innerHTML = `<div class="p-8 flex flex-col items-center justify-center text-center h-full">
+                    <i class="fas fa-search text-4xl text-white/20 mb-4"></i>
+                    <p class="text-text-muted mb-4">No tracks match your search.</p>
+                    <button onclick="clearSearchFilters()" class="bg-white/5 hover:bg-white/10 border border-white/10 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none">Clear Filters</button>
+                </div>`;
                 return;
             }
 
@@ -394,7 +414,7 @@
             // and reducing network congestion during initial directory load.
             container.innerHTML = filteredTracks.map((t, i) => {
                 const active = currentTrackIndex === i;
-                const cover = t.coverUrl ? `<img src="${escapeHtml(t.coverUrl)}" class="w-full h-full object-cover" loading="lazy">` : '<i class="fas fa-music text-xs"></i>';
+                const cover = t.coverUrl ? `<img src="${escapeHtml(sanitizeUrl(t.coverUrl, true))}" class="w-full h-full object-cover" loading="lazy">` : '<i class="fas fa-music text-xs"></i>';
                 const time = t.duration ? `${Math.floor(t.duration/60)}:${Math.floor(t.duration%60).toString().padStart(2,'0')}` : '';
                 const escapedTitle = escapeHtml(t.title);
                 const escapedArtist = escapeHtml(t.artistName);
@@ -430,7 +450,7 @@
             
             // Update UI
              // ⚡ Bolt: Added native lazy loading to dynamically injected grid images to prevent network bottleneck
-            const coverHtml = track.coverUrl ? `<img src="${escapeHtml(track.coverUrl)}" class="w-full h-full object-cover shadow-2xl" loading="lazy">` : '<i class="fas fa-music"></i>';
+            const coverHtml = track.coverUrl ? `<img src="${escapeHtml(sanitizeUrl(track.coverUrl, true))}" class="w-full h-full object-cover shadow-2xl" loading="lazy">` : '<i class="fas fa-music"></i>';
             document.getElementById('playerCover').innerHTML = coverHtml;
             document.getElementById('miniCover').innerHTML = coverHtml;
             document.getElementById('playerTitle').textContent = track.title;
@@ -506,6 +526,17 @@
             return `${m}:${se.toString().padStart(2,'0')}`;
         }
         function escapeHtml(s) { return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'):''; }
+        function sanitizeUrl(urlStr, allowData = false) {
+            if (!urlStr) return '#';
+            try {
+                const u = new URL(urlStr, window.location.origin);
+                if (['javascript:', 'vbscript:'].includes(u.protocol)) return '#';
+                if (!allowData && u.protocol === 'data:') return '#';
+                return urlStr;
+            } catch (e) {
+                return '#';
+            }
+        }
         
         window.filterTracks = filterTracks;
         window.playTrackIndex = playTrackIndex;
