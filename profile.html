@@ -143,23 +143,28 @@
             <div class="lg:col-span-8 space-y-6">
                 <!-- Linked Instances Card -->
                 <div class="glass-card p-6 space-y-6">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h2 class="font-display text-lg font-bold text-white flex items-center gap-2">
-                                <i class="fa-solid fa-server text-emerald-400"></i> Linked TuneCamp Instances
-                            </h2>
-                            <p class="text-xs text-text-muted">Verified instances linked to your Zen PubKey</p>
-                        </div>
-                        <button id="linkInstanceModalBtn"
-                            class="px-4 py-2 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-2">
-                            <i class="fa-solid fa-plus"></i> Link Instance
-                        </button>
+                    <div>
+                        <h2 class="font-display text-lg font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-server text-emerald-400"></i> Linked TuneCamp Instances
+                        </h2>
+                        <p class="text-xs text-text-muted">Verified instances linked to your Zen PubKey</p>
                     </div>
+
+                    <form id="linkInstanceForm" class="flex flex-col sm:flex-row gap-2">
+                        <input type="text" id="linkInstanceDomainInput" placeholder="es. sudorecords.scobrudot.dev" required
+                            class="flex-1 px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-white text-xs font-mono focus:outline-none focus:border-primary transition-colors" />
+                        <input type="text" id="linkInstanceArtistInput" placeholder="Artist name (opzionale)"
+                            class="sm:w-48 px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-white text-xs font-mono focus:outline-none focus:border-primary transition-colors" />
+                        <button type="submit"
+                            class="px-4 py-2 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Collega
+                        </button>
+                    </form>
 
                     <!-- Instances List -->
                     <div id="instancesList" class="space-y-3">
                         <div class="text-center py-8 text-text-muted text-sm italic">
-                            No instances linked yet. Authenticate above and click "Link Instance" to bind your TuneCamp node accounts.
+                            No instances linked yet. Authenticate above and link an instance to bind your TuneCamp node accounts.
                         </div>
                     </div>
                 </div>
@@ -218,77 +223,6 @@
         </div>
     </main>
 
-    <!-- Modal for Linking Instance -->
-    <div id="linkModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="glass-card max-w-lg w-full p-6 space-y-4 relative border-white/20">
-            <button id="closeModalBtn" class="absolute top-4 right-4 text-text-muted hover:text-white">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-            <h3 class="font-display text-lg font-bold text-white flex items-center gap-2">
-                <i class="fa-solid fa-link text-primary"></i> Link TuneCamp Instance
-            </h3>
-            
-            <!-- Modal Tabs -->
-            <div class="flex border-b border-white/10 text-xs">
-                <button type="button" id="modalTabSignBtn" class="px-4 py-2 border-b-2 border-primary text-primary font-semibold">
-                    <i class="fa-solid fa-file-signature mr-1"></i> 1. Firma Challenge Istanza
-                </button>
-                <button type="button" id="modalTabImportBtn" class="px-4 py-2 border-b-2 border-transparent text-text-muted hover:text-white font-medium">
-                    <i class="fa-solid fa-passport mr-1"></i> 2. Incolla Passaporto JSON
-                </button>
-            </div>
-
-            <!-- Tab Content 1: Sign Challenge -->
-            <div id="modalTabSignContent" class="space-y-4">
-                <p class="text-xs text-text-muted leading-relaxed">
-                    Incolla il <strong>Challenge JSON</strong> copiato dalla tua istanza TuneCamp (Passo 1). Il sito web lo firmerà con la tua chiave privata Zen SEA, che non lascia mai questo browser.
-                </p>
-                <form id="signChallengeForm" class="space-y-3">
-                    <div>
-                        <label class="block text-xs font-medium text-text-muted mb-1">Challenge JSON dell'Istanza</label>
-                        <textarea id="challengeJsonInput" required rows="3" placeholder='{"instanceDomain": "...", "username": "...", "nonce": "..."}'
-                            class="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-white font-mono text-xs focus:outline-none focus:border-primary resize-none"></textarea>
-                    </div>
-                    <button type="submit"
-                        class="w-full py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-key"></i> Firma Challenge
-                    </button>
-                </form>
-
-                <div id="signedResultBox" class="hidden p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg space-y-2 text-xs">
-                    <div class="text-emerald-400 font-semibold flex items-center gap-1.5">
-                        <i class="fa-solid fa-circle-check"></i> Firma Generata!
-                    </div>
-                    <p class="text-text-muted text-[11px]">
-                        Ora copia questo JSON ({ zenPubKey, seaSignature }) e incollalo nella tua istanza TuneCamp (Passo 2) per attivare la connessione.
-                    </p>
-                    <button type="button" id="copyGeneratedPassportBtn"
-                        class="w-full py-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1.5">
-                        <i class="fa-regular fa-copy"></i> Copia JSON per l'Istanza
-                    </button>
-                </div>
-            </div>
-
-            <!-- Tab Content 2: Import Passport -->
-            <div id="modalTabImportContent" class="hidden space-y-4">
-                <p class="text-xs text-text-muted leading-relaxed">
-                    Incolla qui direttamente il <strong>Passaporto JSON</strong> rilasciato dalla tua istanza TuneCamp.
-                </p>
-                <form id="linkForm" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-medium text-text-muted mb-1">Passaporto JSON</label>
-                        <textarea id="passportJsonInput" required rows="4" placeholder='{"instanceDomain": "...", "localUsername": "...", "passportSignature": "..."}'
-                            class="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-white font-mono text-xs focus:outline-none focus:border-primary resize-none"></textarea>
-                    </div>
-                    <button type="submit"
-                        class="w-full py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded-lg transition-colors">
-                        Verifica e Collega Nodo
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <!-- Script Logic -->
     <script type="module">
         import Zen from './vendor/zen.min.js';
@@ -310,21 +244,10 @@
             const currentPubKey = document.getElementById('currentPubKey');
             const logoutBtn = document.getElementById('logoutBtn');
             const copyPubKeyBtn = document.getElementById('copyPubKeyBtn');
-            const linkModal = document.getElementById('linkModal');
-            const linkInstanceModalBtn = document.getElementById('linkInstanceModalBtn');
-            const closeModalBtn = document.getElementById('closeModalBtn');
-            const linkForm = document.getElementById('linkForm');
-            const signChallengeForm = document.getElementById('signChallengeForm');
-            const challengeJsonInput = document.getElementById('challengeJsonInput');
-            const signedResultBox = document.getElementById('signedResultBox');
-            const copyGeneratedPassportBtn = document.getElementById('copyGeneratedPassportBtn');
-            const modalTabSignBtn = document.getElementById('modalTabSignBtn');
-            const modalTabImportBtn = document.getElementById('modalTabImportBtn');
-            const modalTabSignContent = document.getElementById('modalTabSignContent');
-            const modalTabImportContent = document.getElementById('modalTabImportContent');
             const instancesList = document.getElementById('instancesList');
-
-            let generatedPassportCache = null;
+            const linkInstanceForm = document.getElementById('linkInstanceForm');
+            const linkInstanceDomainInput = document.getElementById('linkInstanceDomainInput');
+            const linkInstanceArtistInput = document.getElementById('linkInstanceArtistInput');
 
             // Real Zen SEA signature over `data`, verifiable by anyone holding the matching pub key
             function zenSign(data, priv) {
@@ -335,21 +258,6 @@
                     });
                 });
             }
-
-            // Modal Tab Switchers
-            modalTabSignBtn.addEventListener('click', () => {
-                modalTabSignBtn.className = "px-4 py-2 border-b-2 border-primary text-primary font-semibold";
-                modalTabImportBtn.className = "px-4 py-2 border-b-2 border-transparent text-text-muted hover:text-white font-medium";
-                modalTabSignContent.classList.remove('hidden');
-                modalTabImportContent.classList.add('hidden');
-            });
-
-            modalTabImportBtn.addEventListener('click', () => {
-                modalTabImportBtn.className = "px-4 py-2 border-b-2 border-primary text-primary font-semibold";
-                modalTabSignBtn.className = "px-4 py-2 border-b-2 border-transparent text-text-muted hover:text-white font-medium";
-                modalTabImportContent.classList.remove('hidden');
-                modalTabSignContent.classList.add('hidden');
-            });
 
             // Load saved session or check Zen session
             const savedSession = localStorage.getItem('tunecamp_zen_user');
@@ -420,113 +328,105 @@
                 alert('Zen PubKey copied to clipboard!');
             });
 
-            // Modal Controls
-            linkInstanceModalBtn.addEventListener('click', () => {
-                if (!getActiveIdentity()) {
-                    alert('Please sign in with your identity first.');
-                    return;
-                }
-                linkModal.classList.remove('hidden');
-            });
-
-            closeModalBtn.addEventListener('click', () => {
-                linkModal.classList.add('hidden');
-            });
-
-            // Sign Challenge Flow
-            signChallengeForm.addEventListener('submit', async (e) => {
+            // Link Instance Flow
+            linkInstanceForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const rawChallenge = challengeJsonInput.value.trim();
-                let challengeObj = null;
+                const instanceDomain = linkInstanceDomainInput.value.trim();
+                const artistName = linkInstanceArtistInput.value.trim();
 
-                try {
-                    challengeObj = JSON.parse(rawChallenge);
-                } catch (err) {
-                    alert('Challenge JSON non valido');
-                    return;
-                }
-
-                if (!challengeObj.instanceDomain || !challengeObj.nonce || !challengeObj.username) {
-                    alert('Challenge non valido: campo instanceDomain, username o nonce mancante.');
-                    return;
-                }
-
-                // Signing a challenge needs the Zen SEA private key.
-                if (!currentPair?.pub || !currentPair?.priv) {
-                    alert('Devi prima autenticarti con la tua identità Zen SEA.');
-                    return;
-                }
-
-                const submitBtn = signChallengeForm.querySelector('button[type="submit"]');
-                const originalHtml = submitBtn.innerHTML;
-                submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i>Signing...';
-                submitBtn.disabled = true;
-
-                try {
-                    // The instance verifies the signature over `${username}:${nonce}` using the
-                    // username it resolved server-side (may be an alias), so sign what it sent
-                    // back, not currentAlias.
-                    const seaSignature = await zenSign(`${challengeObj.username}:${challengeObj.nonce}`, currentPair.priv);
-
-                    const result = { zenPubKey: currentPair.pub, seaSignature };
-                    generatedPassportCache = result;
-                    saveLinkedInstance({
-                        instanceDomain: challengeObj.instanceDomain,
-                        localUsername: challengeObj.username,
-                        zenPubKey: currentPair.pub,
-                        seaSignature,
-                        signedAt: Date.now()
-                    });
-
-                    signedResultBox.classList.remove('hidden');
-                    alert('Challenge firmato con successo! Copia il JSON di seguito e incollalo nella tua istanza TuneCamp.');
-                } catch (err) {
-                    alert('Errore firma: ' + err.message);
-                } finally {
-                    submitBtn.innerHTML = originalHtml;
-                    submitBtn.disabled = false;
-                }
-            });
-
-            copyGeneratedPassportBtn.addEventListener('click', () => {
-                if (!generatedPassportCache) return;
-                navigator.clipboard.writeText(JSON.stringify(generatedPassportCache, null, 2));
-                alert('JSON copiato negli appunti! Ora incollalo nella tua istanza TuneCamp.');
-            });
-
-            linkForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const rawJson = document.getElementById('passportJsonInput').value.trim();
-                
-                let passportObj = null;
-                try {
-                    passportObj = JSON.parse(rawJson);
-                } catch(err) {
-                    alert('Invalid Passport JSON Format');
-                    return;
-                }
-
-                if (!passportObj.instanceDomain || !passportObj.passportSignature) {
-                    alert('Invalid Passport: Missing required fields.');
+                if (!instanceDomain) {
+                    alert('Inserisci il dominio dell\'istanza (es. sudorecords.scobrudot.dev)');
                     return;
                 }
 
                 const identity = getActiveIdentity();
-                const expectedPubKey = currentPair?.pub || identity?.displayKey;
-                if (!expectedPubKey) {
-                    alert('Please sign in with your identity first.');
+                const privKey = currentPair?.priv || identity?.pair?.priv;
+                const pubKey = currentPair?.pub || identity?.pair?.pub;
+                const alias = (currentAlias?.textContent?.replace('@', '') || identity?.alias || 'anonymous').toLowerCase();
+
+                if (!privKey || alias === 'anonymous') {
+                    alert('Devi prima autenticarti con Zen SEA.');
                     return;
                 }
 
-                if (passportObj.zenPubKey !== expectedPubKey) {
-                    alert('Security Error: This passport belongs to a different identity!');
-                    return;
-                }
+                const submitBtn = linkInstanceForm.querySelector('button[type="submit"]');
+                const originalHtml = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i>Linking...';
+                submitBtn.disabled = true;
 
-                saveLinkedInstance(passportObj);
-                linkModal.classList.add('hidden');
-                linkForm.reset();
-                alert('Istanza collegata con successo!');
+                try {
+                    // Step 1: fetch challenge from instance
+                    const challengeRes = await fetch(
+                        `https://${instanceDomain}/api/auth/zen/challenge?zenPubKey=${encodeURIComponent(pubKey)}`
+                    );
+                    if (!challengeRes.ok) {
+                        const err = await challengeRes.json().catch(() => ({ error: 'Unknown error' }));
+                        throw new Error(err.error || `HTTP ${challengeRes.status}`);
+                    }
+                    const { challenge } = await challengeRes.json();
+                    if (!challenge?.nonce) throw new Error('L\'istanza non ha restituito alcun challenge');
+
+                    // Step 2: sign challenge
+                    const signature = await zenSign(`${challenge.username}:${challenge.nonce}`, privKey);
+
+                    // Step 3: submit signed challenge to get passport
+                    const response = await fetch(`https://${instanceDomain}/api/auth/zen/link`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            zenPubKey: pubKey,
+                            challenge,
+                            seaSignature: signature
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const err = await response.json().catch(() => ({ error: 'Unknown error' }));
+                        throw new Error(err.error || `HTTP ${response.status}`);
+                    }
+                    const data = await response.json();
+                    if (!data.success || !data.passport) {
+                        throw new Error('Risposta non valida dall\'istanza');
+                    }
+
+                    // Step 4: save to registry
+                    const entry = {
+                        instanceDomain,
+                        localUsername: data.passport.localUsername,
+                        artistName: artistName || data.passport.localUsername || 'Unknown',
+                        artistSlug: (artistName || data.passport.localUsername || '').toLowerCase().replace(/\s+/g, '-'),
+                        publicKey: pubKey,
+                        passportSignature: data.passport.passportSignature,
+                        publicDataEndpoint: data.passport.publicDataEndpoint,
+                        linkedAt: new Date().toISOString(),
+                        verified: 1
+                    };
+
+                    const registry = JSON.parse(localStorage.getItem('fid_registry') || '[]');
+                    const existingIndex = registry.findIndex(e => e.instanceDomain === instanceDomain);
+                    if (existingIndex >= 0) {
+                        registry[existingIndex] = entry;
+                    } else {
+                        registry.push(entry);
+                    }
+                    localStorage.setItem('fid_registry', JSON.stringify(registry));
+
+                    // Sync to Zen relay if authenticated
+                    if (zen && currentPair) {
+                        const safeId = instanceDomain.replace(/[^a-z0-9]/gi, '_');
+                        zen.get('~' + currentPair.pub).get('instances').get(safeId).put(entry, null, { authenticator: currentPair });
+                    }
+
+                    linkInstanceDomainInput.value = '';
+                    linkInstanceArtistInput.value = '';
+                    alert('Istanza ${instanceDomain} collegata!');
+                    loadLinkedInstances(alias);
+                } catch (err) {
+                    alert('Collegamento fallito: ' + err.message);
+                } finally {
+                    submitBtn.innerHTML = originalHtml;
+                    submitBtn.disabled = false;
+                }
             });
 
             function saveLinkedInstance(passport) {
