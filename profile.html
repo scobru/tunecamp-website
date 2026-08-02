@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Global Identity — TuneCamp</title>
     <link rel="icon" type="image/svg+xml" href="tunecamp.svg" />
-    <meta name="description" content="Manage your self-sovereign global TuneCamp identity and linked federated instances using Zen SEA." />
+    <meta name="description"
+        content="Manage your self-sovereign global TuneCamp identity and linked federated instances using Zen SEA." />
     <link rel="stylesheet" href="fonts/fonts.css" />
     <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css" />
     <script src="vendor/tailwind.js"></script>
@@ -38,6 +39,7 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 1rem;
         }
+
         .badge-verified {
             background: rgba(16, 185, 129, 0.15);
             border: 1px solid rgba(16, 185, 129, 0.3);
@@ -54,7 +56,9 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 w-full space-y-8">
         <!-- Header Banner -->
         <div class="glass-card p-8 relative overflow-hidden">
-            <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div
+                class="absolute -right-10 -bottom-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none">
+            </div>
             <div class="max-w-2xl relative z-10 space-y-3">
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full badge-verified text-xs font-semibold">
                     <i class="fa-solid fa-circle-nodes"></i> P2P Graph Auth via FID (Fediverse-ID)
@@ -63,10 +67,15 @@
                     Self-Sovereign Identity
                 </h1>
                 <p class="text-text-muted text-sm sm:text-base leading-relaxed">
-                    Unify your profiles across independent TuneCamp instances. Your keys, your identity — powered by FID (Fediverse-ID) and zero-knowledge cryptographic proof.
+                    Unify your profiles across independent TuneCamp instances. Your keys, your identity — powered by FID
+                    (Fediverse-ID) and zero-knowledge cryptographic proof.
                 </p>
                 <p class="text-text-muted text-xs sm:text-sm leading-relaxed">
-                    FID is an open, self-sovereign SSO protocol: one Zen SEA keypair logs you into any FID-enabled instance, no passwords or central server. <a href="https://github.com/scobru/fid" target="_blank" rel="noopener" class="text-primary hover:underline">Repo</a> · <a href="https://fid-portal.vercel.app" target="_blank" rel="noopener" class="text-primary hover:underline">Reference portal</a>
+                    FID is an open, self-sovereign SSO protocol: one Zen SEA keypair logs you into any FID-enabled
+                    instance, no passwords or central server. <a href="https://github.com/scobru/fid" target="_blank"
+                        rel="noopener" class="text-primary hover:underline">Repo</a> · <a
+                        href="https://fid-portal.vercel.app" target="_blank" rel="noopener"
+                        class="text-primary hover:underline">Reference portal</a>
                 </p>
             </div>
         </div>
@@ -84,30 +93,30 @@
                     <!-- Zen SEA Pane -->
                     <div id="zenAuthPane" role="tabpanel">
                         <form id="loginForm" class="space-y-4">
-                        <div class="space-y-1">
-                            <label class="block text-xs font-medium text-text-muted mb-1">TuneCamp Alias</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-text-muted">
-                                    @
-                                </span>
-                                <input type="text" id="aliasInput" required autocomplete="username"
-                                    class="w-full pl-8 pr-3 py-2 bg-black/40 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-primary transition-colors"
-                                    placeholder="username" />
+                            <div class="space-y-1">
+                                <label class="block text-xs font-medium text-text-muted mb-1">TuneCamp Alias</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-text-muted">
+                                        @
+                                    </span>
+                                    <input type="text" id="aliasInput" required autocomplete="username"
+                                        class="w-full pl-8 pr-3 py-2 bg-black/40 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-primary transition-colors"
+                                        placeholder="username" />
+                                </div>
                             </div>
-                        </div>
-                        <div class="space-y-1">
-                            <label class="block text-xs font-medium text-text-muted mb-1">Passphrase</label>
-                            <input type="password" id="passphraseInput" required autocomplete="current-password"
-                                placeholder="••••••••••••"
-                                class="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-primary transition-colors" />
-                        </div>
-                        <div class="flex gap-2">
-                            <button type="submit" id="loginBtn"
-                                class="flex-1 py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded-lg transition-colors">
-                                Sign In / Register
-                            </button>
-                        </div>
-                    </form>
+                            <div class="space-y-1">
+                                <label class="block text-xs font-medium text-text-muted mb-1">Passphrase</label>
+                                <input type="password" id="passphraseInput" required autocomplete="current-password"
+                                    placeholder="••••••••••••"
+                                    class="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-primary transition-colors" />
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="submit" id="loginBtn"
+                                    class="flex-1 py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded-lg transition-colors">
+                                    Sign In / Register
+                                </button>
+                            </div>
+                        </form>
                     </div>
 
                 </div>
@@ -117,109 +126,119 @@
             <div class="lg:col-span-8 space-y-6">
 
 
-                    <div id="loggedInView" class="hidden space-y-4">
-                        <div class="p-3 bg-white/5 border border-white/10 rounded-lg space-y-2">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs text-text-muted">Authenticated as</span>
-                                <span id="currentAlias" class="text-sm font-bold text-primary"></span>
-                            </div>
-                            <div class="text-[10px] font-mono text-text-muted break-all bg-black/40 p-2 rounded border border-white/5" id="currentPubKey">
-                            </div>
+                <div id="loggedInView" class="hidden space-y-4">
+                    <div class="p-3 bg-white/5 border border-white/10 rounded-lg space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-text-muted">Authenticated as</span>
+                            <span id="currentAlias" class="text-sm font-bold text-primary"></span>
                         </div>
+                        <div class="text-[10px] font-mono text-text-muted break-all bg-black/40 p-2 rounded border border-white/5"
+                            id="currentPubKey">
+                        </div>
+                    </div>
 
-                        <div class="flex flex-col gap-2">
-                            <button id="copyPubKeyBtn" class="w-full py-2 bg-white/10 hover:bg-white/15 text-xs text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
-                                <i class="fa-regular fa-copy"></i> Copy Public Key
-                            </button>
-                            <button id="logoutBtn" class="w-full py-2 bg-rose-500/10 hover:bg-rose-500/20 text-xs text-rose-400 font-medium rounded-lg transition-colors">
-                                Disconnect Session
-                            </button>
-                        </div>
+                    <div class="flex flex-col gap-2">
+                        <button id="copyPubKeyBtn"
+                            class="w-full py-2 bg-white/10 hover:bg-white/15 text-xs text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+                            <i class="fa-regular fa-copy"></i> Copy Public Key
+                        </button>
+                        <button id="logoutBtn"
+                            class="w-full py-2 bg-rose-500/10 hover:bg-rose-500/20 text-xs text-rose-400 font-medium rounded-lg transition-colors">
+                            Disconnect Session
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Linked Instances & Public Activity -->
+        <div class="lg:col-span-8 space-y-6">
+            <!-- Linked Instances Card -->
+            <div class="glass-card p-6 space-y-6">
+                <div>
+                    <h2 class="font-display text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-server text-emerald-400"></i> Linked TuneCamp Instances
+                    </h2>
+                    <p class="text-xs text-text-muted">Verified instances linked to your Zen PubKey</p>
+                </div>
+
+                <form id="linkInstanceForm" class="flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="linkInstanceDomainInput" placeholder="es. sudorecords.scobrudot.dev" required
+                        class="flex-1 px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-white text-xs font-mono focus:outline-none focus:border-primary transition-colors" />
+                    <input type="text" id="linkInstanceArtistInput" placeholder="Artist name (opzionale)"
+                        class="sm:w-48 px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-white text-xs font-mono focus:outline-none focus:border-primary transition-colors" />
+                    <button type="submit"
+                        class="px-4 py-2 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-plus"></i> Collega
+                    </button>
+                </form>
+
+                <!-- Instances List -->
+                <div id="instancesList" class="space-y-3">
+                    <div class="text-center py-8 text-text-muted text-sm italic">
+                        No instances linked yet. Authenticate above and link an instance to bind your TuneCamp node
+                        accounts.
                     </div>
                 </div>
             </div>
 
-            <!-- Right Column: Linked Instances & Public Activity -->
-            <div class="lg:col-span-8 space-y-6">
-                <!-- Linked Instances Card -->
-                <div class="glass-card p-6 space-y-6">
+            <!-- Aggregated Public Catalog & Activity -->
+            <div class="glass-card p-6 space-y-6">
+                <div
+                    class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
                     <div>
                         <h2 class="font-display text-lg font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-server text-emerald-400"></i> Linked TuneCamp Instances
+                            <i class="fa-solid fa-layer-group text-amber-400"></i> Unified Activity & Catalog
                         </h2>
-                        <p class="text-xs text-text-muted">Verified instances linked to your Zen PubKey</p>
+                        <p class="text-xs text-text-muted">Public releases, starred favorites, and playlists aggregated
+                            across your linked TuneCamp nodes</p>
                     </div>
-
-                    <form id="linkInstanceForm" class="flex flex-col sm:flex-row gap-2">
-                        <input type="text" id="linkInstanceDomainInput" placeholder="es. sudorecords.scobrudot.dev" required
-                            class="flex-1 px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-white text-xs font-mono focus:outline-none focus:border-primary transition-colors" />
-                        <input type="text" id="linkInstanceArtistInput" placeholder="Artist name (opzionale)"
-                            class="sm:w-48 px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-white text-xs font-mono focus:outline-none focus:border-primary transition-colors" />
-                        <button type="submit"
-                            class="px-4 py-2 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-plus"></i> Collega
+                    <!-- Section Tabs -->
+                    <div class="flex items-center gap-2 bg-black/40 p-1 rounded-lg border border-white/10 text-xs">
+                        <button type="button" id="tabReleasesBtn" onclick="switchProfileTab('releases')"
+                            class="px-3 py-1.5 rounded-md font-medium text-white bg-primary transition-colors">
+                            <i class="fa-solid fa-compact-disc"></i> Releases (<span id="releasesCount">0</span>)
                         </button>
-                    </form>
+                        <button type="button" id="tabLikesBtn" onclick="switchProfileTab('likes')"
+                            class="px-3 py-1.5 rounded-md font-medium text-text-muted hover:text-white transition-colors">
+                            <i class="fa-solid fa-heart text-rose-400"></i> Favorites (<span id="likesCount">0</span>)
+                        </button>
+                        <button type="button" id="tabPlaylistsBtn" onclick="switchProfileTab('playlists')"
+                            class="px-3 py-1.5 rounded-md font-medium text-text-muted hover:text-white transition-colors">
+                            <i class="fa-solid fa-list-music text-purple-400"></i> Playlists (<span
+                                id="playlistsCount">0</span>)
+                        </button>
+                    </div>
+                </div>
 
-                    <!-- Instances List -->
-                    <div id="instancesList" class="space-y-3">
-                        <div class="text-center py-8 text-text-muted text-sm italic">
-                            No instances linked yet. Authenticate above and link an instance to bind your TuneCamp node accounts.
+                <!-- Tab Content: Releases -->
+                <div id="tabReleasesContent">
+                    <div id="publicReleasesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">
+                            Connect your accounts to view aggregated public releases across the network.
                         </div>
                     </div>
                 </div>
 
-                <!-- Aggregated Public Catalog & Activity -->
-                <div class="glass-card p-6 space-y-6">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
-                        <div>
-                            <h2 class="font-display text-lg font-bold text-white flex items-center gap-2">
-                                <i class="fa-solid fa-layer-group text-amber-400"></i> Unified Activity & Catalog
-                            </h2>
-                            <p class="text-xs text-text-muted">Public releases, starred favorites, and playlists aggregated across your linked TuneCamp nodes</p>
-                        </div>
-                        <!-- Section Tabs -->
-                        <div class="flex items-center gap-2 bg-black/40 p-1 rounded-lg border border-white/10 text-xs">
-                            <button type="button" id="tabReleasesBtn" onclick="switchProfileTab('releases')" class="px-3 py-1.5 rounded-md font-medium text-white bg-primary transition-colors">
-                                <i class="fa-solid fa-compact-disc"></i> Releases (<span id="releasesCount">0</span>)
-                            </button>
-                            <button type="button" id="tabLikesBtn" onclick="switchProfileTab('likes')" class="px-3 py-1.5 rounded-md font-medium text-text-muted hover:text-white transition-colors">
-                                <i class="fa-solid fa-heart text-rose-400"></i> Favorites (<span id="likesCount">0</span>)
-                            </button>
-                            <button type="button" id="tabPlaylistsBtn" onclick="switchProfileTab('playlists')" class="px-3 py-1.5 rounded-md font-medium text-text-muted hover:text-white transition-colors">
-                                <i class="fa-solid fa-list-music text-purple-400"></i> Playlists (<span id="playlistsCount">0</span>)
-                            </button>
+                <!-- Tab Content: Starred Favorites -->
+                <div id="tabLikesContent" class="hidden">
+                    <div id="publicLikesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">
+                            No starred favorites aggregated yet.
                         </div>
                     </div>
+                </div>
 
-                    <!-- Tab Content: Releases -->
-                    <div id="tabReleasesContent">
-                        <div id="publicReleasesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">
-                                Connect your accounts to view aggregated public releases across the network.
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tab Content: Starred Favorites -->
-                    <div id="tabLikesContent" class="hidden">
-                        <div id="publicLikesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">
-                                No starred favorites aggregated yet.
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tab Content: Playlists -->
-                    <div id="tabPlaylistsContent" class="hidden">
-                        <div id="publicPlaylistsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">
-                                No public playlists aggregated yet.
-                            </div>
+                <!-- Tab Content: Playlists -->
+                <div id="tabPlaylistsContent" class="hidden">
+                    <div id="publicPlaylistsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">
+                            No public playlists aggregated yet.
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     </main>
 
@@ -267,7 +286,7 @@
 
             function setHtml(el, html) {
                 if (!el) return;
-                el.innerHTML = html;
+                el.textContent = html;
             }
 
             function zenSign(data, priv) {
@@ -288,7 +307,7 @@
                         currentPair = parsed.pair;
                         showLoggedIn(parsed.alias, parsed.pair.pub);
                     }
-                } catch(e){}
+                } catch (e) { }
             }
 
             loginForm.addEventListener('submit', async (e) => {
@@ -306,7 +325,7 @@
                 const span = document.createElement('span');
                 span.textContent = 'Authenticating...';
                 submitBtn.appendChild(span);
-                
+
                 try {
                     if (Zen) {
                         Zen.pair((pair) => {
@@ -327,7 +346,7 @@
                     } else {
                         throw new Error("Zen SEA library not loaded");
                     }
-                } catch(err) {
+                } catch (err) {
                     alert('Auth error: ' + err.message);
                     submitBtn.textContent = '';
                     const icon = document.createElement('i');
@@ -483,12 +502,12 @@
 
             function saveLinkedInstance(passport) {
                 let existing;
-try {
-  existing = JSON.parse(localStorage.getItem('tunecamp_linked_instances') || '[]');
-} catch (e) {
-  console.error('Error parsing linked_instances:', e);
-  existing = []; // fallback to empty array
-}
+                try {
+                    existing = JSON.parse(localStorage.getItem('tunecamp_linked_instances') || '[]');
+                } catch (e) {
+                    console.error('Error parsing linked_instances:', e);
+                    existing = []; // fallback to empty array
+                }
                 const domain = passport.instanceDomain || passport.instanceUrl;
                 const user = passport.localUsername || passport.username || '';
                 const key = `${domain}::${user}`;
@@ -501,7 +520,7 @@ try {
 
                 existing.push(passport);
                 localStorage.setItem('tunecamp_linked_instances', JSON.stringify(existing));
-                
+
                 // Sync to Zen relay if authenticated
                 if (zen && currentPair) {
                     const safeId = key.replace(/[^a-z0-9]/gi, '_');
@@ -512,7 +531,7 @@ try {
                 loadLinkedInstances(activeUser);
             }
 
-            window.unlinkInstance = function(keyToUnlink) {
+            window.unlinkInstance = function (keyToUnlink) {
                 // The panel renders both stores, so unlinking has to reach both — otherwise a
                 // FID registry entry reappears on the next render.
                 const keep = item => {
@@ -546,19 +565,20 @@ try {
                 // this page, and entries the FID portal wrote to fid_registry. Rendering only
                 // one of them made instances linked through the other look lost.
                 let passports;
-try {
-  passports = JSON.parse(localStorage.getItem('tunecamp_linked_instances') || '[]');
-} catch (e) {
-  console.error('Error parsing linked_instances:', e);
-  passports = [];
-}
+                try {
+                    passports = JSON.parse(localStorage.getItem('tunecamp_linked_instances') || '[]');
+                } catch (e) {
+                    console.error('Error parsing linked_instances:', e);
+                    passports = [];
+                }
                 let fidRegistry;
-try {
-  fidRegistry = JSON.parse(localStorage.getItem('fid_registry') || '[]');
-} catch (e) {
-  console.error('Error parsing fid_registry:', e);
-  fidRegistry = [];
-}
+                try {
+                    fidRegistry = JSON.parse(localStorage.getItem('fid_registry') || '[]');
+                } catch (e) {
+                    console.error('Error parsing fid_registry:', e);
+                    fidRegistry = [];
+                }
+                fidRegistry = fidRegistry
                     // Tagged so the Zen sync below writes only real passports back to
                     // tunecamp_linked_instances instead of copying the registry into it.
                     .map(entry => ({ ...entry, __fromFidRegistry: true }));
@@ -654,7 +674,7 @@ try {
                         } else {
                             return;
                         }
-                        
+
                         // Update local cache and UI
                         localStorage.setItem('tunecamp_linked_instances',
                             JSON.stringify(existing.filter(item => !item.__fromFidRegistry)));
@@ -663,7 +683,7 @@ try {
                 }
             }
 
-            window.switchProfileTab = function(tab) {
+            window.switchProfileTab = function (tab) {
                 const releasesBtn = document.getElementById('tabReleasesBtn');
                 const likesBtn = document.getElementById('tabLikesBtn');
                 const playlistsBtn = document.getElementById('tabPlaylistsBtn');
@@ -717,12 +737,12 @@ try {
 
                 for (const inst of instances) {
                     let domain;
-try {
-  domain = inst.instanceDomain || (inst.instanceUrl ? new URL(inst.instanceUrl).hostname : '');
-} catch (e) {
-  console.error('Error parsing domain from instance:', e);
-  domain = null;
-}
+                    try {
+                        domain = inst.instanceDomain || (inst.instanceUrl ? new URL(inst.instanceUrl).hostname : '');
+                    } catch (e) {
+                        console.error('Error parsing domain from instance:', e);
+                        domain = null;
+                    }
                     if (!domain) continue;
 
                     const targetUser = inst.localUsername || inst.username || alias;
@@ -885,98 +905,98 @@ try {
                     }
                 }
             }
-        function getActiveIdentity() {
-            const raw = localStorage.getItem('tunecamp_zen_user');
-            if (!raw) return null;
-            try {
-                const parsed = JSON.parse(raw);
-                return parsed?.alias ? parsed : null;
-            } catch (e) {
-                return null;
-            }
-        }
-
-        // Cross-Instance Unification: pull public data for the FID registry entries.
-        // This used to be a second function also named loadLinkedInstances, declared after the
-        // one that renders the panel. Being a function declaration in the same scope, it won
-        // the binding, so every "instance linked!" refresh ran this one instead: it reads
-        // fid_registry while the link flow writes tunecamp_linked_instances, so a freshly
-        // linked instance was saved and then rendered away as "No instances linked yet".
-        // The panel now has a single renderer (loadLinkedInstances, which merges both stores);
-        // this function only fetches.
-        async function loadFidRegistryData() {
-            let registry;
-try {
-  registry = JSON.parse(localStorage.getItem('fid_registry') || '[]');
-} catch (e) {
-  console.error('Error parsing fid_registry:', e);
-  registry = [];
-};
-
-            for (const entry of registry) {
-                if (entry.verified) {
-                    await fetchInstanceData(entry.instanceDomain);
-                }
-            }
-        }
-
-        async function fetchInstanceData(instanceDomain) {
-            try {
-                const response = await fetch(`https://${instanceDomain}/api/auth/zen/user/${currentAlias}`);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const data = await response.json();
-                if (data.success) {
-                    // Store the data for aggregation
-                    const instanceData = JSON.parse(localStorage.getItem('tunecamp_instance_data') || '{}');
-                    instanceData[instanceDomain] = data;
-                    localStorage.setItem('tunecamp_instance_data', JSON.stringify(instanceData));
-                    renderAggregatedData();
-                }
-            } catch (err) {
-                console.error(`[Profile] Failed to fetch data from ${instanceDomain}:`, err);
-            }
-        }
-
-        function renderAggregatedData() {
-            let instanceData;
-            try {
-                instanceData = JSON.parse(localStorage.getItem('tunecamp_instance_data') || '{}');
-            } catch (e) {
-                console.error('Error parsing instance_data:', e);
-                instanceData = {};
-            }
-            const instances = Object.keys(instanceData);
-
-            // Aggregate releases
-            let allReleases = [];
-            let allLikes = [];
-            let allPlaylists = [];
-
-            for (const domain of instances) {
-                const data = instanceData[domain];
-                if (data.publicReleases) {
-                    allReleases.push(...data.publicReleases.map(r => ({ ...r, instanceDomain: domain })));
-                }
-                if (data.publicLikes) {
-                    allLikes.push(...data.publicLikes.map(l => ({ ...l, instanceDomain: domain })));
-                }
-                if (data.publicPlaylists) {
-                    allPlaylists.push(...data.publicPlaylists.map(p => ({ ...p, instanceDomain: domain })));
+            function getActiveIdentity() {
+                const raw = localStorage.getItem('tunecamp_zen_user');
+                if (!raw) return null;
+                try {
+                    const parsed = JSON.parse(raw);
+                    return parsed?.alias ? parsed : null;
+                } catch (e) {
+                    return null;
                 }
             }
 
-            // Update counts
-            document.getElementById('releasesCount').textContent = allReleases.length;
-            document.getElementById('likesCount').textContent = allLikes.length;
-            document.getElementById('playlistsCount').textContent = allPlaylists.length;
+            // Cross-Instance Unification: pull public data for the FID registry entries.
+            // This used to be a second function also named loadLinkedInstances, declared after the
+            // one that renders the panel. Being a function declaration in the same scope, it won
+            // the binding, so every "instance linked!" refresh ran this one instead: it reads
+            // fid_registry while the link flow writes tunecamp_linked_instances, so a freshly
+            // linked instance was saved and then rendered away as "No instances linked yet".
+            // The panel now has a single renderer (loadLinkedInstances, which merges both stores);
+            // this function only fetches.
+            async function loadFidRegistryData() {
+                let registry;
+                try {
+                    registry = JSON.parse(localStorage.getItem('fid_registry') || '[]');
+                } catch (e) {
+                    console.error('Error parsing fid_registry:', e);
+                    registry = [];
+                };
 
-            // Render releases
-            const releasesGrid = document.getElementById('publicReleasesGrid');
-            if (releasesGrid) {
-                if (allReleases.length === 0) {
-                    setHtml(releasesGrid, '<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No public releases found across linked instances.</div>');
-                } else {
-                    setHtml(releasesGrid, allReleases.slice(0, 12).map(r => `
+                for (const entry of registry) {
+                    if (entry.verified) {
+                        await fetchInstanceData(entry.instanceDomain);
+                    }
+                }
+            }
+
+            async function fetchInstanceData(instanceDomain) {
+                try {
+                    const response = await fetch(`https://${instanceDomain}/api/auth/zen/user/${currentAlias}`);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const data = await response.json();
+                    if (data.success) {
+                        // Store the data for aggregation
+                        const instanceData = JSON.parse(localStorage.getItem('tunecamp_instance_data') || '{}');
+                        instanceData[instanceDomain] = data;
+                        localStorage.setItem('tunecamp_instance_data', JSON.stringify(instanceData));
+                        renderAggregatedData();
+                    }
+                } catch (err) {
+                    console.error(`[Profile] Failed to fetch data from ${instanceDomain}:`, err);
+                }
+            }
+
+            function renderAggregatedData() {
+                let instanceData;
+                try {
+                    instanceData = JSON.parse(localStorage.getItem('tunecamp_instance_data') || '{}');
+                } catch (e) {
+                    console.error('Error parsing instance_data:', e);
+                    instanceData = {};
+                }
+                const instances = Object.keys(instanceData);
+
+                // Aggregate releases
+                let allReleases = [];
+                let allLikes = [];
+                let allPlaylists = [];
+
+                for (const domain of instances) {
+                    const data = instanceData[domain];
+                    if (data.publicReleases) {
+                        allReleases.push(...data.publicReleases.map(r => ({ ...r, instanceDomain: domain })));
+                    }
+                    if (data.publicLikes) {
+                        allLikes.push(...data.publicLikes.map(l => ({ ...l, instanceDomain: domain })));
+                    }
+                    if (data.publicPlaylists) {
+                        allPlaylists.push(...data.publicPlaylists.map(p => ({ ...p, instanceDomain: domain })));
+                    }
+                }
+
+                // Update counts
+                document.getElementById('releasesCount').textContent = allReleases.length;
+                document.getElementById('likesCount').textContent = allLikes.length;
+                document.getElementById('playlistsCount').textContent = allPlaylists.length;
+
+                // Render releases
+                const releasesGrid = document.getElementById('publicReleasesGrid');
+                if (releasesGrid) {
+                    if (allReleases.length === 0) {
+                        setHtml(releasesGrid, '<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No public releases found across linked instances.</div>');
+                    } else {
+                        setHtml(releasesGrid, allReleases.slice(0, 12).map(r => `
                         <a href="https://${r.instanceDomain}/album/${r.slug || r.id}" target="_blank" rel="noopener" class="group glass-card p-4 flex gap-4 hover:border-primary/50 transition-colors">
                             <div class="w-16 h-16 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
                                 ${r.cover_url ? `<img src="${r.cover_url}" alt="${r.title}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-compact-disc text-primary text-xl"></i>`}
@@ -990,16 +1010,16 @@ try {
                             </div>
                         </a>
                     `).join(''));
+                    }
                 }
-            }
 
-            // Render likes
-            const likesGrid = document.getElementById('publicLikesGrid');
-            if (likesGrid) {
-                if (allLikes.length === 0) {
-                    setHtml(likesGrid, '<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No starred favorites aggregated yet.</div>');
-                } else {
-                    setHtml(likesGrid, allLikes.slice(0, 12).map(l => `
+                // Render likes
+                const likesGrid = document.getElementById('publicLikesGrid');
+                if (likesGrid) {
+                    if (allLikes.length === 0) {
+                        setHtml(likesGrid, '<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No starred favorites aggregated yet.</div>');
+                    } else {
+                        setHtml(likesGrid, allLikes.slice(0, 12).map(l => `
                         <div class="glass-card p-4 flex gap-4">
                             <div class="w-16 h-16 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
                                 ${l.album_cover ? `<img src="${l.album_cover}" alt="${l.album_title || l.track_title}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-heart text-rose-400 text-xl"></i>`}
@@ -1013,16 +1033,16 @@ try {
                             </div>
                         </div>
                     `).join(''));
+                    }
                 }
-            }
 
-            // Render playlists
-            const playlistsGrid = document.getElementById('publicPlaylistsGrid');
-            if (playlistsGrid) {
-                if (allPlaylists.length === 0) {
-                    setHtml(playlistsGrid, '<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No public playlists aggregated yet.</div>');
-                } else {
-                    setHtml(playlistsGrid, allPlaylists.slice(0, 12).map(pl => `
+                // Render playlists
+                const playlistsGrid = document.getElementById('publicPlaylistsGrid');
+                if (playlistsGrid) {
+                    if (allPlaylists.length === 0) {
+                        setHtml(playlistsGrid, '<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No public playlists aggregated yet.</div>');
+                    } else {
+                        setHtml(playlistsGrid, allPlaylists.slice(0, 12).map(pl => `
                         <a href="https://${pl.instanceDomain}/playlist/${pl.id}" target="_blank" rel="noopener" class="group glass-card p-4 flex gap-4 hover:border-purple-400/50 transition-colors">
                             <div class="w-16 h-16 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
                                 ${pl.coverUrl ? `<img src="${pl.coverUrl}" alt="${pl.title}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-list-music text-purple-400 text-xl"></i>`}
@@ -1036,24 +1056,25 @@ try {
                             </div>
                         </a>
                     `).join(''));
+                    }
                 }
             }
-        }
 
-        // showLoggedIn already renders the panel via loadLinkedInstances; this only adds the
-        // network fetch for FID registry entries.
-        const originalShowLoggedIn = showLoggedIn;
-        showLoggedIn = function(alias, pubKey) {
-            originalShowLoggedIn(alias, pubKey);
-            loadFidRegistryData();
-        };
+            // showLoggedIn already renders the panel via loadLinkedInstances; this only adds the
+            // network fetch for FID registry entries.
+            const originalShowLoggedIn = showLoggedIn;
+            showLoggedIn = function (alias, pubKey) {
+                originalShowLoggedIn(alias, pubKey);
+                loadFidRegistryData();
+            };
 
-        // Initial load if already logged in
-        if (getActiveIdentity()) {
-            loadFidRegistryData();
-        }
+            // Initial load if already logged in
+            if (getActiveIdentity()) {
+                loadFidRegistryData();
+            }
 
         });
     </script>
 </body>
+
 </html>
