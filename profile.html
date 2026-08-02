@@ -448,7 +448,13 @@
 
                     saveLinkedInstance(entry);
 
-                    const registry = JSON.parse(localStorage.getItem('fid_registry') || '[]');
+                    let registry = [];
+                    try {
+                        registry = JSON.parse(localStorage.getItem('fid_registry') || '[]');
+                    } catch (e) {
+                        console.error('Error parsing fid_registry:', e);
+                        registry = [];
+                    }
                     const existingIndex = registry.findIndex(e => e.instanceDomain === instanceDomain);
                     if (existingIndex >= 0) {
                         registry[existingIndex] = entry;
@@ -476,7 +482,13 @@
             });
 
             function saveLinkedInstance(passport) {
-                let existing = JSON.parse(localStorage.getItem('tunecamp_linked_instances') || '[]');
+                let existing;
+try {
+  existing = JSON.parse(localStorage.getItem('tunecamp_linked_instances') || '[]');
+} catch (e) {
+  console.error('Error parsing linked_instances:', e);
+  existing = []; // fallback to empty array
+}
                 const domain = passport.instanceDomain || passport.instanceUrl;
                 const user = passport.localUsername || passport.username || '';
                 const key = `${domain}::${user}`;
@@ -509,8 +521,14 @@
                     return `${domain}::${user}` !== keyToUnlink && domain !== keyToUnlink;
                 };
                 for (const store of ['tunecamp_linked_instances', 'fid_registry']) {
-                    const kept = JSON.parse(localStorage.getItem(store) || '[]').filter(keep);
-                    localStorage.setItem(store, JSON.stringify(kept));
+                    let kept;
+                    try {
+                        kept = JSON.parse(localStorage.getItem(store) || '[]');
+                    } catch (e) {
+                        console.error('Error parsing stored data:', e);
+                        kept = []; // fallback
+                    }
+                    localStorage.setItem(store, JSON.stringify(kept.filter(keep)));
                 }
 
                 // Sync to Zen relay if authenticated
@@ -527,8 +545,20 @@
                 // Two stores feed this one panel: passports from the "Link Instance" flow on
                 // this page, and entries the FID portal wrote to fid_registry. Rendering only
                 // one of them made instances linked through the other look lost.
-                const passports = JSON.parse(localStorage.getItem('tunecamp_linked_instances') || '[]');
-                const fidRegistry = JSON.parse(localStorage.getItem('fid_registry') || '[]')
+                let passports;
+try {
+  passports = JSON.parse(localStorage.getItem('tunecamp_linked_instances') || '[]');
+} catch (e) {
+  console.error('Error parsing linked_instances:', e);
+  passports = [];
+}
+                let fidRegistry;
+try {
+  fidRegistry = JSON.parse(localStorage.getItem('fid_registry') || '[]');
+} catch (e) {
+  console.error('Error parsing fid_registry:', e);
+  fidRegistry = [];
+}
                     // Tagged so the Zen sync below writes only real passports back to
                     // tunecamp_linked_instances instead of copying the registry into it.
                     .map(entry => ({ ...entry, __fromFidRegistry: true }));
@@ -686,7 +716,13 @@
                 let allPlaylists = [];
 
                 for (const inst of instances) {
-                    const domain = inst.instanceDomain || (inst.instanceUrl ? new URL(inst.instanceUrl).hostname : '');
+                    let domain;
+try {
+  domain = inst.instanceDomain || (inst.instanceUrl ? new URL(inst.instanceUrl).hostname : '');
+} catch (e) {
+  console.error('Error parsing domain from instance:', e);
+  domain = null;
+}
                     if (!domain) continue;
 
                     const targetUser = inst.localUsername || inst.username || alias;
@@ -790,7 +826,7 @@
                         setHtml(relGrid, allReleases.map(rel => `
                             <a href="${escapeHtml(rel.linkUrl)}" target="_blank" rel="noopener" class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4 hover:border-primary/40 hover:bg-white/[0.07] transition-all group">
                                 <div class="w-12 h-12 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
-                                    ${rel.coverUrl ? `<img src="${escapeHtml(rel.coverUrl)}" alt="${escapeHtml(rel.title || '')}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-compact-disc text-amber-400 text-xl"></i>`}
+                                    ${rel.coverUrl ? `<img src="${escapeHtml(rel.coverUrl?.replace(/`/g, '``'))} alt="${escapeHtml(rel.title || '')}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-compact-disc text-amber-400 text-xl"></i>`}
                                 </div>
                                 <div class="min-w-0 flex-1">
                                     <div class="font-bold text-sm text-white truncate group-hover:text-primary transition-colors">${escapeHtml(rel.title || 'Untitled Release')}</div>
@@ -813,7 +849,7 @@
                         setHtml(likesGrid, allLikes.map(lk => `
                             <a href="${escapeHtml(lk.linkUrl)}" target="_blank" rel="noopener" class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4 hover:border-rose-400/40 hover:bg-white/[0.07] transition-all group">
                                 <div class="w-12 h-12 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
-                                    ${lk.coverUrl ? `<img src="${escapeHtml(lk.coverUrl)}" alt="${escapeHtml(lk.title || '')}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-heart text-rose-400 text-xl"></i>`}
+                                    ${lk.coverUrl ? `<img src="${escapeHtml(lk.coverUrl?.replace(/`/g, '``'))} alt="${escapeHtml(lk.title || '')}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-heart text-rose-400 text-xl"></i>`}
                                 </div>
                                 <div class="min-w-0 flex-1">
                                     <div class="font-bold text-sm text-white truncate group-hover:text-rose-400 transition-colors">${escapeHtml(lk.title)}</div>
@@ -835,7 +871,7 @@
                         setHtml(plGrid, allPlaylists.map(pl => `
                             <a href="${escapeHtml(pl.linkUrl)}" target="_blank" rel="noopener" class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4 hover:border-purple-400/40 hover:bg-white/[0.07] transition-all group">
                                 <div class="w-12 h-12 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
-                                    ${pl.coverUrl ? `<img src="${escapeHtml(pl.coverUrl)}" alt="${escapeHtml(pl.title || '')}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-list-music text-purple-400 text-xl"></i>`}
+                                    ${pl.coverUrl ? `<img src="${escapeHtml(pl.coverUrl?.replace(/`/g, '``'))} alt="${escapeHtml(pl.title || '')}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-list-music text-purple-400 text-xl"></i>`}
                                 </div>
                                 <div class="min-w-0 flex-1">
                                     <div class="font-bold text-sm text-white truncate group-hover:text-purple-400 transition-colors">${escapeHtml(pl.title)}</div>
@@ -869,7 +905,13 @@
         // The panel now has a single renderer (loadLinkedInstances, which merges both stores);
         // this function only fetches.
         async function loadFidRegistryData() {
-            const registry = JSON.parse(localStorage.getItem('fid_registry') || '[]');
+            let registry;
+try {
+  registry = JSON.parse(localStorage.getItem('fid_registry') || '[]');
+} catch (e) {
+  console.error('Error parsing fid_registry:', e);
+  registry = [];
+};
 
             for (const entry of registry) {
                 if (entry.verified) {
@@ -896,7 +938,13 @@
         }
 
         function renderAggregatedData() {
-            const instanceData = JSON.parse(localStorage.getItem('tunecamp_instance_data') || '{}');
+            let instanceData;
+            try {
+                instanceData = JSON.parse(localStorage.getItem('tunecamp_instance_data') || '{}');
+            } catch (e) {
+                console.error('Error parsing instance_data:', e);
+                instanceData = {};
+            }
             const instances = Object.keys(instanceData);
 
             // Aggregate releases
