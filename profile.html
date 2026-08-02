@@ -865,7 +865,7 @@
                 if (likesGrid) {
                     if (allLikes.length === 0) {
                         setHtml(likesGrid, `<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No starred favorites found for linked accounts.</div>`);
-                    } else {
+                        } else {
                         setHtml(likesGrid, allLikes.map(lk => `
                             <a href="${escapeHtml(lk.linkUrl)}" target="_blank" rel="noopener" class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4 hover:border-rose-400/40 hover:bg-white/[0.07] transition-all group">
                                 <div class="w-12 h-12 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
