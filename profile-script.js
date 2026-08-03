@@ -1,250 +1,3 @@
-<!doctype html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Global Identity — TuneCamp</title>
-    <link rel="icon" type="image/svg+xml" href="tunecamp.svg" />
-    <meta name="description"
-        content="Manage your self-sovereign global TuneCamp identity and linked federated instances using Zen SEA." />
-    <link rel="stylesheet" href="fonts/fonts.css" />
-    <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css" />
-    <script src="vendor/tailwind.js"></script>
-    <link rel="stylesheet" href="styles.css" />
-    <script src="theme.js"></script>
-    <script src="config.js"></script>
-    <script type="module" src="vendor/zen.min.js"></script>
-    <script src="components/tc-header.js"></script>
-    <style type="text/tailwindcss">
-        @theme {
-        --color-primary: oklch(65% 0.28 290);
-        --color-primary-hover: oklch(75% 0.22 290);
-        --color-bg-base: oklch(10% 0.01 280);
-        --color-bg-surface: oklch(14% 0.01 280);
-        --color-bg-surface-alt: oklch(18% 0.02 280);
-        --color-text-base: oklch(98% 0.005 280);
-        --color-text-muted: oklch(80% 0.02 280);
-        --font-sans: "Inter", sans-serif;
-        --font-display: "Space Grotesk", sans-serif;
-      }
-      body {
-        @apply bg-bg-base text-text-base font-sans antialiased selection:bg-primary/30;
-      }
-    </style>
-    <style>
-        .glass-card {
-            background: rgba(28, 28, 30, 0.7);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 1rem;
-        }
-
-        .badge-verified {
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: #34d399;
-        }
-    </style>
-</head>
-
-<body class="min-h-screen flex flex-col relative pb-24">
-    <!-- Top Nav -->
-    <tc-header active="profile"></tc-header>
-
-    <!-- Main Container -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 w-full space-y-8">
-        <!-- Header Banner -->
-        <div class="glass-card p-8 relative overflow-hidden">
-            <div
-                class="absolute -right-10 -bottom-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none">
-            </div>
-            <div class="max-w-2xl relative z-10 space-y-3">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full badge-verified text-xs font-semibold">
-                    <i class="fa-solid fa-circle-nodes"></i> P2P Graph Auth via FID (Fediverse-ID)
-                </div>
-                <h1 class="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
-                    Self-Sovereign Identity
-                </h1>
-                <p class="text-text-muted text-sm sm:text-base leading-relaxed">
-                    Unify your profiles across independent TuneCamp instances. Your keys, your identity — powered by FID
-                    (Fediverse-ID) and zero-knowledge cryptographic proof.
-                </p>
-                <p class="text-text-muted text-xs sm:text-sm leading-relaxed">
-                    FID is an open, self-sovereign SSO protocol: one Zen SEA keypair logs you into any FID-enabled
-                    instance, no passwords or central server. <a href="https://github.com/scobru/fid" target="_blank"
-                        rel="noopener" class="text-primary hover:underline">Repo</a> · <a
-                        href="https://fid-portal.vercel.app" target="_blank" rel="noopener"
-                        class="text-primary hover:underline">Reference portal</a>
-                </p>
-            </div>
-        </div>
-
-        <!-- Layout Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <!-- Left Column: Zen SEA Login & Key Info -->
-            <div class="lg:col-span-4 space-y-6">
-                <!-- Auth Card -->
-                <div class="glass-card p-6 space-y-5" id="authSection">
-                    <h2 class="font-display text-lg font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-key text-primary"></i> Cryptographic Identity
-                    </h2>
-
-                    <!-- Zen SEA Pane -->
-                    <div id="zenAuthPane" role="tabpanel">
-                        <form id="loginForm" class="space-y-4">
-                            <div class="space-y-1">
-                                <label class="block text-xs font-medium text-text-muted mb-1">TuneCamp Alias</label>
-                                <div class="relative">
-                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-text-muted">
-                                        @
-                                    </span>
-                                    <input type="text" id="aliasInput" required autocomplete="username"
-                                        class="w-full pl-8 pr-3 py-2 bg-black/40 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-primary transition-colors"
-                                        placeholder="username" />
-                                </div>
-                            </div>
-                            <div class="space-y-1">
-                                <label class="block text-xs font-medium text-text-muted mb-1">Passphrase</label>
-                                <input type="password" id="passphraseInput" required autocomplete="current-password"
-                                    placeholder="••••••••••••"
-                                    class="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-primary transition-colors" />
-                            </div>
-                            <div class="flex gap-2">
-                                <button type="submit" id="loginBtn"
-                                    class="flex-1 py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded-lg transition-colors">
-                                    Sign In / Register
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- Right Column: Linked Instances & Public Activity -->
-            <div class="lg:col-span-8 space-y-6">
-
-
-                <div id="loggedInView" class="hidden space-y-4">
-                    <div class="p-3 bg-white/5 border border-white/10 rounded-lg space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs text-text-muted">Authenticated as</span>
-                            <span id="currentAlias" class="text-sm font-bold text-primary"></span>
-                        </div>
-                        <div class="text-[10px] font-mono text-text-muted break-all bg-black/40 p-2 rounded border border-white/5"
-                            id="currentPubKey">
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col gap-2">
-                        <button id="copyPubKeyBtn"
-                            class="w-full py-2 bg-white/10 hover:bg-white/15 text-xs text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
-                            <i class="fa-regular fa-copy"></i> Copy Public Key
-                        </button>
-                        <button id="logoutBtn"
-                            class="w-full py-2 bg-rose-500/10 hover:bg-rose-500/20 text-xs text-rose-400 font-medium rounded-lg transition-colors">
-                            Disconnect Session
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Right Column: Linked Instances & Public Activity -->
-        <div class="lg:col-span-8 space-y-6">
-            <!-- Linked Instances Card -->
-            <div class="glass-card p-6 space-y-6">
-                <div>
-                    <h2 class="font-display text-lg font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-server text-emerald-400"></i> Linked TuneCamp Instances
-                    </h2>
-                    <p class="text-xs text-text-muted">Verified instances linked to your Zen PubKey</p>
-                </div>
-
-                <form id="linkInstanceForm" class="flex flex-col sm:flex-row gap-2">
-                    <input type="text" id="linkInstanceDomainInput" placeholder="es. sudorecords.scobrudot.dev" required
-                        class="flex-1 px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-white text-xs font-mono focus:outline-none focus:border-primary transition-colors" />
-                    <input type="text" id="linkInstanceArtistInput" placeholder="Artist name (opzionale)"
-                        class="sm:w-48 px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-white text-xs font-mono focus:outline-none focus:border-primary transition-colors" />
-                    <button type="submit"
-                        class="px-4 py-2 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-plus"></i> Collega
-                    </button>
-                </form>
-
-                <!-- Instances List -->
-                <div id="instancesList" class="space-y-3">
-                    <div class="text-center py-8 text-text-muted text-sm italic">
-                        No instances linked yet. Authenticate above and link an instance to bind your TuneCamp node
-                        accounts.
-                    </div>
-                </div>
-            </div>
-
-            <!-- Aggregated Public Catalog & Activity -->
-            <div class="glass-card p-6 space-y-6">
-                <div
-                    class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
-                    <div>
-                        <h2 class="font-display text-lg font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-layer-group text-amber-400"></i> Unified Activity & Catalog
-                        </h2>
-                        <p class="text-xs text-text-muted">Public releases, starred favorites, and playlists aggregated
-                            across your linked TuneCamp nodes</p>
-                    </div>
-                    <!-- Section Tabs -->
-                    <div class="flex items-center gap-2 bg-black/40 p-1 rounded-lg border border-white/10 text-xs">
-                        <button type="button" id="tabReleasesBtn" onclick="switchProfileTab('releases')"
-                            class="px-3 py-1.5 rounded-md font-medium text-white bg-primary transition-colors">
-                            <i class="fa-solid fa-compact-disc"></i> Releases (<span id="releasesCount">0</span>)
-                        </button>
-                        <button type="button" id="tabLikesBtn" onclick="switchProfileTab('likes')"
-                            class="px-3 py-1.5 rounded-md font-medium text-text-muted hover:text-white transition-colors">
-                            <i class="fa-solid fa-heart text-rose-400"></i> Favorites (<span id="likesCount">0</span>)
-                        </button>
-                        <button type="button" id="tabPlaylistsBtn" onclick="switchProfileTab('playlists')"
-                            class="px-3 py-1.5 rounded-md font-medium text-text-muted hover:text-white transition-colors">
-                            <i class="fa-solid fa-list-music text-purple-400"></i> Playlists (<span
-                                id="playlistsCount">0</span>)
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Tab Content: Releases -->
-                <div id="tabReleasesContent">
-                    <div id="publicReleasesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">
-                            Connect your accounts to view aggregated public releases across the network.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab Content: Starred Favorites -->
-                <div id="tabLikesContent" class="hidden">
-                    <div id="publicLikesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">
-                            No starred favorites aggregated yet.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab Content: Playlists -->
-                <div id="tabPlaylistsContent" class="hidden">
-                    <div id="publicPlaylistsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">
-                            No public playlists aggregated yet.
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        </div>
-    </main>
-
-    <!-- Script Logic -->
-    <script type="module">
-        import Zen from './vendor/zen.min.js';
 
         document.addEventListener('DOMContentLoaded', () => {
             const relay = window.ZEN_RELAY || "wss://delay.scobrudot.dev/zen";
@@ -845,7 +598,7 @@
                                     </div>
                                 </div>
                             </a>
-                        `).join(''));
+                        `).join('');
                     }
                 }
 
@@ -867,7 +620,7 @@
                                     </div>
                                 </div>
                             </a>
-                        `).join(''));
+                        `).join('');
                     }
                 }
 
@@ -889,7 +642,7 @@
                                     </div>
                                 </div>
                             </a>
-                        `).join(''));
+                        `).join('');
                     }
                 }
             }
@@ -1062,7 +815,4 @@
             }
 
         });
-    </script>
-</body>
-
-</html>
+    
