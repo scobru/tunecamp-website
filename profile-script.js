@@ -39,7 +39,7 @@
 
             function setHtml(el, html) {
                 if (!el) return;
-                el.textContent = html;
+                el.innerHTML = html;
             }
 
             function zenSign(data, priv) {
