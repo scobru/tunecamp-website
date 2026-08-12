@@ -172,6 +172,7 @@
 
     <!-- Federated discovery over HTTP — no Zen, queries /api/community/sites -->
     <script src="config.js"></script>
+    <script src="components/network-status.js"></script>
 
     <script type="module">
         let audio = new Audio();
@@ -185,23 +186,7 @@
         loadTracks();
         initPlayer();
 
-        function setStatus(state) {
-            const dot = document.getElementById('statusDot');
-            const text = document.getElementById('statusText');
-            if (state === 'live') {
-                dot.style.background = '#10b981';
-                dot.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.8)';
-                text.textContent = 'Network Live';
-            } else if (state === 'connecting') {
-                dot.style.background = '#f59e0b';
-                dot.style.boxShadow = '0 0 10px rgba(245, 158, 11, 0.8)';
-                text.textContent = 'Connecting...';
-            } else {
-                dot.style.background = '#ef4444';
-                dot.style.boxShadow = '0 0 10px rgba(239, 68, 68, 0.8)';
-                text.textContent = 'Offline';
-            }
-        }
+        function setStatus(state) { window.setNetworkStatus(state); }
 
         function initPlayer() {
             audio.addEventListener('timeupdate', updateProgress);
