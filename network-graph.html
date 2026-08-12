@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="fonts/fonts.css" />
     <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css" />
     <script src="vendor/tailwind.js"></script>
+    <script src="utils.js"></script>
     <link rel="stylesheet" href="styles.css" />
     <script src="theme.js"></script>
     <style type="text/tailwindcss">
@@ -781,9 +782,6 @@
                 if (ty + th > hb.height) ty = p.y - th - 16;
                 tooltip.style.left = Math.max(4, tx) + "px";
                 tooltip.style.top = Math.max(4, ty) + "px";
-            }
-            function escapeHtml(s) {
-                return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
             }
 
             function onWheel(ev) {
