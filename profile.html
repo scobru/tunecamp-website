@@ -985,15 +985,15 @@
                         setHtml(releasesGrid, '<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No public releases found across linked instances.</div>');
                     } else {
                         setHtml(releasesGrid, allReleases.slice(0, 12).map(r => `
-                        <a href="https://${r.instanceDomain}/album/${r.slug || r.id}" target="_blank" rel="noopener" class="group glass-card p-4 flex gap-4 hover:border-primary/50 transition-colors">
+                        <a href="https://${escapeHtml(r.instanceDomain)}/album/${escapeHtml(r.slug || r.id)}" target="_blank" rel="noopener" class="group glass-card p-4 flex gap-4 hover:border-primary/50 transition-colors">
                             <div class="w-16 h-16 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
-                                ${r.cover_url ? `<img src="${r.cover_url}" alt="${r.title}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-compact-disc text-primary text-xl"></i>`}
+                                ${r.cover_url ? `<img src="${escapeHtml(r.cover_url)}" alt="${escapeHtml(r.title)}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-compact-disc text-primary text-xl"></i>`}
                             </div>
                             <div class="min-w-0 flex-1">
-                                <div class="font-bold text-sm text-white truncate group-hover:text-primary transition-colors">${r.title}</div>
-                                <div class="text-xs text-text-muted truncate">By @${r.artist_name || 'Unknown'}</div>
+                                <div class="font-bold text-sm text-white truncate group-hover:text-primary transition-colors">${escapeHtml(r.title)}</div>
+                                <div class="text-xs text-text-muted truncate">By @${escapeHtml(r.artist_name || 'Unknown')}</div>
                                 <div class="flex items-center gap-2 text-[10px] text-primary/80 font-mono mt-1">
-                                    <span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> ${r.instanceDomain}</span>
+                                    <span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> ${escapeHtml(r.instanceDomain)}</span>
                                 </div>
                             </div>
                         </a>
@@ -1010,13 +1010,13 @@
                         setHtml(likesGrid, allLikes.slice(0, 12).map(l => `
                         <div class="glass-card p-4 flex gap-4">
                             <div class="w-16 h-16 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
-                                ${l.album_cover ? `<img src="${l.album_cover}" alt="${l.album_title || l.track_title}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-heart text-rose-400 text-xl"></i>`}
+                                ${l.album_cover ? `<img src="${escapeHtml(l.album_cover)}" alt="${escapeHtml(l.album_title || l.track_title)}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-heart text-rose-400 text-xl"></i>`}
                             </div>
                             <div class="min-w-0 flex-1">
-                                <div class="font-bold text-sm text-white truncate">${l.track_title || l.album_title || 'Unknown'}</div>
-                                <div class="text-xs text-text-muted truncate">By @${l.track_artist || 'Unknown'}</div>
+                                <div class="font-bold text-sm text-white truncate">${escapeHtml(l.track_title || l.album_title || 'Unknown')}</div>
+                                <div class="text-xs text-text-muted truncate">By @${escapeHtml(l.track_artist || 'Unknown')}</div>
                                 <div class="flex items-center gap-2 text-[10px] text-primary/80 font-mono mt-1">
-                                    <span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> ${l.instanceDomain}</span>
+                                    <span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> ${escapeHtml(l.instanceDomain)}</span>
                                 </div>
                             </div>
                         </div>
@@ -1031,15 +1031,15 @@
                         setHtml(playlistsGrid, '<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No public playlists aggregated yet.</div>');
                     } else {
                         setHtml(playlistsGrid, allPlaylists.slice(0, 12).map(pl => `
-                        <a href="https://${pl.instanceDomain}/playlist/${pl.id}" target="_blank" rel="noopener" class="group glass-card p-4 flex gap-4 hover:border-purple-400/50 transition-colors">
+                        <a href="https://${escapeHtml(pl.instanceDomain)}/playlist/${escapeHtml(pl.id)}" target="_blank" rel="noopener" class="group glass-card p-4 flex gap-4 hover:border-purple-400/50 transition-colors">
                             <div class="w-16 h-16 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
-                                ${pl.coverUrl ? `<img src="${pl.coverUrl}" alt="${pl.title}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-list-music text-purple-400 text-xl"></i>`}
+                                ${pl.coverUrl ? `<img src="${escapeHtml(pl.coverUrl)}" alt="${escapeHtml(pl.title)}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-list-music text-purple-400 text-xl"></i>`}
                             </div>
                             <div class="min-w-0 flex-1">
-                                <div class="font-bold text-sm text-white truncate group-hover:text-purple-400 transition-colors">${pl.title}</div>
-                                <div class="text-xs text-text-muted truncate">By @${pl.localUsername}</div>
+                                <div class="font-bold text-sm text-white truncate group-hover:text-purple-400 transition-colors">${escapeHtml(pl.title)}</div>
+                                <div class="text-xs text-text-muted truncate">By @${escapeHtml(pl.localUsername)}</div>
                                 <div class="flex items-center gap-2 text-[10px] text-purple-400/80 font-mono mt-1">
-                                    <span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> ${pl.instanceDomain}</span>
+                                    <span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> ${escapeHtml(pl.instanceDomain)}</span>
                                 </div>
                             </div>
                         </a>
