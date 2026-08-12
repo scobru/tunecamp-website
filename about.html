@@ -44,6 +44,15 @@
       .btn-secondary {
         @apply bg-white/5 backdrop-blur-sm border border-white/10 text-white px-8 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 hover:bg-white/10 hover:scale-105 hover:border-white/20;
       }
+      .tab-btn {
+        @apply px-5 py-2.5 text-sm font-semibold rounded-lg transition-all cursor-pointer;
+      }
+      .tab-btn-active {
+        @apply bg-primary text-white shadow-md;
+      }
+      .tab-btn-inactive {
+        @apply text-text-muted hover:text-white hover:bg-white/5;
+      }
     </style>
     <script src="components/tc-header.js"></script>
 </head>
@@ -311,10 +320,10 @@
             <!-- Tab Selector -->
             <div class="flex justify-center mb-12 relative z-10">
                 <div class="bg-white/5 border border-white/10 p-1.5 rounded-xl flex gap-2">
-                    <button onclick="switchNetworkTab('instance-focus')" id="tab-btn-instance" class="px-5 py-2.5 text-sm font-semibold rounded-lg bg-primary text-white transition-all shadow-md cursor-pointer">
+                    <button onclick="switchNetworkTab('instance-focus')" id="tab-btn-instance" class="tab-btn tab-btn-active">
                         <i class="fas fa-server mr-2"></i>Single Instance
                     </button>
-                    <button onclick="switchNetworkTab('network-focus')" id="tab-btn-network" class="px-5 py-2.5 text-sm font-semibold rounded-lg text-text-muted hover:text-white hover:bg-white/5 transition-all cursor-pointer">
+                    <button onclick="switchNetworkTab('network-focus')" id="tab-btn-network" class="tab-btn tab-btn-inactive">
                         <i class="fas fa-globe mr-2"></i>Global Network (Aggregation)
                     </button>
                 </div>
@@ -1106,8 +1115,10 @@
 
             if (tabKey === 'instance-focus') {
                 // Set active button styles
-                btnInstance.className = "px-5 py-2.5 text-sm font-semibold rounded-lg bg-primary text-white transition-all shadow-md cursor-pointer";
-                btnNetwork.className = "px-5 py-2.5 text-sm font-semibold rounded-lg text-text-muted hover:text-white hover:bg-white/5 transition-all cursor-pointer";
+                btnInstance.classList.add('tab-btn-active');
+                btnInstance.classList.remove('tab-btn-inactive');
+                btnNetwork.classList.add('tab-btn-inactive');
+                btnNetwork.classList.remove('tab-btn-active');
 
                 // Fade transitions
                 containerNetwork.style.opacity = '0';
@@ -1123,8 +1134,10 @@
 
             } else {
                 // Set active button styles
-                btnNetwork.className = "px-5 py-2.5 text-sm font-semibold rounded-lg bg-primary text-white transition-all shadow-md cursor-pointer";
-                btnInstance.className = "px-5 py-2.5 text-sm font-semibold rounded-lg text-text-muted hover:text-white hover:bg-white/5 transition-all cursor-pointer";
+                btnNetwork.classList.add('tab-btn-active');
+                btnNetwork.classList.remove('tab-btn-inactive');
+                btnInstance.classList.add('tab-btn-inactive');
+                btnInstance.classList.remove('tab-btn-active');
 
                 // Fade transitions
                 containerInstance.style.opacity = '0';
