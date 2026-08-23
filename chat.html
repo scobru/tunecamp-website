@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TuneCamp Chat — Decentralized E2EE Messenger & PWA</title>
+    <link rel="icon" type="image/svg+xml" href="tunecamp.svg" />
+    <meta name="description"
+        content="Lightweight, decentralized, end-to-end encrypted messaging with rooms, direct messages, and cross-instance federation." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.tunecamp.org/chat.html" />
+    <meta property="og:title" content="TuneCamp Chat — Decentralized E2EE Messenger & PWA" />
+    <meta property="og:description" content="Lightweight, decentralized, end-to-end encrypted messaging with rooms, direct messages, and cross-instance federation." />
+    <meta property="og:image" content="https://www.tunecamp.org/tunecamp.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://www.tunecamp.org/tunecamp.jpg" />
+    <link rel="stylesheet" href="fonts/fonts.css" />
+    <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css" />
+    <script src="vendor/tailwind.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="theme.js"></script>
+    <style type="text/tailwindcss">
+        @theme {
+            --color-primary: oklch(65% 0.28 290);
+            --color-primary-hover: oklch(75% 0.22 290);
+            --color-bg-base: oklch(10% 0.01 280);
+            --color-bg-surface: oklch(14% 0.01 280);
+            --color-bg-surface-alt: oklch(18% 0.02 280);
+            --color-text-base: oklch(98% 0.005 280);
+            --color-text-muted: oklch(80% 0.02 280);
+            --font-sans: "Inter", sans-serif;
+            --font-display: "Space Grotesk", sans-serif;
+        }
+        body {
+            @apply bg-bg-base text-text-base font-sans antialiased selection:bg-primary/30 overflow-x-hidden;
+        }
+        .glass-card {
+            @apply bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-8 transition-all duration-300 hover:border-primary/40 hover:bg-white/10;
+        }
+        .btn-primary {
+            @apply bg-gradient-to-r from-primary to-purple-500 text-white px-8 py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_oklch(65%_0.28_290_/_0.5)];
+        }
+        .btn-secondary {
+            @apply bg-white/5 backdrop-blur-sm border border-white/10 text-white px-8 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 hover:bg-white/10 hover:scale-105 hover:border-white/20;
+        }
+        code:not(pre code) {
+            @apply bg-white/10 px-1.5 py-0.5 rounded text-sm font-mono text-purple-300;
+        }
+    </style>
+    <script src="components/tc-header.js"></script>
+</head>
+
+<body class="min-h-screen flex flex-col relative">
+    <!-- Top Nav -->
+    <tc-header active="chat"></tc-header>
+
+    <!-- Ambient Glow -->
+    <div class="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/15 blur-[130px] rounded-full pointer-events-none -z-10"></div>
+
+    <!-- Main Content -->
+    <main class="flex-1 pt-28 pb-20 px-6">
+        <div class="max-w-6xl mx-auto">
+            <!-- Hero -->
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <div class="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs font-semibold text-emerald-400 mb-4">
+                    <i class="fas fa-comments"></i> Decentralized E2EE Chat Client & PWA
+                </div>
+                <div class="flex flex-wrap justify-center gap-2 mb-4">
+                    <span class="px-3 py-1 bg-primary/10 border border-primary/20 rounded-full text-xs font-medium text-primary">Web & PWA</span>
+                    <span class="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs font-medium text-emerald-400">Zen SEA E2EE</span>
+                    <span class="px-3 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full text-xs font-medium text-purple-400">Passphrase Rooms</span>
+                    <span class="px-3 py-1 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-xs font-medium text-cyan-400">Cross-Instance Federation</span>
+                </div>
+                <h1 class="font-display text-4xl md:text-6xl font-extrabold tracking-tight mb-6">
+                    Connect. Encrypt. <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-primary to-purple-500">Communicate.</span>
+                </h1>
+                <p class="text-lg text-text-muted leading-relaxed mb-8">
+                    TuneCamp Chat is a standalone progressive web application and reusable client library for the TuneCamp ecosystem. Connect to any server instance, chat in public lobbies, lock rooms with custom passphrases, and send end-to-end encrypted direct messages.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="https://tunecamp-chat.vercel.app" target="_blank" class="btn-primary">
+                        <i class="fas fa-paper-plane mr-1"></i> Launch TuneCamp Chat
+                    </a>
+                    <a href="https://github.com/scobru/tunecamp-chat" target="_blank" class="btn-secondary">
+                        <i class="fab fa-github mr-1"></i> View on GitHub
+                    </a>
+                </div>
+            </div>
+
+            <!-- Core Features -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                <div class="glass-card">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xl mb-4">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h3 class="font-display text-xl font-bold mb-2">Zero-Knowledge E2EE</h3>
+                    <p class="text-text-muted text-sm leading-relaxed">
+                        Direct messages and encrypted rooms are signed and encrypted directly in the browser via Zen SEA. Server nodes relay encrypted payloads without ever seeing plaintext content or encryption keys.
+                    </p>
+                </div>
+                <div class="glass-card">
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 text-xl mb-4">
+                        <i class="fas fa-hashtag"></i>
+                    </div>
+                    <h3 class="font-display text-xl font-bold mb-2">Passphrase-Locked Rooms</h3>
+                    <p class="text-text-muted text-sm leading-relaxed">
+                        Create topic-based public or private channels. Lock rooms with a shared passphrase to create isolated, encrypted enclaves for collaborative sessions, bands, and label teams.
+                    </p>
+                </div>
+                <div class="glass-card">
+                    <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 text-xl mb-4">
+                        <i class="fas fa-shield-halved"></i>
+                    </div>
+                    <h3 class="font-display text-xl font-bold mb-2">IRC Slash & Moderation</h3>
+                    <p class="text-text-muted text-sm leading-relaxed">
+                        Rich command support with auto-completion: <code>/kick</code>, <code>/ban</code>, <code>/unban</code>, <code>/clear</code>, and global Zen moderation commands for instance admins and room owners.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Library Integration -->
+            <div class="glass-card mb-16">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <div>
+                        <h3 class="font-display text-2xl font-bold mb-2">React Hook & Client SDK</h3>
+                        <p class="text-text-muted text-sm max-w-xl">
+                            Integrate real-time federated chat into any web application in minutes using the official <code>@tunecamp/chat</code> npm package.
+                        </p>
+                    </div>
+                    <div class="bg-black/60 border border-white/10 rounded-xl px-4 py-3 font-mono text-xs text-purple-300 select-all">
+                        npm install @tunecamp/chat
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 bg-black/40 py-8 px-6 text-center text-xs text-text-muted">
+        <p>TuneCamp Ecosystem · Free, Sovereign, Federated Music & Tools</p>
+    </footer>
+</body>
+</html>

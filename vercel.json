@@ -1,4 +1,16 @@
 {
+    "redirects": [
+        {
+            "source": "/chat",
+            "destination": "https://tunecamp-chat.vercel.app",
+            "permanent": false
+        },
+        {
+            "source": "/graphofone(.html)?",
+            "destination": "/ecosystem.html",
+            "permanent": false
+        }
+    ],
     "functions": {
         "api/network.js": {
             "includeFiles": "config.js",
