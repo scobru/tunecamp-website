@@ -1,8 +1,8 @@
 {
     "redirects": [
         {
-            "source": "/chat",
-            "destination": "https://tunecamp-chat.vercel.app",
+            "source": "/chat(.html)?",
+            "destination": "/ecosystem.html",
             "permanent": false
         },
         {

@@ -33,7 +33,6 @@ class TcHeader extends HTMLElement {
                             More <i class="fas fa-chevron-down text-[10px]"></i>
                         </button>
                         <div id="tcHeaderMoreMenu" class="hidden absolute right-0 top-full mt-2 w-44 bg-black/95 backdrop-blur-lg border border-white/10 rounded-xl py-1 z-50 shadow-xl">
-                            <a href="chat.html" class="block px-4 py-2 text-xs ${active === 'chat' ? 'text-primary font-semibold' : 'text-text-muted hover:text-white hover:bg-white/5'}">TuneCamp Chat</a>
                             <a href="sidecamp.html" class="block px-4 py-2 text-xs ${active === 'sidecamp' ? 'text-primary font-semibold' : 'text-text-muted hover:text-white hover:bg-white/5'}">Sidecamp</a>
                             <a href="network-graph.html" class="block px-4 py-2 text-xs ${active === 'network-graph' ? 'text-primary font-semibold' : 'text-text-muted hover:text-white hover:bg-white/5'}">Network Graph</a>
                             <a href="player.html" class="block px-4 py-2 text-xs ${active === 'player' ? 'text-primary font-semibold' : 'text-text-muted hover:text-white hover:bg-white/5'}">Player</a>
@@ -63,7 +62,6 @@ class TcHeader extends HTMLElement {
                 <a href="ecosystem.html" class="block py-2 text-sm ${active === 'ecosystem' ? 'text-primary font-semibold' : 'text-text-muted'}">Ecosystem</a>
                 <a href="run.html" class="block py-2 text-sm ${active === 'run' ? 'text-primary font-semibold' : 'text-text-muted'}">Run Instance</a>
                 <a href="profile.html" class="block py-2 text-sm ${active === 'profile' ? 'text-primary font-semibold' : 'text-text-muted'}"><i class="fa-solid fa-shield-halved text-xs"></i> Identity</a>
-                <a href="chat.html" class="block py-2 text-sm ${active === 'chat' ? 'text-primary font-semibold' : 'text-text-muted'}">TuneCamp Chat</a>
                 <a href="sidecamp.html" class="block py-2 text-sm ${active === 'sidecamp' ? 'text-primary font-semibold' : 'text-text-muted'}">Sidecamp</a>
                 <a href="network-graph.html" class="block py-2 text-sm ${active === 'network-graph' ? 'text-primary font-semibold' : 'text-text-muted'}">Network Graph</a>
                 <a href="player.html" class="block py-2 text-sm ${active === 'player' ? 'text-primary font-semibold' : 'text-text-muted'}">Player</a>
