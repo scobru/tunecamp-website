@@ -11,6 +11,12 @@
             "permanent": false
         }
     ],
+    "rewrites": [
+        {
+            "source": "/install.sh",
+            "destination": "https://raw.githubusercontent.com/scobru/tunecamp/main/install.sh"
+        }
+    ],
     "functions": {
         "api/network.js": {
             "includeFiles": "config.js",

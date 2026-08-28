@@ -183,6 +183,9 @@
                         <span class="text-text-muted">Configures Nginx reverse proxy with websocket support automatically</span>
                     </div>
                 </div>
+                <div class="info-box mt-5 text-sm">
+                    <i class="fas fa-network-wired mr-2"></i>Answer the domain prompt with a blank line and the installer offers a free public URL over an SSH reverse tunnel to <a href="https://docs.srv.us/" target="_blank" class="underline">srv.us</a> — no domain, no port forwarding, useful on a home machine behind a router. Nginx and Certbot are skipped in that mode, since srv.us terminates TLS itself. Pass <code>--tunnel</code> to pick it non-interactively. Free relay for hobby traffic, not a CDN.
+                </div>
                 <p class="text-xs text-text-muted mt-4">Want the manual step-by-step setup instead? Continue with the steps below.</p>
             </section>
 
@@ -194,7 +197,7 @@
                 </div>
                 <p class="text-text-muted mb-4">The fastest path uses Docker. You need:</p>
                 <ul class="space-y-3 text-sm">
-                    <li class="flex items-start gap-3"><i class="fab fa-docker text-blue-400 mt-0.5"></i><span><strong>Docker 20+</strong> and <strong>Docker Compose</strong> — <a href="https://docs.docker.com/get-docker/" target="_blank" class="text-primary hover:underline">install guide</a></span></li>
+                    <li class="flex items-start gap-3"><i class="fab fa-docker text-blue-400 mt-0.5"></i><span><strong>Docker 20+</strong> and <strong>Docker Compose v2.24+</strong> — <a href="https://docs.docker.com/get-docker/" target="_blank" class="text-primary hover:underline">install guide</a></span></li>
                     <li class="flex items-start gap-3"><i class="fas fa-music text-primary mt-0.5"></i><span>A folder of audio files (MP3, FLAC, WAV…)</span></li>
                     <li class="flex items-start gap-3"><i class="fas fa-globe text-green-400 mt-0.5"></i><span>A domain with DNS pointing at your server <em class="text-text-muted">(only needed to go public)</em></span></li>
                 </ul>
@@ -214,12 +217,20 @@
 git clone https://github.com/scobru/tunecamp.git
 cd tunecamp
 
-# 2. Edit docker-compose.yml — replace /path/to/your/music
-#    with the actual path to your audio files
+# 2. Optional: create your .env for secrets and integrations
+#    (it starts without one — every value has a default)
+cp .env.example .env
 
-# 3. Build and start in the background
+# 3. Point it at your music. It defaults to ./music inside the repo
+#    folder — for any other folder, set this in .env:
+#    TUNECAMP_MUSIC_PATH=/path/to/your/audio
+
+# 4. Build and start in the background
 docker-compose up -d --build</pre>
                 <p class="text-text-muted text-sm mt-4">When the container is healthy, open <code>http://localhost:1970</code> in your browser.</p>
+                <div class="info-box mt-4">
+                    <i class="fas fa-network-wired mr-2"></i>No domain, and the machine sits behind a home router? Start with <code>docker compose --profile tunnel up -d --build</code> instead. An SSH reverse tunnel to <a href="https://docs.srv.us/" target="_blank" class="underline">srv.us</a> hands you a free <code>https://&lt;id&gt;.srv.us</code> address — no account, no port forwarding. Read it from the tunnel container's logs: <code>docker compose --profile tunnel logs tunnel</code>. The address is derived from an SSH key kept in the <code>tunecamp_data</code> volume, so it survives restarts — losing that volume changes the URL and breaks every link you shared. It is a free relay for hobby traffic, not a CDN.
+                </div>
             </section>
 
             <!-- Step 3: First login -->
@@ -240,9 +251,15 @@ docker-compose up -d --build</pre>
                     </div>
                 </div>
                 <div class="warn-box mb-4">
-                    <i class="fas fa-triangle-exclamation mr-2"></i><strong>Change the admin password immediately</strong> after logging in — go to <strong>Admin → Settings</strong>. The server logs a security warning at startup until the default credentials and auto-generated JWT secret are replaced.
+                    <i class="fas fa-triangle-exclamation mr-2"></i><strong>You must change the admin password before anything else works.</strong> While an account still holds a built-in default password, the server answers <code>403 DEFAULT_PASSWORD_LOCKDOWN</code> on every authenticated route except login, status and the password change itself, and refuses the Subsonic <code>/rest</code> endpoint outright. Anonymous browsing, streaming and federation keep working. The server also logs a security warning at startup until the default credentials and auto-generated JWT secret are replaced.
                 </div>
-                <p class="text-text-muted text-sm">You can override defaults before first run with env vars: <code>TUNECAMP_ADMIN_USER</code> / <code>TUNECAMP_ADMIN_PASS</code>.</p>
+                <p class="text-text-muted mb-4">The setup wizard then asks which <strong class="text-white">instance mode</strong> to run — changeable later from <strong>Admin → Settings</strong>:</p>
+                <ul class="space-y-3 text-sm mb-5">
+                    <li class="flex items-start gap-3"><i class="fas fa-guitar text-primary mt-0.5 shrink-0"></i><span><strong class="text-white">Single Artist</strong> — a Bandcamp-like portfolio for a solo artist. The homepage leads with the latest release and the discography; community features are stripped out.</span></li>
+                    <li class="flex items-start gap-3"><i class="fas fa-building text-primary mt-0.5 shrink-0"></i><span><strong class="text-white">Record Label</strong> — a curated storefront over a roster of artists, with centralized sales.</span></li>
+                    <li class="flex items-start gap-3"><i class="fas fa-globe text-primary mt-0.5 shrink-0"></i><span><strong class="text-white">Community</strong> — open signups, message board and federated network discovery, with optional self-publishing.</span></li>
+                </ul>
+                <p class="text-text-muted text-sm">You can override the credential defaults before first run with env vars: <code>TUNECAMP_ADMIN_USER</code> / <code>TUNECAMP_ADMIN_PASS</code>.</p>
             </section>
 
             <!-- Step 4: Add music -->
