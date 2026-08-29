@@ -153,6 +153,12 @@ html, body {
   border-color: rgba(139, 92, 246, 0.25) !important;
 }
 
+/* run.html: #vps-installer is a dark teal/emerald gradient — same wash-out as #railway */
+[data-theme="light"] #vps-installer {
+  background-image: linear-gradient(to right, rgba(20, 184, 166, 0.10), rgba(16, 185, 129, 0.06)) !important;
+  border-color: rgba(20, 184, 166, 0.25) !important;
+}
+
 /* Code elements in run.html */
 [data-theme="light"] pre,
 [data-theme="light"] code {
