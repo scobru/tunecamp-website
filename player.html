@@ -34,6 +34,42 @@
         .ctrl-btn-play {
             @apply w-16 h-16 bg-gradient-to-r from-primary to-purple-500 hover:scale-105 border-none shadow-[0_0_20px_oklch(65%_0.28_290_/_0.4)] text-2xl;
         }
+        .tab-btn {
+            @apply flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-text-muted hover:text-white hover:bg-white/5 transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50;
+        }
+        .tab-btn.tab-active {
+            @apply text-white bg-white/10;
+        }
+        .tab-count {
+            @apply text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/10 text-text-muted;
+        }
+        .tab-btn.tab-active .tab-count {
+            @apply bg-primary/25 text-white;
+        }
+        .row-btn {
+            @apply w-8 h-8 rounded-full flex items-center justify-center text-text-muted/70 hover:text-white hover:bg-white/10 transition-colors flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 disabled:opacity-30 disabled:pointer-events-none;
+        }
+        .row-btn.is-fav {
+            @apply text-rose-400 hover:text-rose-300;
+        }
+        .icon-btn {
+            @apply w-9 h-9 rounded-lg flex items-center justify-center text-text-muted hover:text-white hover:bg-white/10 transition-colors flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50;
+        }
+        .np-btn {
+            @apply w-11 h-11 rounded-full flex items-center justify-center bg-white/5 border border-white/10 text-text-muted hover:text-white hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 disabled:opacity-30 disabled:pointer-events-none;
+        }
+        .np-btn.is-fav {
+            @apply text-rose-400 border-rose-400/30 bg-rose-400/10;
+        }
+        .np-btn.is-following {
+            @apply text-amber-300 border-amber-300/30 bg-amber-300/10;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            scrollbar-width: none;
+        }
         .track-row {
             @apply flex items-center p-3 gap-4 rounded-xl transition-all duration-300 hover:bg-white/5 cursor-pointer border border-transparent hover:border-white/5 focus-visible:outline-none focus-visible:bg-white/5 focus-visible:border-primary/50;
         }
@@ -64,10 +100,10 @@
 </head>
 <body class="min-h-screen flex flex-col relative lg:h-screen lg:overflow-hidden">
     <!-- Ambient Player Glow -->
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/15 blur-[150px] rounded-full pointer-events-none -z-10" id="ambientGlow"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[800px] h-[800px] bg-primary/15 blur-[150px] rounded-full pointer-events-none -z-10" id="ambientGlow"></div>
     
     <!-- Top Header -->
-    <header class="p-6 flex items-center justify-between z-10 bg-gradient-to-b from-black/80 to-transparent">
+    <header class="px-4 py-4 sm:p-6 flex items-center justify-between gap-3 z-10 bg-gradient-to-b from-black/80 to-transparent">
         <div class="flex items-center gap-4">
             <a href="index.html" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors text-text-muted hover:text-white" title="Back to Explore">
                 <i class="fas fa-arrow-left"></i>
@@ -75,16 +111,28 @@
             <h1 class="font-display text-xl sm:text-2xl font-bold">Community Player</h1>
         </div>
         
-        <div class="flex items-center gap-6">
+        <div class="flex items-center gap-3 sm:gap-6">
             <div class="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-full border border-white/10 text-xs font-medium">
                 <span id="statusDot" class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]"></span>
                 <span id="statusText" class="text-text-muted">Connecting...</span>
             </div>
-            <div class="flex gap-4 text-sm font-mono text-text-muted/60">
+            <div class="hidden sm:flex gap-4 text-sm font-mono text-text-muted/60">
                 <div class="flex flex-col items-center">
                     <span id="trackCount" class="text-white font-bold">-</span>
                     <span class="text-[10px] uppercase tracking-wider">Tracks</span>
                 </div>
+            </div>
+            <div class="relative">
+                <button id="libraryMenuBtn" class="icon-btn" title="Your library" aria-label="Your library" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-sliders"></i>
+                </button>
+                <div id="libraryMenu" class="hidden absolute right-0 mt-2 w-64 glass-panel rounded-xl p-2 z-50 text-sm">
+                    <button data-act="export" class="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10 transition-colors"><i class="fas fa-download w-4 mr-2 text-text-muted"></i>Export library (.json)</button>
+                    <button data-act="import" class="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10 transition-colors"><i class="fas fa-upload w-4 mr-2 text-text-muted"></i>Import library&hellip;</button>
+                    <button data-act="clear" class="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10 text-red-300 transition-colors"><i class="fas fa-trash w-4 mr-2"></i>Clear library</button>
+                    <p class="px-3 pt-2 pb-1 text-[10px] leading-snug text-text-muted/70">Saved in this browser only. Export to move it to another device.</p>
+                </div>
+                <input type="file" id="importFile" accept="application/json,.json" class="hidden">
             </div>
         </div>
     </header>
@@ -100,25 +148,42 @@
                 <h2 id="playerTitle" class="text-3xl md:text-4xl font-bold font-display mb-2 truncate">Select a track</h2>
                 <p id="playerArtist" class="text-xl text-primary mb-1 truncate">Browse the tracks to start</p>
                 <p id="playerRelease" class="text-sm text-text-muted truncate"></p>
+                <p id="queueSource" class="text-[11px] uppercase tracking-wider text-text-muted/60 mt-2"></p>
+
+                <div class="mt-6 flex items-center justify-center gap-3">
+                    <button id="npFav" class="np-btn" title="Save to favorites" aria-label="Save to favorites" aria-pressed="false" disabled><i class="far fa-heart"></i></button>
+                    <button id="npAdd" class="np-btn" title="Add to playlist" aria-label="Add to playlist" disabled><i class="fas fa-plus"></i></button>
+                    <button id="npFollow" class="np-btn" title="Follow artist" aria-label="Follow artist" aria-pressed="false" disabled><i class="far fa-star"></i></button>
+                </div>
             </div>
         </div>
 
         <!-- Track List (Right) -->
         <div class="lg:w-1/2 flex flex-col h-[60vh] lg:h-full glass-panel rounded-3xl overflow-hidden mt-2 lg:mt-0">
-            <div class="p-6 border-b border-white/10 flex flex-col sm:flex-row gap-4 bg-black/20">
+            <div id="viewTabs" role="tablist" aria-label="Library views" class="flex gap-1 px-4 pt-4 overflow-x-auto no-scrollbar bg-black/20">
+                <button class="tab-btn tab-active" role="tab" aria-selected="true" data-view="network"><i class="fas fa-globe"></i> Network</button>
+                <button class="tab-btn" role="tab" aria-selected="false" data-view="favorites"><i class="fas fa-heart"></i> Favorites <span class="tab-count" id="countFavorites">0</span></button>
+                <button class="tab-btn" role="tab" aria-selected="false" data-view="playlists"><i class="fas fa-list"></i> Playlists <span class="tab-count" id="countPlaylists">0</span></button>
+                <button class="tab-btn" role="tab" aria-selected="false" data-view="artists"><i class="fas fa-user"></i> Artists <span class="tab-count" id="countArtists">0</span></button>
+                <button class="tab-btn" role="tab" aria-selected="false" data-view="recents"><i class="fas fa-clock-rotate-left"></i> Recent</button>
+            </div>
+
+            <div class="p-4 sm:px-6 sm:pb-6 border-b border-white/10 flex flex-col sm:flex-row gap-4 bg-black/20">
                 <div class="relative flex-1">
                     <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-text-muted"></i>
-                    <input type="text" id="searchInput" aria-label="Search tracks or artists" placeholder="Search tracks or artists..." oninput="filterTracks()" class="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:border-primary/50 text-white placeholder-text-muted transition-colors">
+                    <input type="text" id="searchInput" aria-label="Search tracks or artists" placeholder="Search tracks or artists..." class="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:border-primary/50 text-white placeholder-text-muted transition-colors">
                 </div>
                 <div class="flex gap-2">
-                    <select id="artistFilter" aria-label="Filter by artist" onchange="filterTracks()" class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary/50 text-white appearance-none pr-10 relative">
+                    <select id="artistFilter" aria-label="Filter by artist" class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary/50 text-white appearance-none pr-10 relative">
                         <option value="" class="bg-bg-surface text-white">All Artists</option>
                     </select>
-                    <button onclick="shufflePlay()" class="bg-primary/20 text-primary border border-primary/30 rounded-xl px-5 hover:bg-primary/30 transition-colors" title="Shuffle Play">
+                    <button id="shufflePlayBtn" class="bg-primary/20 text-primary border border-primary/30 rounded-xl px-5 hover:bg-primary/30 transition-colors" title="Shuffle Play" aria-label="Shuffle play">
                         <i class="fas fa-random"></i>
                     </button>
                 </div>
             </div>
+
+            <div id="viewHeader" class="hidden items-center gap-3 px-4 py-3 border-b border-white/10 bg-black/10"></div>
 
             <div id="tracksContainer" class="flex-1 overflow-y-auto p-4 flex flex-col gap-1">
                 <div class="flex flex-col items-center justify-center h-full text-center p-8">
@@ -138,10 +203,11 @@
                 <div id="miniCover" class="w-14 h-14 rounded-lg bg-white/10 overflow-hidden flex items-center justify-center text-white/30 text-xl flex-shrink-0">
                     <i class="fas fa-music"></i>
                 </div>
-                <div class="min-w-0">
+                <div class="min-w-0 flex-1">
                     <div id="miniTitle" class="font-bold text-sm truncate">No track selected</div>
                     <div id="miniArtist" class="text-xs text-text-muted truncate">Tunecamp Community</div>
                 </div>
+                <button id="miniFav" class="row-btn" title="Save to favorites" aria-label="Save to favorites" aria-pressed="false" disabled><i class="far fa-heart"></i></button>
             </div>
 
             <!-- Controls (Center) -->
@@ -170,75 +236,179 @@
         </div>
     </div>
 
+    <!-- Add-to-playlist picker -->
+    <div id="playlistPicker" class="fixed inset-0 z-60 hidden items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+        <div class="glass-panel rounded-2xl w-full max-w-sm p-5" role="dialog" aria-modal="true" aria-labelledby="pickerHeading">
+            <h3 id="pickerHeading" class="font-display font-bold text-lg">Add to playlist</h3>
+            <p id="pickerTrack" class="text-xs text-text-muted truncate mt-1"></p>
+            <div id="pickerList" class="max-h-56 overflow-y-auto flex flex-col gap-1 my-4"></div>
+            <form id="pickerNewForm" class="flex gap-2">
+                <input id="pickerNewName" type="text" maxlength="120" placeholder="New playlist name" aria-label="New playlist name" class="flex-1 min-w-0 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary/50 text-white placeholder-text-muted">
+                <button type="submit" class="bg-primary/20 text-primary border border-primary/30 rounded-lg px-4 text-sm hover:bg-primary/30 transition-colors">Create</button>
+            </form>
+            <button id="pickerClose" class="w-full mt-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm transition-colors">Close</button>
+        </div>
+    </div>
+
+    <div id="toast" role="status" aria-live="polite" class="fixed bottom-36 left-1/2 -translate-x-1/2 z-60 px-4 py-2 rounded-full bg-black/80 border border-white/10 text-sm text-white opacity-0 translate-y-2 transition-all duration-300 pointer-events-none"></div>
+
     <!-- Federated discovery over HTTP — no Zen, queries /api/community/sites -->
     <script src="config.js"></script>
     <script src="components/network-status.js"></script>
 
     <script type="module">
-        import { getNextTrackIndex, getPrevTrackIndex, toggleAudioPlayback } from './components/audio-controller.js';
-        let audio = new Audio();
-        let allTracks = [];
-        let filteredTracks = [];
-        let currentTrackIndex = -1;
-        let isPlaying = false;
-        let isShuffle = false;
-        let isRepeat = false;
+        import { PlayQueue } from './components/queue.js';
+        import * as Library from './components/library.js';
 
-        loadTracks();
-        initPlayer();
+        const audio = new Audio();
+        const queue = new PlayQueue();
+
+        /** The network catalog, and a key -> live track index over it. */
+        let allTracks = [];
+        let liveIndex = new Map();
+        /** 'network' | 'favorites' | 'playlists' | 'artists' | 'recents', plus the
+         *  drill-in views 'playlist' (one playlist) and 'artist' (one artist). */
+        let view = 'network';
+        let openPlaylistId = null;
+        let openArtist = null;
+        /** What the list currently shows — only feeds the queue when playback starts. */
+        let visibleTracks = [];
+        let isPlaying = false;
+        let isRepeat = false;
+        let pendingSeek = 0;
+        let pickerTrack = null;
+
+        const el = (id) => document.getElementById(id);
+        const VIEW_LABELS = {
+            network: 'Network', favorites: 'Favorites', playlists: 'Playlists',
+            artists: 'Artists', recents: 'Recently played'
+        };
+
+        init();
+
+        function init() {
+            restorePrefs();
+            initAudio();
+            initControls();
+            initViews();
+            initLibraryMenu();
+            initPicker();
+            Library.subscribe(onLibraryChange);
+            renderView();
+            restoreLastTrack();
+            loadTracks();
+        }
 
         function setStatus(state) { window.setNetworkStatus(state); }
 
-        function initPlayer() {
+        /* ------------------------------------------------------------- audio */
+
+        function initAudio() {
             audio.addEventListener('timeupdate', updateProgress);
-            audio.addEventListener('loadedmetadata', updateDuration);
+            audio.addEventListener('loadedmetadata', () => {
+                updateDuration();
+                if (pendingSeek > 0 && pendingSeek < audio.duration) audio.currentTime = pendingSeek;
+                pendingSeek = 0;
+            });
             audio.addEventListener('ended', () => {
-                if(isRepeat) { audio.currentTime = 0; audio.play(); }
+                if (isRepeat) { audio.currentTime = 0; audio.play().catch(() => {}); }
                 else playNext();
             });
-            audio.addEventListener('play', () => { isPlaying = true; updatePlayButton(); updateVisuals(); });
-            audio.addEventListener('pause', () => { isPlaying = false; updatePlayButton(); updateVisuals(); });
+            audio.addEventListener('play', () => { isPlaying = true; onPlayStateChange(); });
+            audio.addEventListener('pause', () => { isPlaying = false; savePosition(); onPlayStateChange(); });
 
-            document.getElementById('playBtn').addEventListener('click', togglePlay);
-            document.getElementById('prevBtn').addEventListener('click', playPrev);
-            document.getElementById('nextBtn').addEventListener('click', playNext);
+            // The listening position is worth restoring, but not worth a storage
+            // write per timeupdate: save on pause, on leaving, and now and then.
+            setInterval(() => { if (isPlaying) savePosition(); }, 15000);
+            window.addEventListener('beforeunload', savePosition);
+        }
 
-            document.getElementById('toggleShuffle').addEventListener('click', (e) => {
-                isShuffle = !isShuffle;
-                e.currentTarget.style.color = isShuffle ? 'oklch(65% 0.28 290)' : '';
-            });
-            document.getElementById('toggleRepeat').addEventListener('click', (e) => {
-                isRepeat = !isRepeat;
-                e.currentTarget.style.color = isRepeat ? 'oklch(65% 0.28 290)' : '';
-            });
+        function onPlayStateChange() {
+            el('playIcon').className = isPlaying ? 'fas fa-pause' : 'fas fa-play';
+            el('playerCover').style.transform = isPlaying ? 'scale(1.05)' : 'scale(1)';
+            updateRowStates();
+        }
 
-            const volumeSlider = document.getElementById('volumeSlider');
+        function savePosition() {
+            if (!queue.current || !audio.duration) return;
+            Library.setPrefs({ lastPosition: audio.currentTime });
+        }
+
+        /* ---------------------------------------------------------- controls */
+
+        function initControls() {
+            el('playBtn').addEventListener('click', togglePlay);
+            el('prevBtn').addEventListener('click', playPrev);
+            el('nextBtn').addEventListener('click', playNext);
+
+            el('toggleShuffle').addEventListener('click', () => setShuffle(!queue.shuffle));
+            el('toggleRepeat').addEventListener('click', () => setRepeat(!isRepeat));
+            el('shufflePlayBtn').addEventListener('click', shufflePlay);
+
+            const volumeSlider = el('volumeSlider');
             volumeSlider.addEventListener('input', (e) => { audio.volume = e.target.value / 100; });
-            audio.volume = volumeSlider.value / 100;
+            volumeSlider.addEventListener('change', (e) => Library.setPrefs({ volume: Number(e.target.value) }));
 
-            document.getElementById('progressBar').addEventListener('click', (e) => {
+            el('progressBar').addEventListener('click', (e) => {
                 const rect = e.currentTarget.getBoundingClientRect();
                 const percent = (e.clientX - rect.left) / rect.width;
                 if (audio.duration) audio.currentTime = audio.duration * percent;
             });
 
+            el('searchInput').addEventListener('input', scheduleFilter);
+            el('artistFilter').addEventListener('change', renderView);
+
+            el('npFav').addEventListener('click', () => queue.current && toggleFavorite(queue.current));
+            el('miniFav').addEventListener('click', () => queue.current && toggleFavorite(queue.current));
+            el('npAdd').addEventListener('click', () => queue.current && openPicker(queue.current));
+            el('npFollow').addEventListener('click', () => {
+                if (!queue.current) return;
+                const following = Library.toggleArtist(queue.current.artistName);
+                showToast(following ? 'Following ' + queue.current.artistName : 'Unfollowed ' + queue.current.artistName);
+            });
+
             document.addEventListener('keydown', (e) => {
-                if (e.key === ' ' || e.code === 'Space') {
-                    const active = document.activeElement;
-                    if (active) {
-                        const tagName = active.tagName.toLowerCase();
-                        const role = active.getAttribute('role');
-                        if (['input', 'textarea', 'button', 'a', 'select'].includes(tagName) ||
-                            ['button', 'link', 'menuitem', 'tab'].includes(role) ||
-                            active.isContentEditable) {
-                            return;
-                        }
+                if (e.key === 'Escape') { closePicker(); closeLibraryMenu(); return; }
+                if (e.key !== ' ' && e.code !== 'Space') return;
+                const active = document.activeElement;
+                if (active) {
+                    const tagName = active.tagName.toLowerCase();
+                    const role = active.getAttribute('role');
+                    if (['input', 'textarea', 'button', 'a', 'select'].includes(tagName) ||
+                        ['button', 'link', 'menuitem', 'tab'].includes(role) ||
+                        active.isContentEditable) {
+                        return;
                     }
-                    e.preventDefault();
-                    togglePlay();
                 }
+                e.preventDefault();
+                togglePlay();
             });
         }
+
+        function restorePrefs() {
+            const prefs = Library.getPrefs();
+            const volume = typeof prefs.volume === 'number' ? prefs.volume : 80;
+            el('volumeSlider').value = volume;
+            audio.volume = volume / 100;
+            setShuffle(!!prefs.shuffle, true);
+            setRepeat(!!prefs.repeat, true);
+        }
+
+        function setShuffle(on, quiet) {
+            queue.setShuffle(on);
+            el('toggleShuffle').style.color = on ? 'oklch(65% 0.28 290)' : '';
+            el('toggleShuffle').setAttribute('aria-pressed', String(on));
+            if (!quiet) Library.setPrefs({ shuffle: on });
+        }
+
+        function setRepeat(on, quiet) {
+            isRepeat = on;
+            el('toggleRepeat').style.color = on ? 'oklch(65% 0.28 290)' : '';
+            el('toggleRepeat').setAttribute('aria-pressed', String(on));
+            if (!quiet) Library.setPrefs({ repeat: on });
+        }
+
+        /* --------------------------------------------------------- discovery */
 
         async function loadTracks() {
             const tracksMap = new Map();
@@ -257,7 +427,7 @@
                     const process = (t, r) => {
                         if(t && (t.streamUrl || t.audioUrl || t.id)) {
                             const audioUrl = t.streamUrl || t.audioUrl || `${siteUrl}/api/tracks/${t.id}/stream`;
-                            
+
                             let cover = t.coverUrl || t.coverImage;
                             if (cover) {
                                 if (!cover.startsWith('http') && !cover.startsWith('data:') && !cover.startsWith('blob:')) {
@@ -325,16 +495,7 @@
                 setStatus(reached > 0 ? 'live' : 'offline');
             }
 
-            setTimeout(() => {
-                if (allTracks.length === 0) {
-                    document.getElementById('tracksContainer').innerHTML = `
-                        <div class="flex flex-col items-center justify-center h-full text-center p-8">
-                            <i class="fas fa-music text-4xl text-white/20 mb-4"></i>
-                            <p class="text-text-muted">No tracks found yet. Join the network!</p>
-                        </div>
-                    `;
-                }
-            }, 5000);
+            setTimeout(() => { if (allTracks.length === 0) renderView(); }, 5000);
         }
 
         function updateTracksList(tracksMap, artistsSet) {
@@ -344,9 +505,10 @@
                 if (!deduped.has(key) || (track.addedAt || 0) > (deduped.get(key).addedAt || 0)) deduped.set(key, track);
             });
             allTracks = Array.from(deduped.values()).sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0));
-            document.getElementById('trackCount').textContent = allTracks.length;
+            liveIndex = Library.buildLiveIndex(allTracks);
+            el('trackCount').textContent = allTracks.length;
 
-            const select = document.getElementById('artistFilter');
+            const select = el('artistFilter');
             const current = select.value;
             select.innerHTML = '<option value="" class="bg-bg-surface text-white">All Artists</option>';
             Array.from(artistsSet).sort().forEach(a => {
@@ -354,60 +516,172 @@
             });
             select.value = current;
 
-            filterTracks();
+            // A restored session, or a queue built from an earlier partial catalog,
+            // re-binds to the fuller one without interrupting what is playing.
+            if (queue.source.type === 'resume' || queue.source.type === 'network') {
+                const wasResume = queue.source.type === 'resume';
+                queue.remap(allTracks, Library.trackKey);
+                if (wasResume && queue.current) queue.source = { type: 'network', id: null, label: VIEW_LABELS.network };
+            }
+            renderView();
+        }
+
+        /* ------------------------------------------------------------- views */
+
+        function initViews() {
+            el('viewTabs').addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-view]');
+                if (!btn) return;
+                view = btn.dataset.view;
+                openPlaylistId = null;
+                openArtist = null;
+                el('searchInput').value = '';
+                renderView();
+            });
+
+            el('tracksContainer').addEventListener('click', (e) => activate(e.target));
+            el('tracksContainer').addEventListener('keydown', (e) => {
+                // Buttons inside a row fire their own click; only the row itself
+                // needs Enter/Space wired up by hand.
+                if (e.key !== 'Enter' && e.key !== ' ') return;
+                if (!e.target.closest('[data-idx],[data-pl],[data-artist]')) return;
+                if (e.target.closest('[data-act]')) return;
+                e.preventDefault();
+                activate(e.target);
+            });
+            el('viewHeader').addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-act]');
+                if (btn) handleAction(btn.dataset.act, btn.dataset);
+            });
+        }
+
+        function isTrackView() {
+            return ['network', 'favorites', 'recents', 'playlist', 'artist'].includes(view);
+        }
+
+        /** The rows behind the current view, before search and artist filtering. */
+        function sourceTracks() {
+            switch (view) {
+                case 'favorites':
+                    return Library.listFavorites().map(r => Library.hydrate(r, liveIndex));
+                case 'recents':
+                    return Library.listRecents().map(r => Library.hydrate(r, liveIndex));
+                case 'playlist': {
+                    const pl = Library.getPlaylist(openPlaylistId);
+                    return pl ? pl.items.map(r => Library.hydrate(r, liveIndex)) : [];
+                }
+                case 'artist':
+                    return allTracks.filter(t => Library.artistKey(t.artistName) === Library.artistKey(openArtist));
+                default:
+                    return allTracks;
+            }
+        }
+
+        function queueSource() {
+            if (view === 'playlist') {
+                const pl = Library.getPlaylist(openPlaylistId);
+                return { type: 'playlist', id: openPlaylistId, label: pl ? pl.name : 'Playlist' };
+            }
+            if (view === 'artist') return { type: 'artist', id: openArtist, label: openArtist };
+            return { type: view, id: null, label: VIEW_LABELS[view] || 'Network' };
         }
 
         let filterTimeout;
-        function filterTracks() {
-            // ⚡ Bolt Performance Optimization:
-            // Debounce track filtering to prevent rapid full DOM rebuilds via innerHTML replacement.
-            // Regenerating the entire track grid on every keystroke blocks the main thread.
+        function scheduleFilter() {
             clearTimeout(filterTimeout);
-            filterTimeout = setTimeout(() => {
-                const q = document.getElementById('searchInput').value.toLowerCase();
-                const a = document.getElementById('artistFilter').value;
-                filteredTracks = allTracks.filter(t => {
-                    const mq = !q || t.title.toLowerCase().includes(q) || (t.artistName && t.artistName.toLowerCase().includes(q));
-                    const ma = !a || t.artistName === a;
-                    return mq && ma;
-                });
-                renderTracks();
-            }, 300);
+            filterTimeout = setTimeout(renderView, 300);
         }
 
-        function clearSearchFilters() {
-            const searchInput = document.getElementById('searchInput');
-            const artistFilter = document.getElementById('artistFilter');
-            if (searchInput) searchInput.value = '';
-            if (artistFilter) artistFilter.value = '';
-            filterTracks();
-        }
-        window.clearSearchFilters = clearSearchFilters;
+        function renderView() {
+            const container = el('tracksContainer');
+            const scroll = container.scrollTop;
 
-        function renderTracks() {
-            const container = document.getElementById('tracksContainer');
-            if (filteredTracks.length === 0) {
-                container.innerHTML = `<div class="p-8 flex flex-col items-center justify-center text-center h-full">
-                    <i class="fas fa-search text-4xl text-white/20 mb-4"></i>
-                    <p class="text-text-muted mb-4">No tracks match your search.</p>
-                    <button onclick="clearSearchFilters()" class="bg-white/5 hover:bg-white/10 border border-white/10 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none">Clear Filters</button>
-                </div>`;
+            renderTabs();
+            renderViewHeader();
+            el('artistFilter').classList.toggle('hidden', view !== 'network');
+
+            if (view === 'playlists') renderPlaylists();
+            else if (view === 'artists') renderArtists();
+            else renderTrackList();
+
+            container.scrollTop = scroll;
+            updateNowPlayingActions();
+        }
+
+        function renderTabs() {
+            const active = view === 'playlist' ? 'playlists' : (view === 'artist' ? 'artists' : view);
+            el('viewTabs').querySelectorAll('[data-view]').forEach(btn => {
+                const on = btn.dataset.view === active;
+                btn.classList.toggle('tab-active', on);
+                btn.setAttribute('aria-selected', String(on));
+            });
+            el('countFavorites').textContent = Library.countFavorites();
+            el('countPlaylists').textContent = Library.listPlaylists().length;
+            el('countArtists').textContent = Library.listArtists().length;
+        }
+
+        function renderViewHeader() {
+            const header = el('viewHeader');
+            if (view !== 'playlist' && view !== 'artist') {
+                header.classList.add('hidden');
+                header.innerHTML = '';
+                return;
+            }
+            const pl = view === 'playlist' ? Library.getPlaylist(openPlaylistId) : null;
+            const title = view === 'playlist' ? (pl ? pl.name : 'Playlist') : openArtist;
+            header.classList.remove('hidden');
+            header.innerHTML = `
+                <button class="icon-btn" data-act="back" aria-label="Back"><i class="fas fa-arrow-left"></i></button>
+                <div class="min-w-0 flex-1">
+                    <div class="font-bold truncate">${escapeHtml(title || '')}</div>
+                    <div class="text-xs text-text-muted">${view === 'playlist' ? 'Playlist' : 'Artist'}</div>
+                </div>
+                <button class="icon-btn" data-act="playall" title="Play all" aria-label="Play all"><i class="fas fa-play"></i></button>
+                ${view === 'playlist' ? `
+                    <button class="icon-btn" data-act="rename" title="Rename playlist" aria-label="Rename playlist"><i class="fas fa-pen"></i></button>
+                    <button class="icon-btn hover:text-red-400" data-act="delete" title="Delete playlist" aria-label="Delete playlist"><i class="fas fa-trash"></i></button>
+                ` : `
+                    <button class="icon-btn" data-act="unfollow" title="Unfollow artist" aria-label="Unfollow artist"><i class="fas fa-user-minus"></i></button>
+                `}
+            `;
+        }
+
+        function emptyState(icon, message, actionLabel, action) {
+            return `<div class="flex flex-col items-center justify-center h-full text-center p-8">
+                <i class="fas ${icon} text-4xl text-white/20 mb-4"></i>
+                <p class="text-text-muted mb-4">${escapeHtml(message)}</p>
+                ${actionLabel ? `<button data-act="${action}" class="bg-white/5 hover:bg-white/10 border border-white/10 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none">${escapeHtml(actionLabel)}</button>` : ''}
+            </div>`;
+        }
+
+        function renderTrackList() {
+            const container = el('tracksContainer');
+            const q = el('searchInput').value.toLowerCase();
+            const artist = view === 'network' ? el('artistFilter').value : '';
+
+            visibleTracks = sourceTracks().filter(t => {
+                const mq = !q || t.title.toLowerCase().includes(q) || (t.artistName && t.artistName.toLowerCase().includes(q));
+                const ma = !artist || t.artistName === artist;
+                return mq && ma;
+            });
+
+            if (visibleTracks.length === 0) {
+                container.innerHTML = emptyStateFor(q || artist);
                 return;
             }
 
-            // ⚡ Bolt Performance Optimization:
-            // Added loading="lazy" to dynamically injected track cover images in the playlist.
-            // Defers loading for offscreen covers in long playlists, improving main thread performance
-            // and reducing network congestion during initial directory load.
-            container.innerHTML = filteredTracks.map((t, i) => {
-                const active = currentTrackIndex === i;
-                const cover = t.coverUrl ? `<img src="${escapeHtml(sanitizeUrl(t.coverUrl, true))}" class="w-full h-full object-cover" loading="lazy">` : '<i class="fas fa-music text-xs"></i>';
+            const currentKey = queue.current ? Library.trackKey(queue.current) : null;
+            container.innerHTML = visibleTracks.map((t, i) => {
+                const key = Library.trackKey(t);
+                const active = key === currentKey;
+                const fav = Library.isFavorite(t);
+                const cover = t.coverUrl
+                    ? `<img src="${escapeHtml(sanitizeUrl(t.coverUrl, true))}" class="w-full h-full object-cover" loading="lazy" alt="">`
+                    : '<i class="fas fa-music text-xs"></i>';
                 const time = t.duration ? `${Math.floor(t.duration/60)}:${Math.floor(t.duration%60).toString().padStart(2,'0')}` : '';
-                const escapedTitle = escapeHtml(t.title);
-                const escapedArtist = escapeHtml(t.artistName);
-                const ariaLabel = `Play ${escapedTitle} by ${escapedArtist}`;
+                const offline = !allTracks.length || (!liveIndex.has(key) && view !== 'network' && view !== 'artist');
                 return `
-                    <div class="track-row group ${active ? 'playing' : ''}" role="button" tabindex="0" aria-label="${ariaLabel}" onclick="playTrackIndex(${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();playTrackIndex(${i});}">
+                    <div class="track-row group ${active ? 'playing' : ''}" role="button" tabindex="0" data-idx="${i}" aria-label="Play ${escapeHtml(t.title)} by ${escapeHtml(t.artistName)}">
                         <div class="w-10 h-10 bg-white/10 rounded-lg overflow-hidden flex items-center justify-center text-white/50 relative flex-shrink-0">
                             ${cover}
                             <div class="absolute inset-0 bg-black/40 hidden group-hover:flex items-center justify-center text-white text-xs">
@@ -416,88 +690,323 @@
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="text-white font-medium truncate">${escapeHtml(t.title)}</div>
-                            <div class="text-xs text-text-muted truncate">${escapeHtml(t.artistName)}</div>
+                            <div class="text-xs text-text-muted truncate">${escapeHtml(t.artistName)}${offline ? ' · <span class="text-amber-400/70">saved copy</span>' : ''}</div>
                         </div>
-                        <div class="text-xs text-text-muted/50 font-mono">${time}</div>
+                        <div class="hidden sm:block text-xs text-text-muted/50 font-mono">${time}</div>
+                        <button class="row-btn ${fav ? 'is-fav' : ''}" data-act="fav" data-idx="${i}" aria-pressed="${fav}" aria-label="${fav ? 'Remove from favorites' : 'Save to favorites'}" title="${fav ? 'Remove from favorites' : 'Save to favorites'}">
+                            <i class="${fav ? 'fas' : 'far'} fa-heart"></i>
+                        </button>
+                        <button class="row-btn" data-act="add" data-idx="${i}" aria-label="Add to playlist" title="Add to playlist"><i class="fas fa-plus"></i></button>
+                        ${view === 'playlist' ? `<button class="row-btn hover:text-red-400" data-act="remove" data-idx="${i}" aria-label="Remove from playlist" title="Remove from playlist"><i class="fas fa-times"></i></button>` : ''}
                     </div>
                 `;
             }).join('');
         }
 
-        function playTrackIndex(index) {
-            if (index < 0 || index >= filteredTracks.length) return;
-            const track = filteredTracks[index];
-            if (currentTrackIndex === index) {
-                togglePlay();
+        function emptyStateFor(searching) {
+            if (searching) return emptyState('fa-search', 'No tracks match your search.', 'Clear filters', 'clearfilters');
+            switch (view) {
+                case 'favorites':
+                    return emptyState('fa-heart', 'No favorites yet. Tap the heart on any track to save it here.');
+                case 'recents':
+                    return emptyState('fa-clock-rotate-left', 'Nothing played yet.');
+                case 'playlist':
+                    return emptyState('fa-list', 'This playlist is empty. Add tracks with the + button.');
+                case 'artist':
+                    return emptyState('fa-user', 'No tracks from this artist are reachable right now.');
+                default:
+                    return allTracks.length === 0
+                        ? emptyState('fa-music', 'No tracks found yet. Join the network!')
+                        : emptyState('fa-search', 'No tracks match your search.', 'Clear filters', 'clearfilters');
+            }
+        }
+
+        function renderPlaylists() {
+            const container = el('tracksContainer');
+            const playlists = Library.listPlaylists();
+            const create = `<button data-act="newplaylist" class="track-row w-full text-left border border-dashed border-white/15 hover:border-primary/40">
+                <div class="w-10 h-10 rounded-lg bg-primary/15 text-primary flex items-center justify-center flex-shrink-0"><i class="fas fa-plus"></i></div>
+                <div class="flex-1 font-medium">New playlist</div>
+            </button>`;
+
+            if (playlists.length === 0) {
+                container.innerHTML = create + emptyState('fa-list', 'No playlists yet.');
                 return;
             }
-            currentTrackIndex = index;
-            audio.src = track.audioUrl;
-            audio.play().catch(()=>{});
-            
-            // Update UI
-             // ⚡ Bolt: Added native lazy loading to dynamically injected grid images to prevent network bottleneck
-            const coverHtml = track.coverUrl ? `<img src="${escapeHtml(sanitizeUrl(track.coverUrl, true))}" class="w-full h-full object-cover shadow-2xl" loading="lazy">` : '<i class="fas fa-music"></i>';
-            document.getElementById('playerCover').innerHTML = coverHtml;
-            document.getElementById('miniCover').innerHTML = coverHtml;
-            document.getElementById('playerTitle').textContent = track.title;
-            document.getElementById('miniTitle').textContent = track.title;
-            document.getElementById('playerArtist').textContent = track.artistName;
-            document.getElementById('miniArtist').textContent = track.artistName;
-            document.getElementById('playerRelease').textContent = track.releaseTitle || '';
-            
-            // Extract colors for ambient glow (simplified pseudo-random based on title)
-            const colors = ['oklch(65% 0.28 290)', '#ec4899', '#3b82f6', '#10b981', '#f59e0b'];
-            const cIdx = track.title.length % colors.length;
-            document.getElementById('ambientGlow').style.backgroundColor = colors[cIdx];
 
-            renderTracks();
+            container.innerHTML = create + playlists.map(pl => `
+                <div class="track-row group" role="button" tabindex="0" data-pl="${escapeHtml(pl.id)}" aria-label="Open playlist ${escapeHtml(pl.name)}">
+                    <div class="w-10 h-10 rounded-lg bg-white/10 text-purple-300 flex items-center justify-center flex-shrink-0"><i class="fas fa-list"></i></div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-white font-medium truncate">${escapeHtml(pl.name)}</div>
+                        <div class="text-xs text-text-muted">${pl.items.length} track${pl.items.length === 1 ? '' : 's'}</div>
+                    </div>
+                    <button class="row-btn" data-act="playpl" data-pl="${escapeHtml(pl.id)}" aria-label="Play ${escapeHtml(pl.name)}" title="Play"><i class="fas fa-play"></i></button>
+                </div>
+            `).join('');
+        }
+
+        function renderArtists() {
+            const container = el('tracksContainer');
+            const artists = Library.listArtists();
+            if (artists.length === 0) {
+                container.innerHTML = emptyState('fa-user-plus', 'No followed artists yet. Follow one from the player controls.');
+                return;
+            }
+            container.innerHTML = artists.map(a => {
+                const count = allTracks.filter(t => Library.artistKey(t.artistName) === a.key).length;
+                return `
+                    <div class="track-row group" role="button" tabindex="0" data-artist="${escapeHtml(a.name)}" aria-label="Show tracks by ${escapeHtml(a.name)}">
+                        <div class="w-10 h-10 rounded-full bg-white/10 text-primary flex items-center justify-center flex-shrink-0"><i class="fas fa-user"></i></div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-white font-medium truncate">${escapeHtml(a.name)}</div>
+                            <div class="text-xs text-text-muted">${count} track${count === 1 ? '' : 's'} on the network</div>
+                        </div>
+                        <button class="row-btn hover:text-red-400" data-act="unfollowrow" data-artist="${escapeHtml(a.name)}" aria-label="Unfollow ${escapeHtml(a.name)}" title="Unfollow"><i class="fas fa-user-minus"></i></button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        /* ---------------------------------------------------------- actions */
+
+        /** Row actions win over the row itself, so hearting never starts playback. */
+        function activate(target) {
+            const actionBtn = target.closest('[data-act]');
+            if (actionBtn) { handleAction(actionBtn.dataset.act, actionBtn.dataset); return; }
+            const trackRow = target.closest('[data-idx]');
+            if (trackRow) { playIndex(Number(trackRow.dataset.idx)); return; }
+            const plRow = target.closest('[data-pl]');
+            if (plRow) { openPlaylist(plRow.dataset.pl); return; }
+            const artistRow = target.closest('[data-artist]');
+            if (artistRow) openArtistView(artistRow.dataset.artist);
+        }
+
+        function handleAction(act, data) {
+            const idx = data.idx != null ? Number(data.idx) : -1;
+            switch (act) {
+                case 'fav':
+                    toggleFavorite(visibleTracks[idx]);
+                    break;
+                case 'add':
+                    openPicker(visibleTracks[idx]);
+                    break;
+                case 'remove':
+                    Library.removeFromPlaylist(openPlaylistId, Library.trackKey(visibleTracks[idx]));
+                    break;
+                case 'clearfilters':
+                    el('searchInput').value = '';
+                    el('artistFilter').value = '';
+                    renderView();
+                    break;
+                case 'newplaylist': {
+                    const name = prompt('Playlist name');
+                    if (name && name.trim()) {
+                        const pl = Library.createPlaylist(name.trim());
+                        openPlaylist(pl.id);
+                    }
+                    break;
+                }
+                case 'playpl':
+                    openPlaylist(data.pl);
+                    if (visibleTracks.length) playIndex(0);
+                    break;
+                case 'playall':
+                    if (visibleTracks.length) playIndex(0);
+                    break;
+                case 'rename': {
+                    const pl = Library.getPlaylist(openPlaylistId);
+                    const name = prompt('Rename playlist', pl ? pl.name : '');
+                    if (name && name.trim()) Library.renamePlaylist(openPlaylistId, name.trim());
+                    break;
+                }
+                case 'delete': {
+                    const pl = Library.getPlaylist(openPlaylistId);
+                    if (pl && confirm(`Delete the playlist "${pl.name}"? The tracks stay on the network.`)) {
+                        Library.deletePlaylist(openPlaylistId);
+                        view = 'playlists';
+                        openPlaylistId = null;
+                        renderView();
+                    }
+                    break;
+                }
+                case 'unfollow':
+                    Library.toggleArtist(openArtist);
+                    view = 'artists';
+                    openArtist = null;
+                    renderView();
+                    break;
+                case 'unfollowrow':
+                    Library.toggleArtist(data.artist);
+                    break;
+                case 'back':
+                    view = view === 'playlist' ? 'playlists' : 'artists';
+                    openPlaylistId = null;
+                    openArtist = null;
+                    renderView();
+                    break;
+            }
+        }
+
+        function toggleFavorite(track) {
+            if (!track) return;
+            const nowFavorite = Library.toggleFavorite(track);
+            showToast(nowFavorite ? 'Saved to favorites' : 'Removed from favorites');
+        }
+
+        function openPlaylist(id) {
+            view = 'playlist';
+            openPlaylistId = id;
+            el('searchInput').value = '';
+            renderView();
+        }
+
+        function openArtistView(name) {
+            view = 'artist';
+            openArtist = name;
+            el('searchInput').value = '';
+            renderView();
+        }
+
+        function onLibraryChange() {
+            // Hearting a track in a network list must not rebuild the list under
+            // the listener's cursor; the library-backed views do have to redraw.
+            if (view === 'network' || view === 'artist') {
+                renderTabs();
+                updateRowStates();
+                updateNowPlayingActions();
+            } else {
+                renderView();
+            }
+        }
+
+        /* -------------------------------------------------------- playback */
+
+        function playIndex(index) {
+            if (index < 0 || index >= visibleTracks.length) return;
+            const track = visibleTracks[index];
+            const sameTrack = queue.current && Library.trackKey(queue.current) === Library.trackKey(track);
+            const sameContext = queue.source.type === queueSource().type && queue.source.id === queueSource().id;
+            if (sameTrack && sameContext) { togglePlay(); return; }
+
+            queue.set(visibleTracks, queueSource(), index);
+            playCurrent();
+        }
+
+        function playCurrent() {
+            const track = queue.current;
+            if (!track) return;
+            audio.src = track.audioUrl;
+            audio.play().catch(() => {});
+            updateNowPlaying(track);
+            Library.pushRecent(track);
         }
 
         function togglePlay() {
-            toggleAudioPlayback(audio, isPlaying, currentTrackIndex, filteredTracks, playTrackIndex);
-        }
-
-        function updatePlayButton() {
-            document.getElementById('playIcon').className = isPlaying ? 'fas fa-pause' : 'fas fa-play';
-            renderTracks(); // Update the tiny icon in the list too
-        }
-
-        function updateVisuals() {
-            const cover = document.getElementById('playerCover');
-            if (isPlaying) {
-                cover.style.transform = 'scale(1.05)';
-            } else {
-                cover.style.transform = 'scale(1)';
+            if (!queue.current) {
+                if (visibleTracks.length) playIndex(0);
+                return;
             }
+            if (isPlaying) audio.pause();
+            else audio.play().catch(() => {});
         }
 
         function playNext() {
-            const next = getNextTrackIndex(filteredTracks, currentTrackIndex, isShuffle);
-            if (next !== null) playTrackIndex(next);
+            if (queue.next()) playCurrent();
         }
 
         function playPrev() {
-            const prev = getPrevTrackIndex(filteredTracks, currentTrackIndex, audio.currentTime);
-            if (prev === -1) { audio.currentTime = 0; return; }
-            if (prev !== null) playTrackIndex(prev);
+            const track = queue.prev(audio.currentTime);
+            if (!track) { audio.currentTime = 0; return; }
+            playCurrent();
         }
 
-        window.shufflePlay = function() {
-            isShuffle = true;
-            document.getElementById('toggleShuffle').style.color = 'oklch(65% 0.28 290)';
-            if(filteredTracks.length > 0) playTrackIndex(Math.floor(Math.random() * filteredTracks.length));
+        function shufflePlay() {
+            setShuffle(true);
+            if (!visibleTracks.length) return;
+            playIndex(Math.floor(Math.random() * visibleTracks.length));
+        }
+
+        function restoreLastTrack() {
+            const prefs = Library.getPrefs();
+            const track = prefs.lastTrack;
+            if (!track || !track.audioUrl) return;
+            queue.set([track], { type: 'resume', id: null, label: 'Resume' }, 0);
+            audio.src = track.audioUrl;
+            pendingSeek = Number(prefs.lastPosition) || 0;
+            updateNowPlaying(track, true);
+        }
+
+        function updateNowPlaying(track, restoring) {
+            const coverHtml = track.coverUrl
+                ? `<img src="${escapeHtml(sanitizeUrl(track.coverUrl, true))}" class="w-full h-full object-cover shadow-2xl" loading="lazy" alt="">`
+                : '<i class="fas fa-music"></i>';
+            el('playerCover').innerHTML = coverHtml;
+            el('miniCover').innerHTML = coverHtml;
+            el('playerTitle').textContent = track.title;
+            el('miniTitle').textContent = track.title;
+            el('playerArtist').textContent = track.artistName;
+            el('miniArtist').textContent = track.artistName;
+            el('playerRelease').textContent = track.releaseTitle || '';
+            el('queueSource').textContent = queue.source.type === 'resume'
+                ? 'From your last session'
+                : (queue.source.label ? `Playing from ${queue.source.label}` : '');
+
+            const colors = ['oklch(65% 0.28 290)', '#ec4899', '#3b82f6', '#10b981', '#f59e0b'];
+            el('ambientGlow').style.backgroundColor = colors[track.title.length % colors.length];
+
+            if (!restoring) Library.setPrefs({ lastTrack: Library.snapshot(track), lastPosition: 0 });
+            updateNowPlayingActions();
+            updateRowStates();
+        }
+
+        function updateNowPlayingActions() {
+            const track = queue.current;
+            const has = !!track;
+            const fav = has && Library.isFavorite(track);
+            const following = has && Library.isArtistFollowed(track.artistName);
+
+            [el('npFav'), el('npAdd'), el('npFollow'), el('miniFav')].forEach(b => { b.disabled = !has; });
+            el('npFav').innerHTML = `<i class="${fav ? 'fas' : 'far'} fa-heart"></i>`;
+            el('npFav').classList.toggle('is-fav', !!fav);
+            el('npFav').setAttribute('aria-pressed', String(!!fav));
+            el('miniFav').innerHTML = `<i class="${fav ? 'fas' : 'far'} fa-heart"></i>`;
+            el('miniFav').classList.toggle('is-fav', !!fav);
+            el('miniFav').setAttribute('aria-pressed', String(!!fav));
+            el('npFollow').innerHTML = `<i class="${following ? 'fas' : 'far'} fa-star"></i>`;
+            el('npFollow').classList.toggle('is-following', !!following);
+            el('npFollow').setAttribute('aria-pressed', String(!!following));
+        }
+
+        /** Row-level refresh that leaves the list DOM (and its scroll) in place. */
+        function updateRowStates() {
+            if (!isTrackView()) return;
+            const currentKey = queue.current ? Library.trackKey(queue.current) : null;
+            el('tracksContainer').querySelectorAll('.track-row[data-idx]').forEach(row => {
+                const track = visibleTracks[Number(row.dataset.idx)];
+                if (!track) return;
+                const active = Library.trackKey(track) === currentKey;
+                row.classList.toggle('playing', active);
+                const overlayIcon = row.querySelector('.absolute i');
+                if (overlayIcon) overlayIcon.className = `fas ${active && isPlaying ? 'fa-pause' : 'fa-play'}`;
+                const favBtn = row.querySelector('[data-act="fav"]');
+                if (favBtn) {
+                    const fav = Library.isFavorite(track);
+                    favBtn.classList.toggle('is-fav', fav);
+                    favBtn.setAttribute('aria-pressed', String(fav));
+                    favBtn.querySelector('i').className = `${fav ? 'fas' : 'far'} fa-heart`;
+                }
+            });
         }
 
         function updateProgress() {
             if (!audio.duration) return;
-            const p = (audio.currentTime / audio.duration) * 100;
-            document.getElementById('progressFill').style.width = `${p}%`;
-            document.getElementById('currentTime').textContent = formatTime(audio.currentTime);
+            el('progressFill').style.width = `${(audio.currentTime / audio.duration) * 100}%`;
+            el('currentTime').textContent = formatTime(audio.currentTime);
         }
 
         function updateDuration() {
-            document.getElementById('duration').textContent = formatTime(audio.duration);
+            el('duration').textContent = formatTime(audio.duration);
         }
 
         function formatTime(s) {
@@ -506,9 +1015,131 @@
             const se = Math.floor(s % 60);
             return `${m}:${se.toString().padStart(2,'0')}`;
         }
-        
-        window.filterTracks = filterTracks;
-        window.playTrackIndex = playTrackIndex;
+
+        /* ------------------------------------------------- add-to-playlist */
+
+        function initPicker() {
+            el('pickerClose').addEventListener('click', closePicker);
+            el('playlistPicker').addEventListener('click', (e) => {
+                if (e.target === el('playlistPicker')) closePicker();
+            });
+            el('pickerList').addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-plid]');
+                if (!btn || !pickerTrack) return;
+                const id = btn.dataset.plid;
+                if (Library.playlistHas(id, pickerTrack)) {
+                    Library.removeFromPlaylist(id, Library.trackKey(pickerTrack));
+                } else {
+                    Library.addToPlaylist(id, pickerTrack);
+                }
+                renderPicker();
+            });
+            el('pickerNewForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const input = el('pickerNewName');
+                const name = input.value.trim();
+                if (!name || !pickerTrack) return;
+                const pl = Library.createPlaylist(name);
+                Library.addToPlaylist(pl.id, pickerTrack);
+                input.value = '';
+                renderPicker();
+                showToast(`Added to ${pl.name}`);
+            });
+        }
+
+        function openPicker(track) {
+            if (!track) return;
+            pickerTrack = track;
+            el('pickerTrack').textContent = `${track.title} — ${track.artistName}`;
+            renderPicker();
+            const modal = el('playlistPicker');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            el('pickerNewName').focus();
+        }
+
+        function closePicker() {
+            const modal = el('playlistPicker');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            pickerTrack = null;
+        }
+
+        function renderPicker() {
+            const playlists = Library.listPlaylists();
+            el('pickerList').innerHTML = playlists.length === 0
+                ? '<p class="text-xs text-text-muted text-center py-4">No playlists yet — create one below.</p>'
+                : playlists.map(pl => {
+                    const inIt = pickerTrack && Library.playlistHas(pl.id, pickerTrack);
+                    return `<button type="button" data-plid="${escapeHtml(pl.id)}" aria-pressed="${!!inIt}" class="flex items-center gap-3 w-full text-left px-3 py-2 rounded-lg hover:bg-white/10 transition-colors">
+                        <i class="fas ${inIt ? 'fa-circle-check text-primary' : 'fa-circle text-white/20'}"></i>
+                        <span class="flex-1 truncate text-sm">${escapeHtml(pl.name)}</span>
+                        <span class="text-[10px] text-text-muted font-mono">${pl.items.length}</span>
+                    </button>`;
+                }).join('');
+        }
+
+        /* ---------------------------------------------------- library menu */
+
+        function initLibraryMenu() {
+            el('libraryMenuBtn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                const menu = el('libraryMenu');
+                const open = menu.classList.toggle('hidden');
+                el('libraryMenuBtn').setAttribute('aria-expanded', String(!open));
+            });
+            document.addEventListener('click', closeLibraryMenu);
+            el('libraryMenu').addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-act]');
+                if (!btn) return;
+                closeLibraryMenu();
+                if (btn.dataset.act === 'export') exportLibrary();
+                if (btn.dataset.act === 'import') el('importFile').click();
+                if (btn.dataset.act === 'clear') {
+                    if (confirm('Delete the favorites, playlists and followed artists stored in this browser? This cannot be undone — export them first if you want a copy.')) {
+                        Library.clearAll();
+                        showToast('Library cleared');
+                    }
+                }
+            });
+            el('importFile').addEventListener('change', async (e) => {
+                const file = e.target.files && e.target.files[0];
+                if (!file) return;
+                try {
+                    const summary = Library.importJson(await file.text());
+                    showToast(`Imported: ${summary.favorites} favorites, ${summary.playlists} playlists`);
+                } catch (err) {
+                    showToast(err.message || 'Import failed');
+                }
+                e.target.value = '';
+            });
+        }
+
+        function closeLibraryMenu() {
+            el('libraryMenu').classList.add('hidden');
+            el('libraryMenuBtn').setAttribute('aria-expanded', 'false');
+        }
+
+        function exportLibrary() {
+            const blob = new Blob([Library.exportJson()], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `tunecamp-library-${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+
+        let toastTimer;
+        function showToast(message) {
+            const toast = el('toast');
+            toast.textContent = message;
+            toast.classList.remove('opacity-0', 'translate-y-2');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.add('opacity-0', 'translate-y-2'), 2200);
+        }
     </script>
 </body>
 </html>
