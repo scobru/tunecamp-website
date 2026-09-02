@@ -31,6 +31,15 @@ const ROOT = 'tc-library-v1';
 const PRIVATE_BUCKETS = ['favorites', 'artists', 'playlists'];
 /** Coalesces a burst of edits (and swallows the echo of an incoming merge). */
 const PUSH_DEBOUNCE_MS = 400;
+/**
+ * A write that is never acknowledged must not wedge the queue. Without this the
+ * push loop awaits an ack that may never come — the library then looks
+ * connected while nothing has moved, which is exactly what a stalled relay
+ * looked like in the field.
+ */
+const PUT_TIMEOUT_MS = 10000;
+/** Backoff after a failed batch, so a down relay is retried but not hammered. */
+const RETRY_MS = 15000;
 /** One shared playlist is one graph node, so it cannot grow without bound. */
 export const SHARED_TRACK_LIMIT = 200;
 
@@ -114,8 +123,23 @@ export function createSync({ Zen, relay, identity, onStatus }) {
 
     /** bucket/id -> the stamp last seen on the wire, in either direction. */
     const settled = new Map();
-    const status = { enabled: false, connected: false, alias, relay, pushed: 0, pulled: 0, lastError: null };
+    const status = {
+        enabled: false, connected: false, alias, relay,
+        pushed: 0, pulled: 0,
+        /** Items changed locally that the relay has not acknowledged yet. */
+        pending: 0,
+        /**
+         * Live items this identity keeps mirrored. Reported because pushed/pulled
+         * count only this session's traffic: a listener who returns already in
+         * sync legitimately transfers nothing, and a bare "0 sent, 0 received"
+         * reads as a failure when it means "up to date".
+         */
+        mirrored: 0,
+        lastError: null
+    };
     let peers = 0;
+    let pushing = false;
+    let pushQueued = false;
 
     function report() {
         if (onStatus) onStatus(Object.assign({}, status));
@@ -166,6 +190,15 @@ export function createSync({ Zen, relay, identity, onStatus }) {
         });
     }
 
+    /** Live (non-tombstoned) items across the synced buckets. */
+    function countLiveItems() {
+        const state = Library.readState();
+        return PRIVATE_BUCKETS.reduce((total, bucket) => {
+            const items = state[bucket] || {};
+            return total + Object.keys(items).filter((key) => items[key] && !items[key].deletedAt).length;
+        }, 0);
+    }
+
     /** Everything whose current stamp differs from what the wire last carried. */
     function pendingChanges() {
         const state = Library.readState();
@@ -184,31 +217,63 @@ export function createSync({ Zen, relay, identity, onStatus }) {
 
     function put(node, value) {
         return new Promise((resolve) => {
-            node.put(value, (ack) => {
-                if (ack && ack.err) {
-                    status.lastError = String(ack.err);
-                    resolve(false);
-                } else {
-                    resolve(true);
-                }
-            }, { authenticator: pair });
+            let settledHere = false;
+            const done = (ok, err) => {
+                if (settledHere) return;
+                settledHere = true;
+                status.lastError = err || null;
+                resolve(ok);
+            };
+            const timer = setTimeout(
+                () => done(false, 'the relay did not acknowledge a write within ' + (PUT_TIMEOUT_MS / 1000) + 's'),
+                PUT_TIMEOUT_MS
+            );
+            try {
+                node.put(value, (ack) => {
+                    clearTimeout(timer);
+                    if (ack && ack.err) done(false, String(ack.err));
+                    else done(true);
+                }, { authenticator: pair });
+            } catch (e) {
+                clearTimeout(timer);
+                done(false, e.message);
+            }
         });
     }
 
     async function pushOnce() {
         if (!running) return;
-        const changes = pendingChanges();
-        for (const change of changes) {
-            const value = change.record.deletedAt
-                ? { d: null, at: change.stamp, del: 1 }
-                : { d: await Zen.encrypt(change.record, pair), at: change.stamp, del: 0 };
-            const ok = await put(root.get(change.bucket).get(change.id), value);
-            if (!ok) break;
-            markSettled(change.bucket, change.id, change.stamp);
-            status.pushed++;
+        // One push at a time: a second run would re-send what the first is still
+        // waiting on, and both would fight over the same settled markers.
+        if (pushing) { pushQueued = true; return; }
+        pushing = true;
+        let stalled = false;
+        try {
+            const changes = pendingChanges();
+            status.pending = changes.length;
+            for (const change of changes) {
+                if (!running) break;
+                const value = change.record.deletedAt
+                    ? { d: null, at: change.stamp, del: 1 }
+                    : { d: await Zen.encrypt(change.record, pair), at: change.stamp, del: 0 };
+                const ok = await put(root.get(change.bucket).get(change.id), value);
+                if (!ok) { stalled = true; break; }
+                markSettled(change.bucket, change.id, change.stamp);
+                status.pushed++;
+                status.pending--;
+                report();
+            }
+            if (!stalled) stalled = !(await syncShared());
+        } finally {
+            pushing = false;
+            status.pending = pendingChanges().length;
+            status.mirrored = countLiveItems();
+            report();
         }
-        await syncShared();
-        if (changes.length) report();
+        // Nothing is marked settled on a failure, so the next attempt simply
+        // finds the same work waiting.
+        if (stalled && running) setTimeout(() => { if (running) pushOnce(); }, RETRY_MS);
+        else if (pushQueued) { pushQueued = false; schedulePush(); }
     }
 
     /**
@@ -235,14 +300,17 @@ export function createSync({ Zen, relay, identity, onStatus }) {
                 : { name: null, owner: null, items: null, at: stamp, del: 1 };
 
             const ok = await put(root.get('shared').get(id), value);
-            if (!ok) break;
+            if (!ok) return false;
             settled.set(marker, wanted ? stamp : -stamp);
         }
+        return true;
     }
 
     function schedulePush() {
         clearTimeout(pushTimer);
-        pushTimer = setTimeout(() => { pushOnce().catch((e) => { status.lastError = e.message; report(); }); }, PUSH_DEBOUNCE_MS);
+        pushTimer = setTimeout(() => {
+            pushOnce().catch((e) => { status.lastError = e.message; report(); });
+        }, PUSH_DEBOUNCE_MS);
     }
 
     function start() {
@@ -263,6 +331,7 @@ export function createSync({ Zen, relay, identity, onStatus }) {
 
         running = true;
         status.enabled = true;
+        status.mirrored = countLiveItems();
         subscribe();
         unsubscribeLibrary = Library.subscribe(schedulePush);
         schedulePush();

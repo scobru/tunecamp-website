@@ -220,6 +220,19 @@ export function isFavorite(track) {
     return alive(state.favorites[trackKey(track)]);
 }
 
+/**
+ * Idempotent add — importing the same source twice must not remove what the
+ * first run added, which is what toggling would do. Returns true when it
+ * actually added something.
+ */
+export function addFavorite(track) {
+    const key = trackKey(track);
+    if (!key || alive(state.favorites[key])) return false;
+    state.favorites[key] = Object.assign(snapshot(track), { addedAt: Date.now() });
+    persist();
+    return true;
+}
+
 /** Adds or removes, and returns the resulting state (true = now a favourite). */
 export function toggleFavorite(track) {
     const key = trackKey(track);
@@ -229,9 +242,7 @@ export function toggleFavorite(track) {
         persist();
         return false;
     }
-    state.favorites[key] = Object.assign(snapshot(track), { addedAt: Date.now() });
-    persist();
-    return true;
+    return addFavorite(track);
 }
 
 export function listFavorites() {
@@ -250,6 +261,16 @@ export function isArtistFollowed(name) {
     return alive(state.artists[artistKey(name)]);
 }
 
+/** Idempotent counterpart of toggleArtist, for the same reason. */
+export function addArtist(name) {
+    if (!isMeaningful(name)) return false;
+    const key = artistKey(name);
+    if (alive(state.artists[key])) return false;
+    state.artists[key] = { key, name: String(name), addedAt: Date.now() };
+    persist();
+    return true;
+}
+
 export function toggleArtist(name) {
     if (!isMeaningful(name)) return false;
     const key = artistKey(name);
@@ -258,9 +279,7 @@ export function toggleArtist(name) {
         persist();
         return false;
     }
-    state.artists[key] = { key, name: String(name), addedAt: Date.now() };
-    persist();
-    return true;
+    return addArtist(name);
 }
 
 export function listArtists() {
@@ -275,18 +294,29 @@ function newId() {
     return 'pl_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
 
-export function createPlaylist(name) {
+/**
+ * `extra` carries provenance for playlists this library did not author — an
+ * import stamps where it came from, so a second run updates that playlist
+ * instead of creating a second copy of it.
+ */
+export function createPlaylist(name, extra) {
     const id = newId();
     const now = Date.now();
-    state.playlists[id] = {
+    state.playlists[id] = Object.assign({
         id,
         name: String(name || 'New playlist').slice(0, 120),
         items: [],
         createdAt: now,
         updatedAt: now
-    };
+    }, extra || {});
     persist();
     return state.playlists[id];
+}
+
+/** Finds a playlist by the provenance marker an import stamped on it. */
+export function findPlaylistByOrigin(origin) {
+    if (!origin) return null;
+    return listPlaylists().find((pl) => pl.importedFrom === origin) || null;
 }
 
 /**
