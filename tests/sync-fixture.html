@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>library-sync fixture</title></head>
+<body>
+<!--
+  Drives components/library-sync.js against the real Zen graph for
+  tests/sync.e2e.cjs. No relay is involved: Zen's local store stands in for one,
+  which exercises every code path except the wire itself.
+-->
+<script type="module">
+import Zen from '../vendor/zen.min.js';
+import * as Library from '../components/library.js';
+import * as Sync from '../components/library-sync.js';
+
+const ROOT = 'tc-library-v1';
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+window.harness = {
+    Zen, Library, Sync, wait,
+    pair: null,
+    sync: null,
+
+    async makePair(seed) {
+        return new Promise((res) => Zen.pair((p) => res(p), { seed }));
+    },
+
+    /** Reads a node straight off the graph, bypassing the sync layer. */
+    raw(pub, path, timeout = 4000) {
+        return new Promise((res) => {
+            let node = new Zen({ peers: [] }).get('~' + pub).get(ROOT);
+            path.forEach((p) => { node = node.get(p); });
+            let settled = false;
+            const done = (v) => { if (!settled) { settled = true; res(v); } };
+            node.on((d) => done(d));
+            setTimeout(() => done(null), timeout);
+        });
+    },
+
+    /** Writes a node straight onto the graph, as another device would. */
+    write(pair, path, value, timeout = 4000) {
+        return new Promise((res) => {
+            let node = new Zen({ peers: [] }).get('~' + pair.pub).get(ROOT);
+            path.forEach((p) => { node = node.get(p); });
+            let settled = false;
+            const done = (v) => { if (!settled) { settled = true; res(v); } };
+            node.put(value, (ack) => done(ack && ack.err ? 'err:' + ack.err : 'ok'), { authenticator: pair });
+            setTimeout(() => done('timeout'), timeout);
+        });
+    }
+};
+window.harnessReady = true;
+</script>
+</body>
+</html>

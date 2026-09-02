@@ -16,11 +16,16 @@
  * song is alive at the moment. Tracks with no usable title/artist fall back to
  * the canonical id as their key.
  *
- * Storage goes through a pluggable backend. Today there is one: localStorage,
- * per-browser and anonymous — no account, no server, nothing leaves the device.
- * Deletions leave tombstones (`deletedAt`) rather than dropping the record, so
- * a future sync backend (the FID/Zen graph) can merge two devices last-write-
- * wins per item without resurrecting removed entries.
+ * Storage is always local: localStorage, per-browser and anonymous — no
+ * account, no server, nothing leaves the device. On top of that, an optional
+ * sync layer (components/library-sync.js, driven by a FID identity) mirrors the
+ * same library through the Zen graph so it follows the listener across devices.
+ * Local stays the source of truth for rendering; sync only merges.
+ *
+ * Merging is last-write-wins per item, never per list: two devices editing
+ * different favourites must not overwrite each other's work. Deletions leave
+ * tombstones (`deletedAt`) rather than dropping the record, so a delete on one
+ * device is not resurrected by the other's stale copy.
  */
 
 const STORAGE_KEY = 'tc_library_v1';
@@ -284,6 +289,20 @@ export function createPlaylist(name) {
     return state.playlists[id];
 }
 
+/**
+ * Marks a playlist public, which is what the sync layer republishes in the
+ * clear so a link to it can be opened by anyone. Everything else a listener
+ * saves stays encrypted to their own key.
+ */
+export function setPlaylistPublic(id, isPublic) {
+    const pl = getPlaylist(id);
+    if (!pl) return null;
+    pl.isPublic = !!isPublic;
+    pl.updatedAt = Date.now();
+    persist();
+    return pl;
+}
+
 export function renamePlaylist(id, name) {
     const pl = state.playlists[id];
     if (!alive(pl)) return null;
@@ -399,6 +418,56 @@ export function buildLiveIndex(tracks) {
 
 /* --------------------------------------------------------------- import/export */
 
+/* ----------------------------------------------------------------- merging */
+
+/** The timestamp an item is compared by: its last write, whatever kind. */
+function stampOf(record) {
+    return (record && (record.deletedAt || record.updatedAt || record.addedAt)) || 0;
+}
+
+function mergeBucket(mine, theirs, appliedKeys, bucketName) {
+    Object.keys(theirs || {}).forEach((id) => {
+        const incoming = theirs[id];
+        if (!incoming) return;
+        if (!mine[id] || stampOf(incoming) > stampOf(mine[id])) {
+            mine[id] = incoming;
+            if (appliedKeys) appliedKeys.push(bucketName + '/' + id);
+        }
+    });
+}
+
+function mergeRecents(mine, theirs) {
+    const seen = new Set();
+    return mine
+        .concat(theirs || [])
+        .sort((a, b) => (b.playedAt || 0) - (a.playedAt || 0))
+        .filter((r) => (r && r.key && !seen.has(r.key)) ? seen.add(r.key) : false)
+        .slice(0, RECENTS_LIMIT);
+}
+
+/**
+ * Folds another copy of the library into this one — a file being imported, or
+ * items arriving from the sync layer. Returns the `bucket/id` paths it actually
+ * applied, which is what lets the caller avoid echoing them straight back.
+ */
+export function mergeRemote(partial) {
+    if (!partial || typeof partial !== 'object') return [];
+    const applied = [];
+    mergeBucket(state.favorites, partial.favorites, applied, 'favorites');
+    mergeBucket(state.artists, partial.artists, applied, 'artists');
+    mergeBucket(state.playlists, partial.playlists, applied, 'playlists');
+    if (Array.isArray(partial.recents) && partial.recents.length) {
+        state.recents = mergeRecents(state.recents, partial.recents);
+    }
+    if (applied.length || (partial.recents && partial.recents.length)) persist();
+    return applied;
+}
+
+/** A frozen view for the sync layer to diff against; never mutate the result. */
+export function readState() {
+    return state;
+}
+
 export function exportJson() {
     return JSON.stringify({
         app: 'tunecamp-community-player',
@@ -422,24 +491,10 @@ export function importJson(text) {
     }
     const incoming = migrate(parsed && parsed.library ? parsed.library : parsed);
 
-    const stamp = (rec) => (rec && (rec.deletedAt || rec.updatedAt || rec.addedAt)) || 0;
-    const mergeBucket = (mine, theirs) => {
-        Object.keys(theirs).forEach((id) => {
-            if (!mine[id] || stamp(theirs[id]) > stamp(mine[id])) mine[id] = theirs[id];
-        });
-    };
-
     mergeBucket(state.favorites, incoming.favorites);
     mergeBucket(state.artists, incoming.artists);
     mergeBucket(state.playlists, incoming.playlists);
-
-    const seen = new Set();
-    state.recents = state.recents
-        .concat(incoming.recents)
-        .sort((a, b) => (b.playedAt || 0) - (a.playedAt || 0))
-        .filter((r) => (r && r.key && !seen.has(r.key)) ? seen.add(r.key) : false)
-        .slice(0, RECENTS_LIMIT);
-
+    state.recents = mergeRecents(state.recents, incoming.recents);
     state.prefs = Object.assign({}, incoming.prefs, state.prefs);
     persist();
     return {
