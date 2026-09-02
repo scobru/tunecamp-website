@@ -98,13 +98,8 @@
                 <p class="text-xs text-text-muted/50 uppercase tracking-widest font-semibold mb-4">On this page</p>
                 <a href="#railway" class="toc-link block py-1">Deploy on Railway</a>
                 <a href="#vps-installer" class="toc-link block py-1">VPS Auto-Installer</a>
-                <a href="#prerequisites" class="toc-link block py-1">Prerequisites (Manual)</a>
-                <a href="#install" class="toc-link block py-1">Install &amp; run (Manual)</a>
-                <a href="#first-login" class="toc-link block py-1">First login</a>
-                <a href="#music" class="toc-link block py-1">Add your music</a>
-                <a href="#public" class="toc-link block py-1">Go public (Nginx)</a>
-                <a href="#join-network" class="toc-link block py-1">Join the network</a>
-                <a href="#optional" class="toc-link block py-1">Optional integrations</a>
+                <a href="#manual-setup" class="toc-link block py-1">Manual setup guide</a>
+                <a href="#register" class="toc-link block py-1">Register your instance</a>
             </div>
         </aside>
 
@@ -121,22 +116,22 @@
                 <h1 class="font-display text-4xl md:text-5xl font-extrabold tracking-tight mb-4">Run your instance</h1>
                 <p class="text-text-muted text-lg leading-relaxed">
                     Tunecamp is self-hosted. You run the server, you own the music, you control who listens.
-                    Follow these steps to go from zero to a live instance on the federated network.
+                    Pick the fastest path below and follow the full setup guide for step-by-step details.
                 </p>
             </div>
 
             <!-- Railway: no-VPS alternative -->
             <section id="railway" class="mb-6 bg-gradient-to-r from-violet-950/60 to-purple-900/40 border border-violet-500/30 rounded-2xl p-8">
                 <div class="flex items-center gap-3 mb-4">
-                    <svg class="w-6 h-6 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 21.5C3.5 17.5 3.5 13.5 4.5 9.5C5.5 5.5 9 2.5 12 2.5C15 2.5 18.5 5.5 19.5 9.5C20.5 13.5 20.5 17.5 19.5 21.5" stroke="oklch(75% 0.22 290)" stroke-width="2" stroke-linecap="round"/><path d="M12 2.5V21.5" stroke="oklch(75% 0.22 290)" stroke-width="2" stroke-linecap="round"/></svg>
+                    <svg class="w-6 h-6 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 21.5C3.5 17.5 3.5 13.5 4.5 9.5C5.5 5.5 9 2.5 12 2.5C15 2.5 18.5 5.5 19.5 9.5C20.5 13.5 20.5 17.5 19.5 21.5" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"/><path d="M12 2.5V21.5" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"/></svg>
                     <h2 class="font-display text-xl font-bold">No VPS? Deploy on Railway</h2>
                     <span class="tag ml-auto"><i class="fas fa-bolt text-amber-400"></i> ~2 min</span>
                 </div>
                 <p class="text-text-muted text-sm mb-5">
-                    Skip the Docker setup entirely. Railway provisions your instance, attaches a persistent volume, and gives you a public HTTPS URL — all from one click.
+                    Skip the Docker setup entirely. Railway provisions your instance, attaches a persistent volume, and gives you a public HTTPS URL &#8212; all from one click.
                     SSL is included, so federation works out of the box.
                 </p>
-                <a href="https://railway.com/deploy/tunecamp?referralCode=BUSsSY&utm_medium=integration&utm_source=template&utm_campaign=generic"
+                <a href="https://railway.com/deploy/tunecamp?referralCode=BUSsSY&amp;utm_medium=integration&amp;utm_source=template&amp;utm_campaign=generic"
                    target="_blank" rel="noopener"
                    class="inline-block hover:scale-105 transition-transform">
                     <img src="https://railway.com/button.svg" alt="Deploy on Railway" class="h-10" />
@@ -144,7 +139,7 @@
                 <div class="mt-5 pt-5 border-t border-white/10 grid sm:grid-cols-3 gap-4 text-sm">
                     <div class="flex items-start gap-3">
                         <i class="fas fa-lock text-green-400 mt-0.5 shrink-0"></i>
-                        <span class="text-text-muted">HTTPS automatic — no Nginx or Certbot needed</span>
+                        <span class="text-text-muted">HTTPS automatic &#8212; no Nginx or Certbot needed</span>
                     </div>
                     <div class="flex items-start gap-3">
                         <i class="fas fa-database text-blue-400 mt-0.5 shrink-0"></i>
@@ -155,7 +150,7 @@
                         <span class="text-text-muted">Set <code>TUNECAMP_PUBLIC_URL</code> to enable federation</span>
                     </div>
                 </div>
-                <p class="text-xs text-text-muted mt-4">Want the Docker path instead? Continue with the steps below.</p>
+                <p class="text-xs text-text-muted mt-4">See the <a href="https://scobru.github.io/tunecamp/railway" target="_blank" class="underline hover:text-white transition-colors">Railway deployment guide</a> for env vars, persistent storage, and federation setup.</p>
             </section>
 
             <!-- VPS Auto-Installer -->
@@ -176,251 +171,41 @@
                     </div>
                     <div class="flex items-start gap-3">
                         <i class="fas fa-shield-alt text-green-400 mt-0.5 shrink-0"></i>
-                        <span class="text-text-muted">Automatic Let's Encrypt SSL certificate registration for your domain</span>
+                        <span class="text-text-muted">Automatic Let&rsquo;s Encrypt SSL certificate registration for your domain</span>
                     </div>
                     <div class="flex items-start gap-3">
                         <i class="fas fa-bolt text-amber-400 mt-0.5 shrink-0"></i>
                         <span class="text-text-muted">Configures Nginx reverse proxy with websocket support automatically</span>
                     </div>
                 </div>
-                <div class="info-box mt-5 text-sm">
-                    <i class="fas fa-network-wired mr-2"></i>Answer the domain prompt with a blank line and the installer offers a free public URL over an SSH reverse tunnel to <a href="https://docs.srv.us/" target="_blank" class="underline">srv.us</a> — no domain, no port forwarding, useful on a home machine behind a router. Nginx and Certbot are skipped in that mode, since srv.us terminates TLS itself. Pass <code>--tunnel</code> to pick it non-interactively. Free relay for hobby traffic, not a CDN.
-                </div>
-                <p class="text-xs text-text-muted mt-4">Want the manual step-by-step setup instead? Continue with the steps below.</p>
             </section>
 
-            <!-- Step 1: Prerequisites -->
-            <section id="prerequisites" class="step-card mb-6">
-                <div class="flex items-center gap-4 mb-6">
-                    <div class="step-num">1</div>
-                    <h2 class="font-display text-xl font-bold">Prerequisites</h2>
-                </div>
-                <p class="text-text-muted mb-4">The fastest path uses Docker. You need:</p>
-                <ul class="space-y-3 text-sm">
-                    <li class="flex items-start gap-3"><i class="fab fa-docker text-blue-400 mt-0.5"></i><span><strong>Docker 20+</strong> and <strong>Docker Compose v2.24+</strong> — <a href="https://docs.docker.com/get-docker/" target="_blank" class="text-primary hover:underline">install guide</a></span></li>
-                    <li class="flex items-start gap-3"><i class="fas fa-music text-primary mt-0.5"></i><span>A folder of audio files (MP3, FLAC, WAV…)</span></li>
-                    <li class="flex items-start gap-3"><i class="fas fa-globe text-green-400 mt-0.5"></i><span>A domain with DNS pointing at your server <em class="text-text-muted">(only needed to go public)</em></span></li>
-                </ul>
-                <div class="info-box mt-5">
-                    <i class="fas fa-code mr-2"></i>Prefer running from source? See the <a href="https://github.com/scobru/tunecamp/blob/main/docs/development-guide.md" target="_blank" class="underline">Development Guide</a>.
-                </div>
-            </section>
-
-            <!-- Step 2: Install -->
-            <section id="install" class="step-card mb-6">
-                <div class="flex items-center gap-4 mb-6">
-                    <div class="step-num">2</div>
-                    <h2 class="font-display text-xl font-bold">Install &amp; run</h2>
-                </div>
-                <p class="text-text-muted mb-4">Clone the repo, point it at your music, start.</p>
-<pre># 1. Clone
-git clone https://github.com/scobru/tunecamp.git
-cd tunecamp
-
-# 2. Optional: create your .env for secrets and integrations
-#    (it starts without one — every value has a default)
-cp .env.example .env
-
-# 3. Point it at your music. It defaults to ./music inside the repo
-#    folder — for any other folder, set this in .env:
-#    TUNECAMP_MUSIC_PATH=/path/to/your/audio
-
-# 4. Build and start in the background
-docker compose up -d --build</pre>
-                <p class="text-text-muted text-sm mt-4">When the container is healthy, open <code>http://localhost:1970</code> in your browser.</p>
-                <div class="info-box mt-4">
-                    <i class="fas fa-network-wired mr-2"></i>No domain, and the machine sits behind a home router? Start with <code>docker compose --profile tunnel up -d --build</code> instead. An SSH reverse tunnel to <a href="https://docs.srv.us/" target="_blank" class="underline">srv.us</a> hands you a free <code>https://&lt;id&gt;.srv.us</code> address — no account, no port forwarding. Read it from the tunnel container's logs: <code>docker compose --profile tunnel logs tunnel</code>. The address is derived from an SSH key kept in the <code>tunecamp_data</code> volume, so it survives restarts — losing that volume changes the URL and breaks every link you shared. It is a free relay for hobby traffic, not a CDN.
-                </div>
-            </section>
-
-            <!-- Step 3: First login -->
-            <section id="first-login" class="step-card mb-6">
-                <div class="flex items-center gap-4 mb-6">
-                    <div class="step-num">3</div>
-                    <h2 class="font-display text-xl font-bold">First login &amp; security</h2>
-                </div>
-                <p class="text-text-muted mb-4">Tunecamp creates a default admin account on first run:</p>
-                <div class="flex gap-6 mb-5 text-sm">
-                    <div class="bg-black/40 border border-white/10 rounded-xl px-5 py-3">
-                        <span class="text-text-muted block text-xs mb-1">Username</span>
-                        <code class="text-white font-bold">admin</code>
-                    </div>
-                    <div class="bg-black/40 border border-white/10 rounded-xl px-5 py-3">
-                        <span class="text-text-muted block text-xs mb-1">Password</span>
-                        <code class="text-white font-bold">admin</code>
+            <!-- Manual setup CTA - single source of truth (resolves issue #1198) -->
+            <section id="manual-setup" class="step-card mb-6">
+                <div class="flex items-start gap-4 mb-5">
+                    <i class="fas fa-book-open text-primary text-2xl mt-0.5 shrink-0"></i>
+                    <div>
+                        <h2 class="font-display text-xl font-bold mb-1">Manual Docker setup &amp; everything else</h2>
+                        <p class="text-text-muted text-sm leading-relaxed">
+                            Prerequisites, step-by-step Docker commands, first-login security, scanning your music library,
+                            Nginx &amp; SSL config, joining the federation network, and optional integrations are all covered
+                            in the full setup guide &#8212; the single source of truth for installation details.
+                        </p>
                     </div>
                 </div>
-                <div class="warn-box mb-4">
-                    <i class="fas fa-triangle-exclamation mr-2"></i><strong>You must change the admin password before anything else works.</strong> While an account still holds a built-in default password, the server answers <code>403 DEFAULT_PASSWORD_LOCKDOWN</code> on every authenticated route except login, status and the password change itself, and refuses the Subsonic <code>/rest</code> endpoint outright. Anonymous browsing, streaming and federation keep working. The server also logs a security warning at startup until the default credentials and auto-generated JWT secret are replaced.
-                </div>
-                <p class="text-text-muted mb-4">The setup wizard then asks which <strong class="text-white">instance mode</strong> to run — changeable later from <strong>Admin → Settings</strong>:</p>
-                <ul class="space-y-3 text-sm mb-5">
-                    <li class="flex items-start gap-3"><i class="fas fa-guitar text-primary mt-0.5 shrink-0"></i><span><strong class="text-white">Single Artist</strong> — a Bandcamp-like portfolio for a solo artist. The homepage leads with the latest release and the discography; community features are stripped out.</span></li>
-                    <li class="flex items-start gap-3"><i class="fas fa-building text-primary mt-0.5 shrink-0"></i><span><strong class="text-white">Record Label</strong> — a curated storefront over a roster of artists, with centralized sales.</span></li>
-                    <li class="flex items-start gap-3"><i class="fas fa-globe text-primary mt-0.5 shrink-0"></i><span><strong class="text-white">Community</strong> — open signups, message board and federated network discovery, with optional self-publishing.</span></li>
-                </ul>
-                <p class="text-text-muted text-sm">You can override the credential defaults before first run with env vars: <code>TUNECAMP_ADMIN_USER</code> / <code>TUNECAMP_ADMIN_PASS</code>.</p>
-            </section>
-
-            <!-- Step 4: Add music -->
-            <section id="music" class="step-card mb-6">
-                <div class="flex items-center gap-4 mb-6">
-                    <div class="step-num">4</div>
-                    <h2 class="font-display text-xl font-bold">Add your music</h2>
-                </div>
-                <ol class="space-y-3 text-sm text-text-muted list-none">
-                    <li class="flex items-start gap-3"><span class="text-primary font-bold shrink-0">1.</span><span>Open <code>/admin</code>, go to the <strong class="text-white">Maintenance</strong> tab and press <strong class="text-white">Rescan Library</strong>.</span></li>
-                    <li class="flex items-start gap-3"><span class="text-primary font-bold shrink-0">2.</span><span>Tunecamp reads tags, generates waveforms, and processes cover art automatically.</span></li>
-                    <li class="flex items-start gap-3"><span class="text-primary font-bold shrink-0">3.</span><span>Scanned albums land in <strong class="text-white">draft</strong> status. To make one publicly visible, open <code>/my-music</code>, go to the <strong class="text-white">Albums</strong> tab and use <strong class="text-white">Promote to formal Release</strong> on it — that is also what makes it sellable and federated.</span></li>
-                </ol>
-                <div class="mt-5 pt-5 border-t border-white/10">
-                    <p class="text-xs text-text-muted uppercase tracking-widest font-semibold mb-3">Other ingestion methods</p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="tag"><i class="fab fa-telegram text-blue-400"></i> Telegram bot</span>
-                        <span class="tag"><i class="fab fa-google-drive text-green-400"></i> Google Drive</span>
-                        <span class="tag"><i class="fab fa-youtube text-red-400"></i> YouTube</span>
-                    </div>
-                    <p class="text-xs text-text-muted mt-3">Want to pull from Soulseek or torrents instead? That's <a href="ecosystem.html" class="underline">Sidecamp</a>, the desktop companion app.</p>
-                </div>
-            </section>
-
-            <!-- Step 5: Go public -->
-            <section id="public" class="step-card mb-6">
-                <div class="flex items-center gap-4 mb-6">
-                    <div class="step-num">5</div>
-                    <h2 class="font-display text-xl font-bold">Go public — Nginx + SSL</h2>
-                </div>
-                <p class="text-text-muted mb-4 text-sm">To expose your instance on a real domain you need a reverse proxy. SSL is required for federation (ActivityPub).</p>
-
-                <h3>Nginx config</h3>
-<pre>server {
-    listen 80;
-    server_name your-domain.com;
-    return 301 https://$host$request_uri;
-}
-
-server {
-    listen 443 ssl;
-    server_name your-domain.com;
-
-    ssl_certificate /etc/letsencrypt/live/your-domain.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/your-domain.com/privkey.pem;
-
-    add_header X-Content-Type-Options nosniff;
-    add_header X-Frame-Options SAMEORIGIN;
-
-    client_max_body_size 500M;
-
-    location / {
-        proxy_pass http://localhost:1970;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 300s;
-    }
-}</pre>
-
-                <h3>Set your public URL</h3>
-                <p class="text-text-muted text-sm mb-3">Add this to your <code>.env</code> (or the <code>environment:</code> block in <code>docker-compose.yml</code>) — ActivityPub federation won't work without it:</p>
-<pre>TUNECAMP_PUBLIC_URL=https://your-domain.com</pre>
-
-                <div class="info-box mt-5">
-                    <i class="fas fa-bolt mr-2"></i><strong>CapRover?</strong> In <em>Edit Default Nginx Config</em> add <code>proxy_set_header Upgrade $http_upgrade;</code>, <code>Connection "upgrade";</code>, and set <code>client_max_body_size 512M;</code> + <code>proxy_read_timeout 600s;</code>.
-                </div>
-            </section>
-
-            <!-- Step 6: Join network -->
-            <section id="join-network" class="step-card mb-6">
-                <div class="flex items-center gap-4 mb-6">
-                    <div class="step-num">6</div>
-                    <h2 class="font-display text-xl font-bold">Join the network</h2>
-                </div>
-                <p class="text-text-muted mb-4 text-sm">
-                    Tunecamp discovers peers via <strong class="text-white">HTTP gossip</strong> — no central registry. Your instance crawls outward from seed instances and appears to others within ~6 hours. To appear immediately, self-register with a directory instance.
-                </p>
-
-                <h3>Self-register</h3>
-                <p class="text-text-muted text-sm mb-3">POST your URL to any directory instance:</p>
-<pre>curl -X POST https://directory.example.com/api/community/register \
-     -H "Content-Type: application/json" \
-     -d '{"url": "https://your-instance.example.com"}'</pre>
-                <p class="text-text-muted text-sm mb-4">The directory probes your NodeInfo, verifies it's a live Tunecamp, and adds you immediately. Or use the form on the <a href="index.html" class="text-primary hover:underline">Explore page</a>.</p>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm border-collapse">
-                        <thead>
-                            <tr class="border-b border-white/10">
-                                <th class="text-left py-2 pr-6 text-text-muted font-medium">Status</th>
-                                <th class="text-left py-2 text-text-muted font-medium">Meaning</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-text-muted">
-                            <tr class="border-b border-white/5"><td class="py-2 pr-6 font-mono text-green-400">200</td><td>Registered — appears in the directory immediately</td></tr>
-                            <tr class="border-b border-white/5"><td class="py-2 pr-6 font-mono text-red-400">400</td><td>Missing or invalid URL</td></tr>
-                            <tr class="border-b border-white/5"><td class="py-2 pr-6 font-mono text-red-400">422</td><td>Not a reachable Tunecamp instance (NodeInfo check failed)</td></tr>
-                            <tr><td class="py-2 pr-6 font-mono text-amber-400">429</td><td>Rate limited — 1 registration per IP per hour</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <h3>Federation seeds</h3>
-                <p class="text-text-muted text-sm">Optionally seed your crawl from known instances to bootstrap discovery faster:</p>
-<pre>TUNECAMP_FEDERATION_SEEDS=https://seed1.example.com,https://seed2.example.com</pre>
-            </section>
-
-            <!-- Step 7: Optional -->
-            <section id="optional" class="step-card mb-12">
-                <div class="flex items-center gap-4 mb-6">
-                    <div class="step-num"><i class="fas fa-plug text-xs"></i></div>
-                    <h2 class="font-display text-xl font-bold">Optional integrations</h2>
-                </div>
-                <div class="grid sm:grid-cols-2 gap-4">
-                    <a href="https://github.com/scobru/tunecamp/blob/main/docs/payments.md" target="_blank" class="group bg-black/30 border border-white/10 rounded-xl p-4 hover:border-primary/40 transition-all">
-                        <div class="flex items-center gap-3 mb-2">
-                            <i class="fab fa-stripe text-blue-400 text-lg"></i>
-                            <span class="font-semibold text-sm">Payments</span>
-                        </div>
-                        <p class="text-text-muted text-xs">Stripe fiat + crypto onramp, per-track sales, artist payouts via Stripe Connect.</p>
-                    </a>
-                    <a href="https://github.com/scobru/tunecamp/blob/main/docs/telegram.md" target="_blank" class="group bg-black/30 border border-white/10 rounded-xl p-4 hover:border-primary/40 transition-all">
-                        <div class="flex items-center gap-3 mb-2">
-                            <i class="fab fa-telegram text-blue-400 text-lg"></i>
-                            <span class="font-semibold text-sm">Telegram bot</span>
-                        </div>
-                        <p class="text-text-muted text-xs">Ingest music by sending audio files to your personal bot.</p>
-                    </a>
-                    <a href="https://github.com/scobru/tunecamp/blob/main/docs/ai-integrations.md" target="_blank" class="group bg-black/30 border border-white/10 rounded-xl p-4 hover:border-primary/40 transition-all">
-                        <div class="flex items-center gap-3 mb-2">
-                            <i class="fas fa-robot text-purple-400 text-lg"></i>
-                            <span class="font-semibold text-sm">AI metadata</span>
-                        </div>
-                        <p class="text-text-muted text-xs">OpenRouter key for auto-tagging, recommendations, and smart search.</p>
-                    </a>
-                    <a href="https://github.com/scobru/tunecamp/blob/main/docs/subsonic.md" target="_blank" class="group bg-black/30 border border-white/10 rounded-xl p-4 hover:border-primary/40 transition-all">
-                        <div class="flex items-center gap-3 mb-2">
-                            <i class="fas fa-mobile-alt text-green-400 text-lg"></i>
-                            <span class="font-semibold text-sm">Subsonic clients</span>
-                        </div>
-                        <p class="text-text-muted text-xs">Full Subsonic API — use DSub, Symfonium, Tempo, or any compatible mobile app.</p>
-                    </a>
-                    <a href="https://github.com/scobru/tunecamp/blob/main/docs/mcp-setup-guide.md" target="_blank" class="group bg-black/30 border border-white/10 rounded-xl p-4 hover:border-primary/40 transition-all">
-                        <div class="flex items-center gap-3 mb-2">
-                            <i class="fas fa-brain text-amber-400 text-lg"></i>
-                            <span class="font-semibold text-sm">MCP server</span>
-                        </div>
-                        <p class="text-text-muted text-xs">Connect Claude Desktop or any MCP client to your Tunecamp instance.</p>
-                    </a>
-                    <a href="https://github.com/scobru/tunecamp/blob/main/docs/FEDERATION.md" target="_blank" class="group bg-black/30 border border-white/10 rounded-xl p-4 hover:border-primary/40 transition-all">
-                        <div class="flex items-center gap-3 mb-2">
-                            <i class="fas fa-globe text-primary text-lg"></i>
-                            <span class="font-semibold text-sm">ActivityPub</span>
-                        </div>
-                        <p class="text-text-muted text-xs">Fediverse integration — follow artists from Mastodon, Pleroma, Funkwhale.</p>
-                    </a>
+                <a href="https://scobru.github.io/tunecamp/getting-started"
+                   target="_blank" rel="noopener"
+                   class="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-purple-500 text-white px-6 py-3 rounded-xl font-semibold text-sm hover:scale-105 transition-all shadow-lg shadow-primary/20">
+                    <i class="fas fa-book-open"></i>
+                    Full setup guide &#8594;
+                </a>
+                <div class="mt-6 pt-5 border-t border-white/10 grid sm:grid-cols-2 gap-3 text-xs text-text-muted">
+                    <div class="flex items-center gap-2"><i class="fas fa-check text-green-400"></i> Docker Compose setup</div>
+                    <div class="flex items-center gap-2"><i class="fas fa-check text-green-400"></i> First login &amp; admin password</div>
+                    <div class="flex items-center gap-2"><i class="fas fa-check text-green-400"></i> Scanning &amp; publishing music</div>
+                    <div class="flex items-center gap-2"><i class="fas fa-check text-green-400"></i> Nginx + SSL (public domain)</div>
+                    <div class="flex items-center gap-2"><i class="fas fa-check text-green-400"></i> Federation &amp; network registration</div>
+                    <div class="flex items-center gap-2"><i class="fas fa-check text-green-400"></i> Subsonic, payments, Telegram bot&hellip;</div>
                 </div>
             </section>
 
@@ -429,7 +214,7 @@ server {
                 <h2 class="font-display text-2xl font-bold mb-2">Instance running?</h2>
                 <p class="text-text-muted mb-5">Register it to appear in the network directory immediately.</p>
                 <form id="registerForm" class="flex gap-2 mb-3" onsubmit="return false;">
-                    <input id="registerUrl" aria-label="Instance URL" type="text" placeholder="your-instance.example.com"
+                    <input id="registerUrl" type="text" placeholder="your-instance.example.com"
                         class="flex-1 px-4 py-2.5 rounded-xl bg-white/10 border border-white/10 text-white placeholder-text-muted text-sm focus:outline-none focus:border-primary" />
                     <button id="registerBtn" type="submit"
                         class="shrink-0 bg-gradient-to-r from-primary to-purple-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:scale-105 transition-all">Register</button>
@@ -443,7 +228,7 @@ server {
         </main>
     </div>
 
-    <footer class="border-t border-white/10 py-8 mt-auto bg-black/50">
+        <footer class="border-t border-white/10 py-8 mt-auto bg-black/50">
         <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
             <nav class="flex gap-6 flex-wrap justify-center">
                 <a href="about.html" class="text-text-muted hover:text-white transition-colors text-sm">Overview</a>
@@ -508,6 +293,18 @@ server {
                 showMsg(lastError, false);
             } finally { btn.disabled = false; btn.textContent = 'Register'; }
         });
+
+        // TOC active link on scroll
+        (function () {
+            const links = document.querySelectorAll('.toc-link');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(e => {
+                    const link = document.querySelector(`.toc-link[href="#${e.target.id}"]`);
+                    if (link) link.classList.toggle('active', e.isIntersecting);
+                });
+            }, { rootMargin: '-20% 0px -70% 0px' });
+            document.querySelectorAll('section[id], div[id]').forEach(el => observer.observe(el));
+        })();
     </script>
 </body>
 </html>
