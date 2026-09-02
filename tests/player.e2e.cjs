@@ -52,10 +52,23 @@ function ok(cond, msg) { if (!cond) throw new Error('FAIL: ' + msg); passed++; c
     args: ['--autoplay-policy=no-user-gesture-required', '--no-sandbox']
   });
   const page = await browser.newPage();
+  // Zen probes the page origin for a peer (404 on a static host) and, in a
+  // sandbox with no route to the relay, its socket fails: both are the library's
+  // own behaviour and are already what profile.html does today. Everything else
+  // must stay silent.
+  const EXPECTED = [/\/status(\?|$)/, /delay\.scobrudot\.dev/, /wss?:\/\//];
+  const expected = (text, url) => EXPECTED.some((re) => re.test(url || '') || re.test(text || ''));
   const errors = [];
   page.on('pageerror', (e) => errors.push(String(e)));
-  page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
+  page.on('console', (m) => {
+    if (m.type() !== 'error') return;
+    const url = (m.location() && m.location().url) || '';
+    if (!expected(m.text(), url)) errors.push('console: ' + m.text() + ' @ ' + url);
+  });
 
+  await page.route('**/config.js', (r) =>
+    r.fulfill({ contentType: 'application/javascript', body:
+      `window.TUNECAMP_DIRECTORY = ["${SITE}"]; window.ZEN_RELAY = "ws://127.0.0.1:9/zen";` }));
   await page.route('**/api/community/sites', (r) =>
     r.fulfill({ contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify([{ url: SITE, name: 'Alpha' }]) }));
   await page.route('**/api/catalog/full', (r) =>
@@ -116,6 +129,8 @@ function ok(cond, msg) { if (!cond) throw new Error('FAIL: ' + msg); passed++; c
   await page.click('#tracksContainer [data-pl]');
   await page.waitForSelector('#viewHeader:not(.hidden)');
   ok((await page.textContent('#viewHeader')).includes('Nightshift'), 'playlist detail header');
+  ok(await page.evaluate(() => getComputedStyle(document.getElementById('viewHeader')).display) === 'flex',
+     'the header lays its controls out in a row');
   ok(await page.$$eval('#tracksContainer .track-row[data-idx]', (r) => r.length) === 1, 'playlist shows its track');
 
   await page.click('#viewHeader [data-act="playall"]');
@@ -158,6 +173,98 @@ function ok(cond, msg) { if (!cond) throw new Error('FAIL: ' + msg); passed++; c
   });
   const parsed = JSON.parse(json);
   ok(parsed.app === 'tunecamp-community-player' && Object.keys(parsed.library.favorites).length === 1, 'export contains the library');
+
+  // --- sync status, sharing, and opening a shared link ---------------------
+  await page.click('#libraryMenuBtn');
+  ok((await page.textContent('#syncStatus')).includes('Unlock your FID identity'),
+     'with no identity the menu says the library is browser-only');
+  await page.click('#libraryMenuBtn');
+
+  // unlock an identity the way profile.html would, then reload into it
+  const alias = await page.evaluate(async () => {
+    const { default: Zen } = await import('./vendor/zen.min.js');
+    const pair = await new Promise((res) => Zen.pair((p) => res(p), { seed: 'alice:hunter2' }));
+    localStorage.setItem('tunecamp_zen_user', JSON.stringify({ alias: 'alice', pair }));
+    return 'alice';
+  });
+  await page.reload();
+  await page.waitForFunction(() => document.querySelectorAll('#tracksContainer .track-row[data-idx]').length === 3, null, { timeout: 10000 });
+  await page.waitForFunction((a) => {
+    const box = document.getElementById('syncStatus');
+    return box && box.textContent.includes('@' + a);
+  }, alias, { timeout: 15000 });
+  // This run points at a dead relay, so the status must say so rather than
+  // claiming the library is reaching it.
+  const syncText = (await page.textContent('#syncStatus')).replace(/\s+/g, ' ');
+  ok(syncText.includes('Sync pending') && syncText.includes('unreachable'),
+     'an unreachable relay is reported honestly: ' + syncText.trim().slice(0, 90));
+  ok(syncText.includes('saved here'), 'and the listener is told their changes are kept locally');
+
+  page.on('dialog', (d) => d.accept());
+
+  // the playlist was emptied earlier in this run; put a track back before sharing
+  await page.click('[data-view="network"]');
+  await page.waitForSelector('#tracksContainer .track-row[data-idx="0"]');
+  await page.click('#tracksContainer .track-row[data-idx="0"] [data-act="add"]');
+  await page.waitForSelector('#pickerList [data-plid]');
+  await page.click('#pickerList [data-plid]');
+  await page.waitForFunction(() => document.querySelector('#pickerList [data-plid]').getAttribute('aria-pressed') === 'true');
+  await page.click('#pickerClose');
+
+  await page.click('[data-view="playlists"]');
+  await page.waitForSelector('[data-pl]');
+  await page.click('#tracksContainer [data-pl]');
+  await page.waitForSelector('#viewHeader [data-act="share"]');
+  await page.click('#viewHeader [data-act="share"]');
+  await page.waitForFunction(() => document.querySelector('#viewHeader [data-act="share"]').getAttribute('aria-pressed') === 'true', null, { timeout: 5000 });
+  ok(true, 'a playlist can be published');
+
+  const token = await page.evaluate(async () => {
+    const Sync = await import('./components/library-sync.js');
+    const Library = await import('./components/library.js');
+    const identity = Sync.readIdentity();
+    const pl = Library.listPlaylists()[0];
+    return { token: Sync.shareToken(identity.pair.pub, pl.id), isPublic: pl.isPublic, name: pl.name };
+  });
+  ok(token.isPublic === true, 'the playlist is marked public in the library');
+
+  await page.click('[data-view="playlists"]');
+  await page.waitForSelector('[data-pl]');
+  ok((await page.textContent('#tracksContainer')).includes('public'), 'the playlist row shows it is public');
+
+  // wait until the published copy is actually readable before following the
+  // link: the graph flushes on its own schedule and this test is faster than a
+  // human with a copied URL ever is
+  const readable = await (async () => {
+    for (let i = 0; i < 20; i++) {
+      const found = await page.evaluate(async (t) => {
+        const [Sync, { default: Zen }] = await Promise.all([
+          import('./components/library-sync.js'), import('./vendor/zen.min.js')
+        ]);
+        const parsed = Sync.parseShareToken(t);
+        const pl = await Sync.fetchSharedPlaylist({ Zen, relay: window.ZEN_RELAY, pub: parsed.pub, id: parsed.id, timeout: 1500 });
+        return pl ? pl.name : null;
+      }, token.token);
+      if (found) return found;
+    }
+    return null;
+  })();
+  ok(readable === token.name, 'the published playlist is readable from the graph');
+
+  // open the share link as a visitor would
+  await page.goto(`${BASE_URL}/player.html?pl=${encodeURIComponent(token.token)}`);
+  await page.waitForSelector('#viewHeader:not(.hidden)', { timeout: 15000 });
+  await page.waitForFunction(() => {
+    const h = document.getElementById('viewHeader');
+    return h && !h.textContent.includes('Fetching');
+  }, null, { timeout: 15000 });
+  ok((await page.textContent('#viewHeader')).includes(token.name), 'the shared link opens that playlist: ' + (await page.textContent('#viewHeader')).replace(/\s+/g, ' ').trim().slice(0, 60));
+  ok((await page.textContent('#viewHeader')).includes('@alias'.replace('alias', alias)), 'and credits who shared it');
+  ok(await page.$$eval('#tracksContainer .track-row[data-idx]', (r) => r.length) === 1, 'its track is listed');
+
+  await page.click('#viewHeader [data-act="saveshared"]');
+  await page.waitForFunction(() => document.getElementById('viewHeader').textContent.includes('from @'), null, { timeout: 5000 });
+  ok(true, 'a visitor can save it into their own library');
 
   ok(errors.length === 0, 'no page errors: ' + JSON.stringify(errors.slice(0, 3)));
   console.log(`\nok — ${passed} checks passed`);

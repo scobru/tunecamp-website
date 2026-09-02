@@ -96,6 +96,43 @@ ok(L.importJson(dump).favorites === 1, 'import is idempotent');
 try { L.importJson('not json'); throw new Error('should have thrown'); }
 catch (e) { ok(/valid TuneCamp library/.test(e.message), 'bad import rejected'); }
 
+// --- merging (what the sync layer relies on) -------------------------------
+L.clearAll();
+L.toggleFavorite(t());                       // local copy, addedAt = now
+const localKey = L.trackKey(t());
+
+// an older remote copy of the same item must not win
+ok(L.mergeRemote({ favorites: { [localKey]: { key: localKey, title: 'Stale', addedAt: 1 } } }).length === 0,
+   'older remote item is ignored');
+ok(L.listFavorites()[0].title === 'Blue Room', 'local copy survives');
+
+// a newer remote tombstone must delete it
+const applied = L.mergeRemote({ favorites: { [localKey]: { key: localKey, deletedAt: Date.now() + 1000 } } });
+ok(applied.length === 1 && applied[0] === 'favorites/' + localKey, 'merge reports what it applied');
+ok(L.countFavorites() === 0, 'remote deletion applies locally');
+
+// ...and a stale remote add must not resurrect it
+L.mergeRemote({ favorites: { [localKey]: Object.assign(L.snapshot(t()), { addedAt: 5 }) } });
+ok(L.countFavorites() === 0, 'a stale add cannot resurrect a deleted item');
+
+// two devices editing different items keep both
+L.clearAll();
+L.toggleFavorite(t());
+L.mergeRemote({ favorites: { 'fp:other::band': { key: 'fp:other::band', title: 'Other', artistName: 'Band', addedAt: Date.now() } } });
+ok(L.countFavorites() === 2, 'per-item merge keeps both devices\' work');
+
+// playlists merge on updatedAt, not on content
+const mine = L.createPlaylist('Mine');
+L.mergeRemote({ playlists: { [mine.id]: { id: mine.id, name: 'Renamed elsewhere', items: [], updatedAt: Date.now() + 1000 } } });
+ok(L.getPlaylist(mine.id).name === 'Renamed elsewhere', 'newer remote rename wins');
+
+ok(L.setPlaylistPublic(mine.id, true).isPublic === true, 'playlist can be marked public');
+ok(L.setPlaylistPublic(mine.id, false).isPublic === false, 'and private again');
+ok(L.setPlaylistPublic('nope', true) === null, 'unknown playlist is a no-op');
+
+ok(L.readState().favorites === L.readState().favorites, 'readState exposes the live state for diffing');
+ok(L.mergeRemote(null).length === 0 && L.mergeRemote('nonsense').length === 0, 'garbage merges are ignored');
+
 // --- queue ----------------------------------------------------------------
 const tracks = [t({ title: 'A' }), t({ title: 'B' }), t({ title: 'C' })];
 const q = new PlayQueue();

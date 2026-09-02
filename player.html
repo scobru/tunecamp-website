@@ -126,11 +126,12 @@
                 <button id="libraryMenuBtn" class="icon-btn" title="Your library" aria-label="Your library" aria-haspopup="true" aria-expanded="false">
                     <i class="fas fa-sliders"></i>
                 </button>
-                <div id="libraryMenu" class="hidden absolute right-0 mt-2 w-64 glass-panel rounded-xl p-2 z-50 text-sm">
+                <div id="libraryMenu" class="hidden absolute right-0 mt-2 w-72 glass-panel rounded-xl p-2 z-50 text-sm">
+                    <div id="syncStatus" class="px-3 py-2 mb-1 rounded-lg bg-white/5 text-xs leading-snug"></div>
                     <button data-act="export" class="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10 transition-colors"><i class="fas fa-download w-4 mr-2 text-text-muted"></i>Export library (.json)</button>
                     <button data-act="import" class="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10 transition-colors"><i class="fas fa-upload w-4 mr-2 text-text-muted"></i>Import library&hellip;</button>
                     <button data-act="clear" class="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10 text-red-300 transition-colors"><i class="fas fa-trash w-4 mr-2"></i>Clear library</button>
-                    <p class="px-3 pt-2 pb-1 text-[10px] leading-snug text-text-muted/70">Saved in this browser only. Export to move it to another device.</p>
+                    <p id="libraryMenuNote" class="px-3 pt-2 pb-1 text-[10px] leading-snug text-text-muted/70">Saved in this browser only. Export to move it to another device.</p>
                 </div>
                 <input type="file" id="importFile" accept="application/json,.json" class="hidden">
             </div>
@@ -259,6 +260,7 @@
     <script type="module">
         import { PlayQueue } from './components/queue.js';
         import * as Library from './components/library.js';
+        import * as Sync from './components/library-sync.js';
 
         const audio = new Audio();
         const queue = new PlayQueue();
@@ -277,6 +279,10 @@
         let isRepeat = false;
         let pendingSeek = 0;
         let pickerTrack = null;
+        /** The FID sync handle, once an identity has been unlocked. */
+        let sync = null;
+        /** A playlist opened from a ?pl= link: read-only, someone else's. */
+        let sharedPlaylist = null;
 
         const el = (id) => document.getElementById(id);
         const VIEW_LABELS = {
@@ -297,6 +303,8 @@
             renderView();
             restoreLastTrack();
             loadTracks();
+            initSync();
+            openSharedFromUrl();
         }
 
         function setStatus(state) { window.setNetworkStatus(state); }
@@ -556,7 +564,7 @@
         }
 
         function isTrackView() {
-            return ['network', 'favorites', 'recents', 'playlist', 'artist'].includes(view);
+            return ['network', 'favorites', 'recents', 'playlist', 'artist', 'shared'].includes(view);
         }
 
         /** The rows behind the current view, before search and artist filtering. */
@@ -572,6 +580,8 @@
                 }
                 case 'artist':
                     return allTracks.filter(t => Library.artistKey(t.artistName) === Library.artistKey(openArtist));
+                case 'shared':
+                    return sharedPlaylist ? sharedPlaylist.items.map(r => Library.hydrate(r, liveIndex)) : [];
                 default:
                     return allTracks;
             }
@@ -583,6 +593,7 @@
                 return { type: 'playlist', id: openPlaylistId, label: pl ? pl.name : 'Playlist' };
             }
             if (view === 'artist') return { type: 'artist', id: openArtist, label: openArtist };
+            if (view === 'shared') return { type: 'shared', id: sharedPlaylist && sharedPlaylist.id, label: sharedPlaylist ? sharedPlaylist.name : 'Shared playlist' };
             return { type: view, id: null, label: VIEW_LABELS[view] || 'Network' };
         }
 
@@ -609,6 +620,7 @@
         }
 
         function renderTabs() {
+            // A shared link is nobody's tab: it leaves the strip with none active.
             const active = view === 'playlist' ? 'playlists' : (view === 'artist' ? 'artists' : view);
             el('viewTabs').querySelectorAll('[data-view]').forEach(btn => {
                 const on = btn.dataset.view === active;
@@ -620,16 +632,43 @@
             el('countArtists').textContent = Library.listArtists().length;
         }
 
+        // `hidden` and `flex` are both display utilities: toggling only one of
+        // them leaves the winner up to stylesheet order, so always set both.
+        function showViewHeader() {
+            el('viewHeader').classList.remove('hidden');
+            el('viewHeader').classList.add('flex');
+        }
+
+        function hideViewHeader() {
+            el('viewHeader').classList.add('hidden');
+            el('viewHeader').classList.remove('flex');
+            el('viewHeader').innerHTML = '';
+        }
+
         function renderViewHeader() {
             const header = el('viewHeader');
-            if (view !== 'playlist' && view !== 'artist') {
-                header.classList.add('hidden');
-                header.innerHTML = '';
+            if (view !== 'playlist' && view !== 'artist' && view !== 'shared') {
+                hideViewHeader();
+                return;
+            }
+            if (view === 'shared') {
+                showViewHeader();
+                header.innerHTML = `
+                    <button class="icon-btn" data-act="back" aria-label="Back"><i class="fas fa-arrow-left"></i></button>
+                    <div class="min-w-0 flex-1">
+                        <div class="font-bold truncate">${escapeHtml(sharedPlaylist ? sharedPlaylist.name : 'Shared playlist')}</div>
+                        <div class="text-xs text-text-muted truncate">${sharedPlaylist && sharedPlaylist.owner
+                            ? 'Shared by @' + escapeHtml(sharedPlaylist.owner)
+                            : 'Shared playlist'}</div>
+                    </div>
+                    <button class="icon-btn" data-act="playall" title="Play all" aria-label="Play all"><i class="fas fa-play"></i></button>
+                    <button class="icon-btn" data-act="saveshared" title="Save to my library" aria-label="Save to my library"><i class="fas fa-bookmark"></i></button>
+                `;
                 return;
             }
             const pl = view === 'playlist' ? Library.getPlaylist(openPlaylistId) : null;
             const title = view === 'playlist' ? (pl ? pl.name : 'Playlist') : openArtist;
-            header.classList.remove('hidden');
+            showViewHeader();
             header.innerHTML = `
                 <button class="icon-btn" data-act="back" aria-label="Back"><i class="fas fa-arrow-left"></i></button>
                 <div class="min-w-0 flex-1">
@@ -638,6 +677,7 @@
                 </div>
                 <button class="icon-btn" data-act="playall" title="Play all" aria-label="Play all"><i class="fas fa-play"></i></button>
                 ${view === 'playlist' ? `
+                    <button class="icon-btn ${pl && pl.isPublic ? 'text-primary' : ''}" data-act="share" title="${pl && pl.isPublic ? 'Public — click to make private' : 'Share this playlist'}" aria-label="Share playlist" aria-pressed="${!!(pl && pl.isPublic)}"><i class="fas fa-share-nodes"></i></button>
                     <button class="icon-btn" data-act="rename" title="Rename playlist" aria-label="Rename playlist"><i class="fas fa-pen"></i></button>
                     <button class="icon-btn hover:text-red-400" data-act="delete" title="Delete playlist" aria-label="Delete playlist"><i class="fas fa-trash"></i></button>
                 ` : `
@@ -714,6 +754,11 @@
                     return emptyState('fa-list', 'This playlist is empty. Add tracks with the + button.');
                 case 'artist':
                     return emptyState('fa-user', 'No tracks from this artist are reachable right now.');
+                case 'shared':
+                    if (sharedPlaylist && sharedPlaylist.loading) return emptyState('fa-circle-notch fa-spin', 'Fetching the shared playlist…');
+                    return emptyState('fa-link-slash',
+                        'This shared playlist did not answer. The relay may be slow or unreachable, or the link may have been unpublished.',
+                        'Try again', 'retryshared');
                 default:
                     return allTracks.length === 0
                         ? emptyState('fa-music', 'No tracks found yet. Join the network!')
@@ -739,7 +784,7 @@
                     <div class="w-10 h-10 rounded-lg bg-white/10 text-purple-300 flex items-center justify-center flex-shrink-0"><i class="fas fa-list"></i></div>
                     <div class="flex-1 min-w-0">
                         <div class="text-white font-medium truncate">${escapeHtml(pl.name)}</div>
-                        <div class="text-xs text-text-muted">${pl.items.length} track${pl.items.length === 1 ? '' : 's'}</div>
+                        <div class="text-xs text-text-muted">${pl.items.length} track${pl.items.length === 1 ? '' : 's'}${pl.isPublic ? ' · <span class="text-primary"><i class="fas fa-globe text-[10px]"></i> public</span>' : ''}</div>
                     </div>
                     <button class="row-btn" data-act="playpl" data-pl="${escapeHtml(pl.id)}" aria-label="Play ${escapeHtml(pl.name)}" title="Play"><i class="fas fa-play"></i></button>
                 </div>
@@ -839,8 +884,17 @@
                 case 'unfollowrow':
                     Library.toggleArtist(data.artist);
                     break;
+                case 'share':
+                    sharePlaylist(openPlaylistId);
+                    break;
+                case 'saveshared':
+                    saveSharedPlaylist();
+                    break;
+                case 'retryshared':
+                    openSharedFromUrl();
+                    break;
                 case 'back':
-                    view = view === 'playlist' ? 'playlists' : 'artists';
+                    view = view === 'playlist' ? 'playlists' : (view === 'shared' ? 'network' : 'artists');
                     openPlaylistId = null;
                     openArtist = null;
                     renderView();
@@ -1077,6 +1131,128 @@
                         <span class="text-[10px] text-text-muted font-mono">${pl.items.length}</span>
                     </button>`;
                 }).join('');
+        }
+
+        /* ------------------------------------------------------------ sync */
+
+        /**
+         * The library works with no account at all; this only adds cross-device
+         * sync when a FID identity has already been unlocked on the Profile
+         * page. Zen is a 120KB bundle, so it is only fetched in that case.
+         */
+        async function initSync() {
+            renderSyncStatus();
+            const identity = Sync.readIdentity();
+            if (!identity) return;
+            try {
+                const { default: Zen } = await import('./vendor/zen.min.js');
+                sync = Sync.createSync({
+                    Zen,
+                    relay: window.ZEN_RELAY,
+                    identity,
+                    onStatus: renderSyncStatus
+                });
+                sync.start();
+            } catch (e) {
+                console.warn('[player] sync unavailable:', e);
+            }
+            renderSyncStatus();
+        }
+
+        function renderSyncStatus() {
+            const box = el('syncStatus');
+            const identity = Sync.readIdentity();
+            // The footer note below the menu would otherwise keep claiming the
+            // library never leaves this browser while it is being synced.
+            el('libraryMenuNote').textContent = identity && sync && sync.status().enabled
+                ? 'Also mirrored to your FID identity, encrypted. Export still gives you a copy you own outright.'
+                : 'Saved in this browser only. Export to move it to another device.';
+            if (!identity) {
+                box.innerHTML = `<span class="text-text-muted">Saved in this browser only.</span>
+                    <a href="profile.html" class="text-primary hover:underline">Unlock your FID identity</a>
+                    <span class="text-text-muted">to sync it across devices.</span>`;
+                return;
+            }
+            const status = sync ? sync.status() : { enabled: false, connected: false, pushed: 0, pulled: 0 };
+            const host = (() => { try { return new URL(window.ZEN_RELAY).host; } catch (e) { return 'the relay'; } })();
+            // Only claim to be reaching the relay when a peer is actually connected;
+            // otherwise say plainly that the changes are waiting in this browser.
+            const detail = !status.enabled
+                ? 'Reload to retry.'
+                : status.connected
+                    ? `Encrypted to your key, through ${escapeHtml(host)}. ${status.pushed} sent, ${status.pulled} received.`
+                    : `${escapeHtml(host)} is unreachable — your changes are saved here and will sync when it answers.`;
+            box.innerHTML = `
+                <div class="flex items-center gap-2 text-white">
+                    <i class="fas fa-rotate ${status.connected ? 'text-primary' : 'text-text-muted'}"></i>
+                    <span class="font-medium truncate">${status.connected ? 'Syncing as' : 'Sync pending —'} @${escapeHtml(identity.alias)}</span>
+                </div>
+                <p class="text-text-muted/80 mt-1">${detail}</p>
+                ${status.lastError ? `<p class="text-amber-300/80 mt-1 truncate">${escapeHtml(status.lastError)}</p>` : ''}`;
+        }
+
+        /** Publishing a playlist republishes it in the clear — hence the wording. */
+        function sharePlaylist(id) {
+            const pl = Library.getPlaylist(id);
+            if (!pl) return;
+            if (pl.isPublic) {
+                Library.setPlaylistPublic(id, false);
+                showToast('Playlist is private again');
+                return;
+            }
+            const identity = Sync.readIdentity();
+            if (!identity) {
+                showToast('Unlock your FID identity on the Profile page to share a playlist');
+                return;
+            }
+            if (!confirm(`Publish "${pl.name}" so anyone with the link can open it?\n\nIts tracks leave your browser in the clear — everything else in your library stays encrypted.`)) return;
+            Library.setPlaylistPublic(id, true);
+            const url = `${location.origin}${location.pathname}?pl=${encodeURIComponent(Sync.shareToken(identity.pair.pub, id))}`;
+            copyToClipboard(url);
+            if (sync) sync.flush();
+        }
+
+        function copyToClipboard(text) {
+            const done = () => showToast('Share link copied');
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(done, () => prompt('Copy this link:', text));
+            } else {
+                prompt('Copy this link:', text);
+            }
+        }
+
+        /** `?pl=<pub>.<id>` opens someone else's public playlist, read-only. */
+        async function openSharedFromUrl() {
+            const token = new URLSearchParams(location.search).get('pl');
+            const parsed = token ? Sync.parseShareToken(token) : null;
+            if (!parsed) return;
+
+            view = 'shared';
+            sharedPlaylist = { loading: true, name: 'Shared playlist', items: [], owner: '', pub: parsed.pub, id: parsed.id };
+            renderView();
+
+            let result = null;
+            try {
+                const { default: Zen } = await import('./vendor/zen.min.js');
+                result = await Sync.fetchSharedPlaylist({ Zen, relay: window.ZEN_RELAY, pub: parsed.pub, id: parsed.id });
+            } catch (e) {
+                console.warn('[player] shared playlist unavailable:', e);
+            }
+            sharedPlaylist = result
+                ? Object.assign(result, { loading: false })
+                : { loading: false, failed: true, name: 'Shared playlist', items: [], owner: '', pub: parsed.pub, id: parsed.id };
+            if (view === 'shared') renderView();
+        }
+
+        function saveSharedPlaylist() {
+            if (!sharedPlaylist || !sharedPlaylist.items.length) return;
+            const name = sharedPlaylist.owner
+                ? `${sharedPlaylist.name} (from @${sharedPlaylist.owner})`
+                : sharedPlaylist.name;
+            const pl = Library.createPlaylist(name);
+            sharedPlaylist.items.forEach((t) => Library.addToPlaylist(pl.id, t));
+            showToast(`Saved as "${pl.name}"`);
+            openPlaylist(pl.id);
         }
 
         /* ---------------------------------------------------- library menu */
