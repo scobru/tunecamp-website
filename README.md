@@ -9,6 +9,7 @@ The official landing page, global community directory, and browser-based communi
 - **Community Player (`player.html`)**: A client-side audio player that aggregates and plays tracks across all discovered active TuneCamp instances in the network.
 - **Personal Library**: Favourites, playlists, followed artists and recently played, saved in the visitor's own browser — no account, no server, nothing leaves the device. Export and import it as JSON from the player's library menu.
 - **Optional FID Sync**: With a FID identity unlocked on the Profile page, the same library follows the listener across devices through the Zen relay, encrypted to their own key. Playlists they explicitly publish get a shareable link anyone can open.
+- **Import from your own instances**: the stars and public playlists on the TuneCamp instances linked to a FID identity can be copied into the player's library in one click.
 - **Responsive & Premium UI**: Designed with customized glassmorphism, responsive Tailwind CSS grid, and smooth interactive elements.
 
 ## Getting Started
@@ -78,11 +79,40 @@ and only the holder of the private key can write under that subtree. When the
 relay is unreachable the library keeps working and the player says so rather
 than pretending to be synced.
 
+### Importing from linked instances (`components/instance-import.js`)
+
+The Profile page links instances to a FID identity; each instance then exposes
+that account's public activity at `/api/auth/zen/user/<username>/public` — no
+session, wildcard CORS — so the player reads it directly and copies what it
+finds into the local library.
+
+It is a copy, not a link: starring something on an instance later needs another
+run. Runs are idempotent — favourites are keyed by what a track *is*, and an
+imported playlist is stamped with `importedFrom: "<host>/<id>"` so a second run
+tops it up instead of duplicating it, never rewriting tracks the listener added
+themselves.
+
+Where a track exists both on the origin instance and in the aggregated network
+catalog, the network copy wins: it is the one already known to be reachable, and
+it carries the duration and cover the public payload leaves out.
+
+Two limits come from the instance side:
+
+- the public payload returns the 20 most recent starred items;
+- a public playlist's tracks come from `GET /api/playlists/:id/public`, which
+  older instances do not have (`GET /api/playlists/:id` is members-only). On
+  those the playlist is reported as found but not readable, rather than being
+  skipped in silence.
+
+Album likes are reported and skipped: this is a library of tracks, and exploding
+an album into a dozen separate hearts would misrepresent what was starred.
+
 ### Tests
 
 ```bash
-# library, merge and queue units — no dependencies
+# units — no dependencies
 node --experimental-default-type=module tests/library.test.js
+node --experimental-default-type=module tests/instance-import.test.js
 
 # browser tests (need Playwright, and a server for them to drive)
 npx http-server -p 8123 -s .

@@ -75,7 +75,11 @@ function ok(cond, msg) { if (!cond) throw new Error('FAIL: ' + msg); passed++; c
     r.fulfill({ contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify(CATALOG) }));
   await page.route('**/api/tracks/*/stream', (r) =>
     r.fulfill({ contentType: 'audio/wav', headers: { 'Access-Control-Allow-Origin': '*' }, body: silentWav() }));
-  await page.route('**/api/albums/**', (r) => r.fulfill({ status: 404, body: '' }));
+  // A 1x1 PNG for every cover: a 404 here would log a console error and drown
+  // out the real ones this test is watching for.
+  const PIXEL = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
+  await page.route('**/api/albums/**', (r) =>
+    r.fulfill({ contentType: 'image/png', headers: { 'Access-Control-Allow-Origin': '*' }, body: PIXEL }));
 
   await page.goto(`${BASE_URL}/player.html`);
   await page.waitForFunction(() => document.querySelectorAll('#tracksContainer .track-row[data-idx]').length === 3, null, { timeout: 10000 });
@@ -200,6 +204,69 @@ function ok(cond, msg) { if (!cond) throw new Error('FAIL: ' + msg); passed++; c
      'an unreachable relay is reported honestly: ' + syncText.trim().slice(0, 90));
   ok(syncText.includes('saved here'), 'and the listener is told their changes are kept locally');
 
+  // --- importing the stars the listener made on their own instances --------
+  await page.route('**/api/auth/zen/user/*/public', (r) =>
+    r.fulfill({ contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({
+      success: true,
+      publicProfile: { username: 'alice', artistName: 'Alice' },
+      publicLikes: [
+        { type: 'track', id: 77, track_title: 'Starred Elsewhere', track_artist: 'Remote Band', album_cover: '/api/albums/4/cover' },
+        { type: 'track', id: 78, track_title: 'Blue Room', track_artist: 'Nina K' },
+        { type: 'album', id: 9, album_title: 'An album' }
+      ],
+      publicPlaylists: [{ id: 3, name: 'Their playlist' }]
+    }) }));
+  await page.route('**/api/playlists/*/public', (r) =>
+    r.fulfill({ contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({
+      id: 3, name: 'Their playlist', username: 'alice', isPublic: true, trackCount: 1,
+      tracks: [{ id: 90, title: 'From Their Playlist', artistName: 'Ori Vale', duration: 133, streamUrl: '/api/tracks/90/stream', coverUrl: null }]
+    }) }));
+
+  const beforeImport = Number(await page.textContent('#countFavorites'));
+  await page.evaluate(() => localStorage.setItem('tunecamp_linked_instances', JSON.stringify([
+    { instanceDomain: 'sudorecords.test', localUsername: 'alice' }
+  ])));
+  await page.click('#libraryMenuBtn');
+  await page.waitForFunction(() => document.getElementById('importInstancesBtn').textContent.includes('(1)'));
+  ok(true, 'the menu counts the linked instance');
+  await page.click('#importInstancesBtn');
+  await page.waitForFunction((n) => Number(document.getElementById('countFavorites').textContent) > n, beforeImport, { timeout: 15000 });
+
+  const afterImport = await page.evaluate(async () => {
+    const Library = await import('./components/library.js');
+    return Library.listFavorites().map((f) => ({ title: f.title, audioUrl: f.audioUrl }));
+  });
+  ok(afterImport.some((f) => f.title === 'Starred Elsewhere'), 'a star from the instance became a favourite');
+  ok(afterImport.find((f) => f.title === 'Starred Elsewhere').audioUrl === 'https://sudorecords.test/api/tracks/77/stream',
+     'it carries a playable stream url from that instance');
+  const fromNetwork = afterImport.find((f) => f.title === 'Blue Room');
+  ok(fromNetwork && fromNetwork.audioUrl.includes('alpha.test'),
+     'one already on the network is saved as the reachable network copy, not the instance one');
+  ok((await page.textContent('#toast')).includes('album like'), 'the album star is reported as skipped: ' + await page.textContent('#toast'));
+  ok(await page.evaluate(() => document.querySelector('[data-view="favorites"]').classList.contains('tab-active')),
+     'the player switches to Favorites so the import is visible');
+
+  const importedPlaylist = await page.evaluate(async () => {
+    const Library = await import('./components/library.js');
+    const pl = Library.listPlaylists().find((p) => p.importedFrom);
+    return pl && { name: pl.name, from: pl.importedFrom, first: pl.items[0] && pl.items[0].title, audio: pl.items[0] && pl.items[0].audioUrl };
+  });
+  ok(importedPlaylist && importedPlaylist.name === 'Their playlist', 'the public playlist came across too');
+  ok(importedPlaylist.from === 'sudorecords.test/3', 'stamped with its origin');
+  ok(importedPlaylist.first === 'From Their Playlist' && importedPlaylist.audio === 'https://sudorecords.test/api/tracks/90/stream',
+     'with playable tracks');
+
+  const repeat = await page.evaluate(async () => {
+    const Import = await import('./components/instance-import.js');
+    const Library = await import('./components/library.js');
+    const before = { favorites: Library.countFavorites(), playlists: Library.listPlaylists().length };
+    const summary = await Import.importFrom(Import.readLinkedInstances(), { liveIndex: null });
+    return { before, favorites: Library.countFavorites(), playlists: Library.listPlaylists().length, added: summary.added, already: summary.alreadyThere };
+  });
+  ok(repeat.favorites === repeat.before.favorites && repeat.added === 0 && repeat.already === 2,
+     'importing again adds no favourites');
+  ok(repeat.playlists === repeat.before.playlists, 'and does not duplicate the imported playlist');
+
   page.on('dialog', (d) => d.accept());
 
   // the playlist was emptied earlier in this run; put a track back before sharing
@@ -207,13 +274,15 @@ function ok(cond, msg) { if (!cond) throw new Error('FAIL: ' + msg); passed++; c
   await page.waitForSelector('#tracksContainer .track-row[data-idx="0"]');
   await page.click('#tracksContainer .track-row[data-idx="0"] [data-act="add"]');
   await page.waitForSelector('#pickerList [data-plid]');
-  await page.click('#pickerList [data-plid]');
-  await page.waitForFunction(() => document.querySelector('#pickerList [data-plid]').getAttribute('aria-pressed') === 'true');
+  // by name: the import added a playlist of its own, so position is not identity
+  await page.click('#pickerList [data-plid]:has-text("Nightshift")');
+  await page.waitForFunction(() => Array.from(document.querySelectorAll('#pickerList [data-plid]'))
+    .some((b) => b.textContent.includes('Nightshift') && b.getAttribute('aria-pressed') === 'true'));
   await page.click('#pickerClose');
 
   await page.click('[data-view="playlists"]');
   await page.waitForSelector('[data-pl]');
-  await page.click('#tracksContainer [data-pl]');
+  await page.click('#tracksContainer [data-pl]:has-text("Nightshift")');
   await page.waitForSelector('#viewHeader [data-act="share"]');
   await page.click('#viewHeader [data-act="share"]');
   await page.waitForFunction(() => document.querySelector('#viewHeader [data-act="share"]').getAttribute('aria-pressed') === 'true', null, { timeout: 5000 });
@@ -223,7 +292,7 @@ function ok(cond, msg) { if (!cond) throw new Error('FAIL: ' + msg); passed++; c
     const Sync = await import('./components/library-sync.js');
     const Library = await import('./components/library.js');
     const identity = Sync.readIdentity();
-    const pl = Library.listPlaylists()[0];
+    const pl = Library.listPlaylists().find((p) => p.name === 'Nightshift');
     return { token: Sync.shareToken(identity.pair.pub, pl.id), isPublic: pl.isPublic, name: pl.name };
   });
   ok(token.isPublic === true, 'the playlist is marked public in the library');

@@ -128,6 +128,23 @@ async function until(page, fn, arg, timeout = 12000) {
   });
   ok(bothOnA === 'Halo,Salt', 'two devices editing different items keep both');
 
+  // --- a returning device: nothing to transfer, but everything is mirrored -
+  const returning = await deviceA.evaluate(async ({ relay, seed }) => {
+    const { Zen, Library, Sync, wait } = window.harness;
+    const pair = await window.harness.makePair(seed);
+    // a fresh sync handle, as a page reload would create
+    const sync = Sync.createSync({ Zen, relay, identity: { pair, alias: 'alice' }, onStatus: () => {} });
+    sync.start();
+    await wait(3000);
+    const status = sync.status();
+    sync.stop();
+    return { pushed: status.pushed, pulled: status.pulled, pending: status.pending, mirrored: status.mirrored, favorites: Library.countFavorites() };
+  }, { relay: RELAY, seed: SEED });
+  ok(returning.favorites === 2 && returning.mirrored >= 2,
+     'a returning device reports what is mirrored, not an empty transfer count');
+  ok(returning.pushed === 0 && returning.pending === 0,
+     'and pushes nothing, because it is already up to date');
+
   // --- a public playlist opens for someone with no identity at all --------
   const playlistId = await deviceA.evaluate(async () => {
     const { Library, sync } = window.harness;

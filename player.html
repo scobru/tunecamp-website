@@ -128,6 +128,7 @@
                 </button>
                 <div id="libraryMenu" class="hidden absolute right-0 mt-2 w-72 glass-panel rounded-xl p-2 z-50 text-sm">
                     <div id="syncStatus" class="px-3 py-2 mb-1 rounded-lg bg-white/5 text-xs leading-snug"></div>
+                    <button data-act="import-instances" id="importInstancesBtn" class="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10 transition-colors"><i class="fas fa-star w-4 mr-2 text-text-muted"></i>Import stars from your instances</button>
                     <button data-act="export" class="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10 transition-colors"><i class="fas fa-download w-4 mr-2 text-text-muted"></i>Export library (.json)</button>
                     <button data-act="import" class="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10 transition-colors"><i class="fas fa-upload w-4 mr-2 text-text-muted"></i>Import library&hellip;</button>
                     <button data-act="clear" class="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10 text-red-300 transition-colors"><i class="fas fa-trash w-4 mr-2"></i>Clear library</button>
@@ -261,6 +262,7 @@
         import { PlayQueue } from './components/queue.js';
         import * as Library from './components/library.js';
         import * as Sync from './components/library-sync.js';
+        import * as InstanceImport from './components/instance-import.js';
 
         const audio = new Audio();
         const queue = new PlayQueue();
@@ -1160,6 +1162,7 @@
         }
 
         function renderSyncStatus() {
+            renderImportButton();
             const box = el('syncStatus');
             const identity = Sync.readIdentity();
             // The footer note below the menu would otherwise keep claiming the
@@ -1173,14 +1176,18 @@
                     <span class="text-text-muted">to sync it across devices.</span>`;
                 return;
             }
-            const status = sync ? sync.status() : { enabled: false, connected: false, pushed: 0, pulled: 0 };
+            const status = sync ? sync.status() : { enabled: false, connected: false, pending: 0, mirrored: 0 };
             const host = (() => { try { return new URL(window.ZEN_RELAY).host; } catch (e) { return 'the relay'; } })();
-            // Only claim to be reaching the relay when a peer is actually connected;
-            // otherwise say plainly that the changes are waiting in this browser.
+            // Report the state, not this session's traffic: someone who returns
+            // already in sync transfers nothing, and bare counters read as a
+            // failure when they mean "up to date".
+            const items = `${status.mirrored} item${status.mirrored === 1 ? '' : 's'}`;
             const detail = !status.enabled
                 ? 'Reload to retry.'
                 : status.connected
-                    ? `Encrypted to your key, through ${escapeHtml(host)}. ${status.pushed} sent, ${status.pulled} received.`
+                    ? (status.pending
+                        ? `Sending ${status.pending} change${status.pending === 1 ? '' : 's'} to ${escapeHtml(host)}…`
+                        : `Up to date — ${items} mirrored, encrypted to your key, through ${escapeHtml(host)}.`)
                     : `${escapeHtml(host)} is unreachable — your changes are saved here and will sync when it answers.`;
             box.innerHTML = `
                 <div class="flex items-center gap-2 text-white">
@@ -1269,6 +1276,7 @@
                 const btn = e.target.closest('[data-act]');
                 if (!btn) return;
                 closeLibraryMenu();
+                if (btn.dataset.act === 'import-instances') importFromInstances();
                 if (btn.dataset.act === 'export') exportLibrary();
                 if (btn.dataset.act === 'import') el('importFile').click();
                 if (btn.dataset.act === 'clear') {
@@ -1289,6 +1297,40 @@
                 }
                 e.target.value = '';
             });
+        }
+
+        /**
+         * Pulls the stars the listener already made inside their own instances
+         * into this library. Their instances are the source of truth for those;
+         * this is a copy, not a link, so a later star there needs another run.
+         */
+        async function importFromInstances() {
+            const instances = InstanceImport.readLinkedInstances();
+            if (!instances.length) {
+                showToast('No linked instances — link one on the Profile page first');
+                return;
+            }
+            showToast(`Importing from ${instances.length} instance${instances.length === 1 ? '' : 's'}…`);
+            const summary = await InstanceImport.importFrom(instances, { liveIndex });
+            showToast(InstanceImport.describeImport(summary));
+            summary.instances.filter((i) => i.error).forEach((i) => {
+                console.warn(`[player] import from ${i.domain} failed: ${i.error}`);
+            });
+            if (summary.added) {
+                view = 'favorites';
+                openPlaylistId = null;
+                openArtist = null;
+                renderView();
+            }
+        }
+
+        function renderImportButton() {
+            const count = InstanceImport.readLinkedInstances().length;
+            const btn = el('importInstancesBtn');
+            btn.innerHTML = `<i class="fas fa-star w-4 mr-2 text-text-muted"></i>Import stars from your instances${count ? ` <span class="text-[10px] text-text-muted">(${count})</span>` : ''}`;
+            btn.title = count
+                ? 'Copy the tracks you starred on your own instances into this library'
+                : 'Link an instance on the Profile page first';
         }
 
         function closeLibraryMenu() {
