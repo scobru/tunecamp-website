@@ -113,6 +113,7 @@ an album into a dozen separate hearts would misrepresent what was starred.
 # units — no dependencies
 node --experimental-default-type=module tests/library.test.js
 node --experimental-default-type=module tests/instance-import.test.js
+node --experimental-default-type=module tests/url-safety.test.js
 
 # browser tests (need Playwright, and a server for them to drive)
 npx http-server -p 8123 -s .
