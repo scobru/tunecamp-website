@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="styles.css" />
     <script src="theme.js"></script>
     <script src="config.js"></script>
+    <script src="utils.js"></script>
     <script type="module" src="vendor/zen.min.js"></script>
     <script src="components/tc-header.js"></script>
     <style type="text/tailwindcss">
@@ -268,7 +269,13 @@
             const linkInstanceDomainInput = document.getElementById('linkInstanceDomainInput');
             const linkInstanceArtistInput = document.getElementById('linkInstanceArtistInput');
 
-            // Escape HTML entities to prevent XSS
+            // Escape HTML entities to prevent XSS.
+            //
+            // This is the *text* escaper: it stops an attribute breaking out, and nothing
+            // more. It does not make a URL safe — a browser HTML-decodes an attribute
+            // before resolving it, so `javascript:alert(&#039;x&#039;)` in an href is still
+            // `javascript:` when the click lands. Every URL that came off the network goes
+            // through sanitizeUrl() from utils.js as well, which is what checks the scheme.
             function escapeHtml(str) {
                 if (str == null) return '';
                 return String(str)
@@ -757,7 +764,7 @@
                                 const rawAvatar = prof.imageUrl || prof.avatar;
                                 if (avatarEl && rawAvatar) {
                                     const avatarUrl = toAbsoluteUrl(rawAvatar, baseUrl);
-                                    setHtml(avatarEl, `<img src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(artistDisplayName)}" class="w-full h-full object-cover" />`);
+                                    setHtml(avatarEl, `<img src="${escapeHtml(sanitizeUrl(avatarUrl, true))}" alt="${escapeHtml(artistDisplayName)}" class="w-full h-full object-cover" />`);
                                 }
                             }
 
@@ -832,9 +839,9 @@
                         setHtml(relGrid, `<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No public releases found yet for linked accounts. Make sure your albums/releases are set to Public or Released status on your TuneCamp nodes.</div>`);
                     } else {
                         setHtml(relGrid, allReleases.map(rel => `
-                            <a href="${escapeHtml(rel.linkUrl)}" target="_blank" rel="noopener" class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4 hover:border-primary/40 hover:bg-white/[0.07] transition-all group">
+                            <a href="${escapeHtml(sanitizeUrl(rel.linkUrl))}" target="_blank" rel="noopener" class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4 hover:border-primary/40 hover:bg-white/[0.07] transition-all group">
                                 <div class="w-12 h-12 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
-                                    ${rel.coverUrl ? `<img src="${escapeHtml(rel.coverUrl?.split('`').join('``'))}" alt="${escapeHtml(rel.title || '')}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-compact-disc text-amber-400 text-xl"></i>`}
+                                    ${rel.coverUrl ? `<img src="${escapeHtml(sanitizeUrl(rel.coverUrl, true))}" alt="${escapeHtml(rel.title || '')}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-compact-disc text-amber-400 text-xl"></i>`}
                                 </div>
                                 <div class="min-w-0 flex-1">
                                     <div class="font-bold text-sm text-white truncate group-hover:text-primary transition-colors">${escapeHtml(rel.title || 'Untitled Release')}</div>
@@ -855,9 +862,9 @@
                         setHtml(likesGrid, `<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No starred favorites found for linked accounts.</div>`);
                         } else {
                         setHtml(likesGrid, allLikes.map(lk => `
-                            <a href="${escapeHtml(lk.linkUrl)}" target="_blank" rel="noopener" class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4 hover:border-rose-400/40 hover:bg-white/[0.07] transition-all group">
+                            <a href="${escapeHtml(sanitizeUrl(lk.linkUrl))}" target="_blank" rel="noopener" class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4 hover:border-rose-400/40 hover:bg-white/[0.07] transition-all group">
                                 <div class="w-12 h-12 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
-                                    ${lk.coverUrl ? `<img src="${escapeHtml(lk.coverUrl?.split('`').join('``'))}" alt="${escapeHtml(lk.title || '')}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-heart text-rose-400 text-xl"></i>`}
+                                    ${lk.coverUrl ? `<img src="${escapeHtml(sanitizeUrl(lk.coverUrl, true))}" alt="${escapeHtml(lk.title || '')}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-heart text-rose-400 text-xl"></i>`}
                                 </div>
                                 <div class="min-w-0 flex-1">
                                     <div class="font-bold text-sm text-white truncate group-hover:text-rose-400 transition-colors">${escapeHtml(lk.title)}</div>
@@ -877,9 +884,9 @@
                         setHtml(plGrid, `<div class="sm:col-span-2 text-center py-6 text-text-muted text-xs">No public playlists found for linked accounts.</div>`);
                     } else {
                         setHtml(plGrid, allPlaylists.map(pl => `
-                            <a href="${escapeHtml(pl.linkUrl)}" target="_blank" rel="noopener" class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4 hover:border-purple-400/40 hover:bg-white/[0.07] transition-all group">
+                            <a href="${escapeHtml(sanitizeUrl(pl.linkUrl))}" target="_blank" rel="noopener" class="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4 hover:border-purple-400/40 hover:bg-white/[0.07] transition-all group">
                                 <div class="w-12 h-12 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
-                                    ${pl.coverUrl ? `<img src="${escapeHtml(pl.coverUrl?.split('`').join('``'))}" alt="${escapeHtml(pl.title || '')}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-list-music text-purple-400 text-xl"></i>`}
+                                    ${pl.coverUrl ? `<img src="${escapeHtml(sanitizeUrl(pl.coverUrl, true))}" alt="${escapeHtml(pl.title || '')}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-list-music text-purple-400 text-xl"></i>`}
                                 </div>
                                 <div class="min-w-0 flex-1">
                                     <div class="font-bold text-sm text-white truncate group-hover:text-purple-400 transition-colors">${escapeHtml(pl.title)}</div>
@@ -987,7 +994,7 @@
                         setHtml(releasesGrid, allReleases.slice(0, 12).map(r => `
                         <a href="https://${escapeHtml(r.instanceDomain)}/album/${escapeHtml(r.slug || r.id)}" target="_blank" rel="noopener" class="group glass-card p-4 flex gap-4 hover:border-primary/50 transition-colors">
                             <div class="w-16 h-16 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
-                                ${r.cover_url ? `<img src="${escapeHtml(r.cover_url)}" alt="${escapeHtml(r.title)}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-compact-disc text-primary text-xl"></i>`}
+                                ${r.cover_url ? `<img src="${escapeHtml(sanitizeUrl(r.cover_url, true))}" alt="${escapeHtml(r.title)}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-compact-disc text-primary text-xl"></i>`}
                             </div>
                             <div class="min-w-0 flex-1">
                                 <div class="font-bold text-sm text-white truncate group-hover:text-primary transition-colors">${escapeHtml(r.title)}</div>
@@ -1010,7 +1017,7 @@
                         setHtml(likesGrid, allLikes.slice(0, 12).map(l => `
                         <div class="glass-card p-4 flex gap-4">
                             <div class="w-16 h-16 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
-                                ${l.album_cover ? `<img src="${escapeHtml(l.album_cover)}" alt="${escapeHtml(l.album_title || l.track_title)}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-heart text-rose-400 text-xl"></i>`}
+                                ${l.album_cover ? `<img src="${escapeHtml(sanitizeUrl(l.album_cover, true))}" alt="${escapeHtml(l.album_title || l.track_title)}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-heart text-rose-400 text-xl"></i>`}
                             </div>
                             <div class="min-w-0 flex-1">
                                 <div class="font-bold text-sm text-white truncate">${escapeHtml(l.track_title || l.album_title || 'Unknown')}</div>
@@ -1033,7 +1040,7 @@
                         setHtml(playlistsGrid, allPlaylists.slice(0, 12).map(pl => `
                         <a href="https://${escapeHtml(pl.instanceDomain)}/playlist/${escapeHtml(pl.id)}" target="_blank" rel="noopener" class="group glass-card p-4 flex gap-4 hover:border-purple-400/50 transition-colors">
                             <div class="w-16 h-16 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
-                                ${pl.coverUrl ? `<img src="${escapeHtml(pl.coverUrl)}" alt="${escapeHtml(pl.title)}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-list-music text-purple-400 text-xl"></i>`}
+                                ${pl.coverUrl ? `<img src="${escapeHtml(sanitizeUrl(pl.coverUrl, true))}" alt="${escapeHtml(pl.title)}" class="w-full h-full object-cover" />` : `<i class="fa-solid fa-list-music text-purple-400 text-xl"></i>`}
                             </div>
                             <div class="min-w-0 flex-1">
                                 <div class="font-bold text-sm text-white truncate group-hover:text-purple-400 transition-colors">${escapeHtml(pl.title)}</div>
