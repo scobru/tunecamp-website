@@ -96,7 +96,7 @@
                     Download. Organize. <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-pink-500">Share.</span>
                 </h1>
                 <p class="text-lg text-text-muted leading-relaxed mb-8">
-                    Sidecamp is the desktop companion app for TuneCamp. Search and download music from Soulseek, torrents, and YouTube — then manage your local library, edit ID3 tags, play tracks in-app, and share your collection back to the network as a peer node.
+                    Sidecamp is the desktop companion app for TuneCamp. Search and download music across 7 sources (Soulseek, torrents, YouTube, Bandcamp, and more) — then organize folders, build CDJ-ready playlists, play tracks with a scrolling waveform, and share your collection back to the network as a peer node.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <a href="https://github.com/scobru/sidecamp" target="_blank" class="btn-primary">
@@ -209,9 +209,9 @@
                             <i class="fas fa-search"></i>
                         </div>
                         <div>
-                            <h3 class="font-display text-lg font-bold mb-2">Multi-Source Downloader</h3>
+                            <h3 class="font-display text-lg font-bold mb-2">Multi-Source Search & Download</h3>
                             <p class="text-text-muted text-sm leading-relaxed">
-                                Search and download from Soulseek, BitTorrent/WebTorrent (magnet links), YouTube, SoundCloud, and Bandcamp via yt-dlp — all from one interface.
+                                Unified search across Soulseek, SoundCloud, Bandcamp, torrents, the Internet Archive (archive.org), and the TuneCamp peer network — all simultaneously or filtered by platform with real-time download logs.
                             </p>
                         </div>
                     </div>
@@ -220,9 +220,31 @@
                             <i class="fas fa-music"></i>
                         </div>
                         <div>
-                            <h3 class="font-display text-lg font-bold mb-2">Local Library + Audio Player</h3>
+                            <h3 class="font-display text-lg font-bold mb-2">Audio Library & Waveform Player</h3>
                             <p class="text-text-muted text-sm leading-relaxed">
-                                Browse all your downloaded tracks in one place. Play any file with the built-in player, edit ID3 tags (title, artist, album), rename files, and organize them into folders.
+                                Browse your downloaded music library with an in-app player and a 60fps Rekordbox-style scrolling waveform canvas. Edit ID3 tags (title, artist, album) and rename files in place.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="glass-card flex gap-5">
+                        <div class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xl">
+                            <i class="fas fa-compact-disc"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-display text-lg font-bold mb-2">DJ Playlists & CDJ Export</h3>
+                            <p class="text-text-muted text-sm leading-relaxed">
+                                Build and curate DJ sets directly from your library, reorder tracks, import/export playlist JSONs, and export flat CDJ-ready USB folders with UTF-8 M3U8 playlists for Pioneer CDJs.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="glass-card flex gap-5">
+                        <div class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xl">
+                            <i class="fas fa-wand-magic-sparkles"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-display text-lg font-bold mb-2">Folder Organizer & Deduplication</h3>
+                            <p class="text-text-muted text-sm leading-relaxed">
+                                Automatically scan, rename, and sort any local music folder by Artist, Album, or Genre. Detect duplicate tracks and auto-fill missing genre metadata using Beatport and MusicBrainz APIs.
                             </p>
                         </div>
                     </div>
@@ -231,20 +253,9 @@
                             <i class="fas fa-globe"></i>
                         </div>
                         <div>
-                            <h3 class="font-display text-lg font-bold mb-2">Network Explorer</h3>
+                            <h3 class="font-display text-lg font-bold mb-2">P2P Network Explorer</h3>
                             <p class="text-text-muted text-sm leading-relaxed">
-                                Browse tracks shared by TuneCamp peers and the server catalog. Download anything from the network with a single click and it lands straight in your library.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="glass-card flex gap-5">
-                        <div class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xl">
-                            <i class="fas fa-upload"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-display text-lg font-bold mb-2">Upload to TuneCamp</h3>
-                            <p class="text-text-muted text-sm leading-relaxed">
-                                Push tracks from your local library directly to your TuneCamp account. Metadata (title, artist, album) is pre-filled from saved ID3 tags — edit before upload in one click.
+                                Browse tracks shared by connected TuneCamp nodes and the central catalog. Live licensing awareness respects release terms: tracks marked <code>For sale</code>, <code>Stream only</code>, or <code>External</code> stream safely with protected downloads.
                             </p>
                         </div>
                     </div>
@@ -253,20 +264,53 @@
                             <i class="fas fa-satellite-dish"></i>
                         </div>
                         <div>
-                            <h3 class="font-display text-lg font-bold mb-2">Peer Node</h3>
+                            <h3 class="font-display text-lg font-bold mb-2">Peer Node & Zero-Config Tunnel</h3>
                             <p class="text-text-muted text-sm leading-relaxed">
-                                Run a lightweight daemon that connects outward to your TuneCamp server via WebSocket — no port forwarding. Listeners stream or download through the relay in real time.
+                                Share local music folders with any TuneCamp instance via a secure reverse WebSocket tunnel. No port forwarding or firewall configuration required — listeners stream or download via server relay.
                             </p>
                         </div>
                     </div>
                     <div class="glass-card flex gap-5">
                         <div class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xl">
-                            <i class="fas fa-shield-alt"></i>
+                            <i class="fa-solid fa-shield-halved"></i>
                         </div>
                         <div>
-                            <h3 class="font-display text-lg font-bold mb-2">Server Stays Clean</h3>
+                            <h3 class="font-display text-lg font-bold mb-2">Granular Sharing Permissions</h3>
                             <p class="text-text-muted text-sm leading-relaxed">
-                                P2P downloads and yt-dlp run on your desktop, not the server. Your TuneCamp instance hosts only catalog and legitimate streaming data — fully compliant.
+                                Control access folder-by-folder in real time. Choose exactly which folders allow peer downloads and which remain streaming-only with the toggle of a switch.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="glass-card flex gap-5">
+                        <div class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xl">
+                            <i class="fas fa-upload"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-display text-lg font-bold mb-2">Direct Upload to TuneCamp</h3>
+                            <p class="text-text-muted text-sm leading-relaxed">
+                                Push tracks from your local library directly to your TuneCamp account. Metadata (title, artist, album) is pre-filled from saved ID3 tags — edit before upload in one click.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="glass-card flex gap-5">
+                        <div class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xl">
+                            <i class="fas fa-magnet"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-display text-lg font-bold mb-2">BitTorrent / WebTorrent Engine</h3>
+                            <p class="text-text-muted text-sm leading-relaxed">
+                                Add magnet links or torrent files directly; download and seed from your desktop with live peer counts, speed metrics, and progress tracking.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="glass-card flex gap-5">
+                        <div class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xl">
+                            <i class="fab fa-youtube"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-display text-lg font-bold mb-2">yt-dlp Audio Extraction</h3>
+                            <p class="text-text-muted text-sm leading-relaxed">
+                                Rip high-quality audio streams from YouTube, SoundCloud, Bandcamp, and hundreds of supported platforms. Binaries are automatically acquired and kept up to date.
                             </p>
                         </div>
                     </div>
@@ -275,53 +319,20 @@
                             <i class="fas fa-landmark"></i>
                         </div>
                         <div>
-                            <h3 class="font-display text-lg font-bold mb-2">Internet Archive</h3>
+                            <h3 class="font-display text-lg font-bold mb-2">Internet Archive Integration</h3>
                             <p class="text-text-muted text-sm leading-relaxed">
-                                Search and download free, public-domain audio directly from archive.org — no manual browsing required.
+                                Search and download free, public-domain audio directly from archive.org into your local collection — no manual browser downloads required.
                             </p>
                         </div>
                     </div>
                     <div class="glass-card flex gap-5">
                         <div class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xl">
-                            <i class="fas fa-diagram-project"></i>
+                            <i class="fas fa-shield-alt"></i>
                         </div>
                         <div>
-                            <h3 class="font-display text-lg font-bold mb-2">Graph Playlist & DJ Tools</h3>
+                            <h3 class="font-display text-lg font-bold mb-2">Server Stays Clean & Compliant</h3>
                             <p class="text-text-muted text-sm leading-relaxed">
-                                Visualize your library as a track graph, auto-linked by BPM/key/genre. Mix with hot cues, a zoomable waveform, and EQ-based transitions (bass-swap, echo-out) for beat-synced blends.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="glass-card flex gap-5">
-                        <div class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xl">
-                            <i class="fas fa-record-vinyl"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-display text-lg font-bold mb-2">Set Recording</h3>
-                            <p class="text-text-muted text-sm leading-relaxed">
-                                Record your live mix session to a file as you play through the graph — capture the set exactly as you played it.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="glass-card flex gap-5">
-                        <div class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xl">
-                            <i class="fas fa-comments"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-display text-lg font-bold mb-2">Sharing Permissions</h3>
-                            <p class="text-text-muted text-sm leading-relaxed">
-                                Allow or restrict downloads per shared folder, toggled in real time.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="glass-card flex gap-5">
-                        <div class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xl">
-                            <i class="fas fa-folder-tree"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-display text-lg font-bold mb-2">Shared Files Browser</h3>
-                            <p class="text-text-muted text-sm leading-relaxed">
-                                Navigate your Downloads and shared folders, create subfolders, and move or delete files — one place to organize what you keep and share.
+                                Heavy P2P downloads and yt-dlp run exclusively on your desktop client. The TuneCamp server hosts only legitimate catalog and streaming data — 100% compliant.
                             </p>
                         </div>
                     </div>
@@ -355,29 +366,29 @@
                                 </a>
                             </div>
                             <p class="text-text-muted text-sm mb-3">All releases: <a href="https://github.com/scobru/sidecamp/releases" target="_blank" class="text-primary hover:underline">GitHub Releases</a></p>
-                            <p class="text-text-muted text-sm mb-3">CLI daemon (headless peer node):</p>
-                            <pre><code># Run peer node without GUI
-npm run build
-node dist-electron/main.js --daemon</code></pre>
+                            <p class="text-text-muted text-sm mb-3">Headless CLI Client:</p>
+                            <pre><code># Run headless client / daemon (no Electron)
+npm run build --workspace apps/sidecamp-cli
+node apps/sidecamp-cli/dist/index.js --help</code></pre>
                             <p class="text-text-muted text-sm mb-3">Or build from source:</p>
                             <pre><code>git clone https://github.com/scobru/sidecamp.git
 cd sidecamp
 npm install
-npm run dev       # development mode
-npm run build     # build installer</code></pre>
+npm run dev --workspace apps/sidecamp      # development mode
+npm run build --workspace apps/sidecamp    # build installer</code></pre>
                             <p class="text-text-muted text-xs mt-2">Requires <strong class="text-white">Node.js 18+</strong>. yt-dlp is downloaded automatically on first use — no manual install needed.</p>
                         </div>
 
                         <div>
                             <div class="flex items-center gap-3 mb-3">
                                 <span class="w-7 h-7 rounded-full bg-primary/25 border border-primary/40 flex items-center justify-center text-primary font-bold text-xs">2</span>
-                                <h3 class="font-display font-semibold text-lg">Configure in the App</h3>
+                                <h3 class="font-display font-semibold text-lg">Configure in Settings</h3>
                             </div>
-                            <p class="text-text-muted text-sm mb-3">No config files needed. Open Sidecamp and go to the <strong class="text-white">Configuration</strong> tab:</p>
+                            <p class="text-text-muted text-sm mb-3">No config files needed. Open Sidecamp and go to <strong class="text-white">Settings</strong>:</p>
                             <ul class="text-text-muted text-sm space-y-2 list-none">
-                                <li class="flex gap-2"><span class="text-primary">→</span> Paste your <strong class="text-white">TuneCamp Server URL</strong> and <strong class="text-white">API Token</strong> to enable uploads and Network Explorer.</li>
-                                <li class="flex gap-2"><span class="text-primary">→</span> Enter <strong class="text-white">Soulseek credentials</strong> to enable P2P search.</li>
-                                <li class="flex gap-2"><span class="text-primary">→</span> Add <strong class="text-white">shared folders</strong> for the Peer Node daemon.</li>
+                                <li class="flex gap-2"><span class="text-primary">→</span> Enter your <strong class="text-white">TuneCamp Server URL</strong> and paste your <strong class="text-white">JWT Token</strong> to enable uploads and Network Explorer.</li>
+                                <li class="flex gap-2"><span class="text-primary">→</span> Add optional <strong class="text-white">Soulseek credentials</strong> to search peer-to-peer audio networks.</li>
+                                <li class="flex gap-2"><span class="text-primary">→</span> Select local directories under <strong class="text-white">Sharing</strong> to share music folders with your instance.</li>
                             </ul>
                         </div>
 
@@ -386,7 +397,7 @@ npm run build     # build installer</code></pre>
                                 <span class="w-7 h-7 rounded-full bg-primary/25 border border-primary/40 flex items-center justify-center text-primary font-bold text-xs">3</span>
                                 <h3 class="font-display font-semibold text-lg">Start Using</h3>
                             </div>
-                            <p class="text-text-muted text-sm">Use the <strong class="text-white">Downloader</strong> tab to search and grab music, browse your collection in <strong class="text-white">Library</strong>, or explore peers in <strong class="text-white">Network</strong>. Start the <strong class="text-white">Peer Node</strong> to share your library with the TuneCamp network.</p>
+                            <p class="text-text-muted text-sm">Use <strong class="text-white">Search & Download</strong> to find and fetch music across 7 platforms, organize folders and build CDJ playlists in <strong class="text-white">Library</strong>, browse peers in <strong class="text-white">Network</strong>, and manage folders and permissions in <strong class="text-white">Sharing</strong>.</p>
                         </div>
                     </div>
                 </div>
