@@ -573,6 +573,17 @@
             filterTracks();
         }
 
+        // Only the first page of tracks is rendered; the rest is one click away. The full
+        // list stays in memory (search, filters and queue still see every track).
+        const TRACKS_PAGE_SIZE = 48;
+        let visibleTrackLimit = TRACKS_PAGE_SIZE;
+
+        function showMoreTracks() {
+            visibleTrackLimit += TRACKS_PAGE_SIZE;
+            renderTracks();
+        }
+        window.showMoreTracks = showMoreTracks;
+
         let filterTimeout;
         function filterTracks(isMobile) {
             // ⚡ Bolt Performance Optimization:
@@ -603,6 +614,7 @@
                 const mg = !g || t.genre.split(',').map(s => s.trim()).includes(g);
                 return mq && ma && mg;
             });
+            visibleTrackLimit = TRACKS_PAGE_SIZE;
             renderTracks();
             }, 300);
         }
@@ -639,7 +651,14 @@
             // Added loading="lazy" to dynamically injected track cover images.
             // When fetching 100s of tracks, loading offscreen images blocks the main thread
             // and delays page interactivity. Lazy loading defers these requests until they are needed.
-            grid.innerHTML = filteredTracks.map((t) => {
+            const visibleTracks = filteredTracks.slice(0, visibleTrackLimit);
+            const remaining = filteredTracks.length - visibleTracks.length;
+            const moreButton = remaining > 0
+                ? `<div class="col-span-full flex justify-center pt-4">
+                    <button onclick="showMoreTracks()" class="bg-white/5 hover:bg-white/10 border border-white/10 text-white px-5 py-2.5 rounded-lg transition-colors text-sm font-medium focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none">Show more <span class="text-text-muted">(${remaining} left)</span></button>
+                </div>`
+                : '';
+            grid.innerHTML = visibleTracks.map((t) => {
                 const key = trackStableKey(t);
                 const active = key === currentTrackKey;
                 const cover = t.coverUrl ? `<img src="${escapeHtml(sanitizeUrl(t.coverUrl, true))}" class="w-full h-full object-cover" loading="lazy">` : '<i class="fas fa-music"></i>';
@@ -660,7 +679,7 @@
                             <div class="text-[11px] text-text-muted/50 truncate"><i class="fas fa-server mr-1"></i>${escapeHtml(t.siteTitle)}</div>
                         </div>
                     </div>`;
-            }).join('');
+            }).join('') + moreButton;
         }
 
         function playTrackByKey(key) {
@@ -683,6 +702,7 @@
             if (currentTrackKey === trackStableKey(track)) { togglePlay(); return; }
             currentTrackIndex = index;
             currentTrackKey = trackStableKey(track);
+            if (index >= visibleTrackLimit) visibleTrackLimit = index + 1;
             audio.src = track.audioUrl;
             audio.play().catch((err) => {
                 console.warn('Playback failed:', track.audioUrl, err);
