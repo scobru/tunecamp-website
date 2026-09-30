@@ -78,7 +78,7 @@
                 <!-- Auth Card -->
                 <div class="glass-card p-6 space-y-5" id="authSection">
                     <div id="zenAuthPane" role="tabpanel">
-                        <h2 class="font-display text-lg font-bold text-white flex items-center gap-2 mb-4">
+                        <h2 id="signInTitle" class="font-display text-lg font-bold text-white flex items-center gap-2 mb-4">
                             <i class="fa-solid fa-user text-primary"></i> Sign in
                         </h2>
                         <form id="loginForm" class="space-y-4">
@@ -115,13 +115,53 @@
                     <div id="loggedInView" class="hidden space-y-5">
                         <div class="flex items-center gap-3">
                             <div id="userAvatar"
-                                class="w-12 h-12 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center text-lg font-bold text-primary uppercase">
+                                class="w-14 h-14 shrink-0 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center text-xl font-bold text-primary uppercase overflow-hidden">
                             </div>
                             <div class="min-w-0">
-                                <div class="text-xs text-text-muted">Welcome back</div>
-                                <div id="currentAlias" class="text-base font-bold text-white truncate"></div>
+                                <div id="displayNameText" class="text-base font-bold text-white truncate"></div>
+                                <div id="currentAlias" class="text-xs text-text-muted truncate"></div>
                             </div>
                         </div>
+                        <p id="bioText" class="text-sm text-text-muted leading-relaxed break-words"></p>
+
+                        <button type="button" id="editProfileBtn"
+                            class="w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-pen"></i> Edit profile
+                        </button>
+
+                        <form id="profileForm" class="hidden space-y-3 p-3 bg-black/30 border border-white/10 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <div id="avatarPreview"
+                                    class="w-16 h-16 shrink-0 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center text-xl font-bold text-primary uppercase overflow-hidden">
+                                </div>
+                                <div class="flex flex-col gap-1.5">
+                                    <label
+                                        class="px-3 py-1.5 bg-white/10 hover:bg-white/15 text-xs text-white font-medium rounded-lg cursor-pointer text-center">
+                                        <i class="fa-solid fa-image"></i> Choose image
+                                        <input type="file" id="avatarFileInput" accept="image/*" class="hidden" />
+                                    </label>
+                                    <button type="button" id="avatarRemoveBtn"
+                                        class="text-[11px] text-text-muted hover:text-white text-left">Remove image</button>
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="block text-xs font-medium text-text-muted" for="displayNameInput">Name</label>
+                                <input type="text" id="displayNameInput" maxlength="40"
+                                    class="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-primary transition-colors" />
+                            </div>
+                            <div class="space-y-1">
+                                <label class="block text-xs font-medium text-text-muted" for="bioInput">About you</label>
+                                <textarea id="bioInput" rows="3" maxlength="160"
+                                    class="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-primary transition-colors resize-none"></textarea>
+                            </div>
+                            <p class="text-[11px] text-text-muted">Name, image and description are public.</p>
+                            <div class="flex gap-2">
+                                <button type="submit" id="saveProfileBtn"
+                                    class="flex-1 py-2 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-lg transition-colors">Save</button>
+                                <button type="button" id="cancelProfileBtn"
+                                    class="px-3 py-2 bg-white/10 hover:bg-white/15 text-white text-xs font-medium rounded-lg transition-colors">Cancel</button>
+                            </div>
+                        </form>
 
                         <div class="grid grid-cols-1 gap-2">
                             <a href="player.html"
@@ -313,6 +353,124 @@
                 });
             }
 
+
+            // ---- Public profile (name, image, description) ----
+            // Stored in the user's own Zen subtree `~<pub>/tc-profile-v1`, in the clear, so any
+            // TuneCamp page can show it. Cached locally so it renders instantly and offline.
+            const PROFILE_NODE = 'tc-profile-v1';
+            const AVATAR_PREFIX = 'data:image/jpeg;base64,';
+            const profileForm = document.getElementById('profileForm');
+            const editProfileBtn = document.getElementById('editProfileBtn');
+            let profileState = { name: '', bio: '', avatar: '', at: 0 };
+            let draftAvatar = '';
+
+            function cleanProfile(raw) {
+                const p = raw || {};
+                return {
+                    name: typeof p.name === 'string' ? p.name.slice(0, 40) : '',
+                    bio: typeof p.bio === 'string' ? p.bio.slice(0, 160) : '',
+                    // Only our own resized JPEGs are accepted; anything else could be a hostile URL.
+                    avatar: typeof p.avatar === 'string' && p.avatar.startsWith(AVATAR_PREFIX) && p.avatar.length < 60000 ? p.avatar : '',
+                    at: Number(p.at) || 0
+                };
+            }
+
+            function paintAvatar(el, avatar, fallbackName) {
+                el.textContent = '';
+                if (avatar) {
+                    const img = document.createElement('img');
+                    img.src = avatar;
+                    img.alt = '';
+                    img.className = 'w-full h-full object-cover';
+                    el.appendChild(img);
+                } else {
+                    el.textContent = (fallbackName || '?').charAt(0);
+                }
+            }
+
+            function renderProfile(alias) {
+                document.getElementById('displayNameText').textContent = profileState.name || '@' + alias;
+                document.getElementById('bioText').textContent = profileState.bio;
+                document.getElementById('bioText').classList.toggle('hidden', !profileState.bio);
+                paintAvatar(document.getElementById('userAvatar'), profileState.avatar, profileState.name || alias);
+            }
+
+            function loadProfile(alias, pub) {
+                try { profileState = cleanProfile(JSON.parse(localStorage.getItem('tunecamp_profile_' + pub) || 'null')); } catch (e) { profileState = cleanProfile(null); }
+                renderProfile(alias);
+                if (!zen) return;
+                zen.get('~' + pub).get(PROFILE_NODE).once((node) => {
+                    const remote = cleanProfile(node);
+                    if (remote.at > profileState.at && currentPair && currentPair.pub === pub) {
+                        profileState = remote;
+                        try { localStorage.setItem('tunecamp_profile_' + pub, JSON.stringify(remote)); } catch (e) { }
+                        renderProfile(alias);
+                    }
+                });
+            }
+
+            function openProfileEditor() {
+                const alias = currentAlias.textContent.replace('@', '');
+                document.getElementById('displayNameInput').value = profileState.name;
+                document.getElementById('bioInput').value = profileState.bio;
+                draftAvatar = profileState.avatar;
+                paintAvatar(document.getElementById('avatarPreview'), draftAvatar, profileState.name || alias);
+                profileForm.classList.remove('hidden');
+                editProfileBtn.classList.add('hidden');
+            }
+            function closeProfileEditor() {
+                profileForm.classList.add('hidden');
+                editProfileBtn.classList.remove('hidden');
+            }
+            editProfileBtn.addEventListener('click', openProfileEditor);
+            document.getElementById('cancelProfileBtn').addEventListener('click', closeProfileEditor);
+            document.getElementById('avatarRemoveBtn').addEventListener('click', () => {
+                draftAvatar = '';
+                paintAvatar(document.getElementById('avatarPreview'), '', document.getElementById('displayNameInput').value || currentAlias.textContent.replace('@', ''));
+            });
+
+            // Center-crop to a 128px square JPEG (~5 KB) so it fits comfortably in one graph node.
+            document.getElementById('avatarFileInput').addEventListener('change', (e) => {
+                const file = e.target.files && e.target.files[0];
+                e.target.value = '';
+                if (!file || !file.type.startsWith('image/')) return;
+                const url = URL.createObjectURL(file);
+                const img = new Image();
+                img.onload = () => {
+                    const size = 128;
+                    const side = Math.min(img.width, img.height);
+                    const canvas = document.createElement('canvas');
+                    canvas.width = canvas.height = size;
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(0, 0, size, size);
+                    ctx.drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, size, size);
+                    URL.revokeObjectURL(url);
+                    draftAvatar = canvas.toDataURL('image/jpeg', 0.8);
+                    paintAvatar(document.getElementById('avatarPreview'), draftAvatar, '?');
+                };
+                img.onerror = () => { URL.revokeObjectURL(url); alert('Could not read that image.'); };
+                img.src = url;
+            });
+
+            profileForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (!currentPair) return;
+                const next = cleanProfile({
+                    name: document.getElementById('displayNameInput').value.trim(),
+                    bio: document.getElementById('bioInput').value.trim(),
+                    avatar: draftAvatar,
+                    at: Date.now()
+                });
+                profileState = next;
+                try { localStorage.setItem('tunecamp_profile_' + currentPair.pub, JSON.stringify(next)); } catch (err) { }
+                renderProfile(currentAlias.textContent.replace('@', ''));
+                closeProfileEditor();
+                if (zen) {
+                    zen.get('~' + currentPair.pub).get(PROFILE_NODE).put(next, null, { authenticator: currentPair });
+                }
+            });
+
             // Load saved session or check Zen session
             const savedSession = localStorage.getItem('tunecamp_zen_user');
             if (savedSession) {
@@ -371,7 +529,8 @@
                 loginForm.classList.add('hidden');
                 loggedInView.classList.remove('hidden');
                 currentAlias.textContent = '@' + alias;
-                document.getElementById('userAvatar').textContent = (alias || '?').charAt(0);
+                document.getElementById('signInTitle').classList.add('hidden');
+                loadProfile(alias, pub);
                 currentPubKey.textContent = pub;
                 document.getElementById('advancedColumn').classList.remove('hidden');
                 loadLinkedInstances(alias);
@@ -381,6 +540,8 @@
                 localStorage.removeItem('tunecamp_zen_user');
                 currentPair = null;
                 loginForm.classList.remove('hidden');
+                document.getElementById('signInTitle').classList.remove('hidden');
+                document.getElementById('profileForm').classList.add('hidden');
                 loggedInView.classList.add('hidden');
                 document.getElementById('advancedColumn').classList.add('hidden');
                 instancesList.textContent = '';
