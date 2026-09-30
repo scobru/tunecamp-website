@@ -144,6 +144,11 @@
                                         class="text-[11px] text-text-muted hover:text-white text-left">Remove image</button>
                                 </div>
                             </div>
+                            <button type="button" id="importProfileBtn"
+                                class="w-full py-1.5 bg-primary/10 hover:bg-primary/20 border border-primary/30 text-xs text-primary font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-file-import"></i> Import from my instances
+                            </button>
+                            <div id="importList" class="hidden space-y-2"></div>
                             <div class="space-y-1">
                                 <label class="block text-xs font-medium text-text-muted" for="displayNameInput">Name</label>
                                 <input type="text" id="displayNameInput" maxlength="40"
@@ -420,6 +425,7 @@
             }
             function closeProfileEditor() {
                 profileForm.classList.add('hidden');
+                document.getElementById('importList').classList.add('hidden');
                 editProfileBtn.classList.remove('hidden');
             }
             editProfileBtn.addEventListener('click', openProfileEditor);
@@ -430,6 +436,18 @@
             });
 
             // Center-crop to a 128px square JPEG (~5 KB) so it fits comfortably in one graph node.
+            function imageToAvatar(source, width, height) {
+                const size = 128;
+                const side = Math.min(width, height);
+                const canvas = document.createElement('canvas');
+                canvas.width = canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, size, size);
+                ctx.drawImage(source, (width - side) / 2, (height - side) / 2, side, side, 0, 0, size, size);
+                return canvas.toDataURL('image/jpeg', 0.8);
+            }
+
             document.getElementById('avatarFileInput').addEventListener('change', (e) => {
                 const file = e.target.files && e.target.files[0];
                 e.target.value = '';
@@ -437,20 +455,128 @@
                 const url = URL.createObjectURL(file);
                 const img = new Image();
                 img.onload = () => {
-                    const size = 128;
-                    const side = Math.min(img.width, img.height);
-                    const canvas = document.createElement('canvas');
-                    canvas.width = canvas.height = size;
-                    const ctx = canvas.getContext('2d');
-                    ctx.fillStyle = '#000';
-                    ctx.fillRect(0, 0, size, size);
-                    ctx.drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, size, size);
+                    draftAvatar = imageToAvatar(img, img.width, img.height);
                     URL.revokeObjectURL(url);
-                    draftAvatar = canvas.toDataURL('image/jpeg', 0.8);
                     paintAvatar(document.getElementById('avatarPreview'), draftAvatar, '?');
                 };
                 img.onerror = () => { URL.revokeObjectURL(url); alert('Could not read that image.'); };
                 img.src = url;
+            });
+
+            // ---- Import from linked instances ----
+            // Reads the public profile each linked instance already exposes and offers it as a
+            // starting point; nothing is written until the user presses Save.
+            function linkedInstanceEntries() {
+                const all = [];
+                for (const store of ['tunecamp_linked_instances', 'fid_registry']) {
+                    try { all.push(...JSON.parse(localStorage.getItem(store) || '[]')); } catch (e) { }
+                }
+                const seen = new Set();
+                return all.filter(item => {
+                    const domain = item.instanceDomain || item.instanceUrl;
+                    const key = `${domain}::${item.localUsername || item.username || ''}`;
+                    if (!domain || seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                });
+            }
+
+            async function fetchInstanceProfile(inst, alias) {
+                const domain = inst.instanceDomain || (inst.instanceUrl ? new URL(inst.instanceUrl).hostname : '');
+                if (!domain) return null;
+                const user = inst.localUsername || inst.username || alias;
+                const baseUrl = inst.instanceUrl && inst.instanceUrl.startsWith('http') ? inst.instanceUrl : `https://${domain}`;
+                const endpoint = inst.publicDataEndpoint || `${baseUrl}/api/auth/zen/user/${encodeURIComponent(user)}/public`;
+                const res = await fetch(sanitizeUrl(endpoint), { headers: { 'Accept': 'application/json' } });
+                if (!res.ok) return null;
+                const data = await res.json();
+                const prof = data.publicProfile || data.user || data.profile;
+                if (!prof) return null;
+                const rawAvatar = prof.imageUrl || prof.avatar || '';
+                return {
+                    domain,
+                    user,
+                    name: String(prof.artistName || prof.displayName || prof.username || '').slice(0, 40),
+                    bio: String(prof.bio || prof.description || prof.about || '').slice(0, 160),
+                    avatarUrl: rawAvatar ? sanitizeUrl(toAbsoluteUrl(rawAvatar, baseUrl), true) : ''
+                };
+            }
+
+            // The instance has to allow cross-origin reads for the pixels to be usable; if it
+            // does not, the caller keeps name and bio and asks for a manual upload.
+            async function avatarFromUrl(url) {
+                const res = await fetch(url, { mode: 'cors' });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const bitmap = await createImageBitmap(await res.blob());
+                return imageToAvatar(bitmap, bitmap.width, bitmap.height);
+            }
+
+            document.getElementById('importProfileBtn').addEventListener('click', async () => {
+                const list = document.getElementById('importList');
+                const btn = document.getElementById('importProfileBtn');
+                const alias = currentAlias.textContent.replace('@', '');
+                const entries = linkedInstanceEntries();
+                list.classList.remove('hidden');
+                list.textContent = '';
+                const note = (text) => {
+                    const p = document.createElement('p');
+                    p.className = 'text-[11px] text-text-muted';
+                    p.textContent = text;
+                    list.appendChild(p);
+                    return p;
+                };
+                if (entries.length === 0) {
+                    note('No linked instances yet. Link one in Advanced first.');
+                    return;
+                }
+                btn.disabled = true;
+                const loading = note('Looking up your profiles…');
+                const found = (await Promise.all(entries.map(e => fetchInstanceProfile(e, alias).catch(() => null)))).filter(Boolean);
+                btn.disabled = false;
+                loading.remove();
+                if (found.length === 0) {
+                    note('None of your instances shared a profile.');
+                    return;
+                }
+                found.forEach((c) => {
+                    const row = document.createElement('button');
+                    row.type = 'button';
+                    row.className = 'w-full flex items-center gap-2 p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-left transition-colors';
+                    const thumb = document.createElement('div');
+                    thumb.className = 'w-9 h-9 shrink-0 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-bold uppercase overflow-hidden';
+                    paintAvatar(thumb, '', c.name || c.user);
+                    if (c.avatarUrl) {
+                        const img = document.createElement('img');
+                        img.src = c.avatarUrl;
+                        img.alt = '';
+                        img.className = 'w-full h-full object-cover';
+                        thumb.textContent = '';
+                        thumb.appendChild(img);
+                    }
+                    const text = document.createElement('div');
+                    text.className = 'min-w-0';
+                    const n = document.createElement('div');
+                    n.className = 'text-xs font-semibold text-white truncate';
+                    n.textContent = c.name || '@' + c.user;
+                    const d = document.createElement('div');
+                    d.className = 'text-[10px] text-text-muted truncate';
+                    d.textContent = c.domain;
+                    text.append(n, d);
+                    row.append(thumb, text);
+                    row.addEventListener('click', async () => {
+                        document.getElementById('displayNameInput').value = c.name;
+                        document.getElementById('bioInput').value = c.bio;
+                        list.classList.add('hidden');
+                        if (!c.avatarUrl) return;
+                        try {
+                            draftAvatar = await avatarFromUrl(c.avatarUrl);
+                            paintAvatar(document.getElementById('avatarPreview'), draftAvatar, c.name || c.user);
+                        } catch (err) {
+                            alert('Name and description imported, but the image could not be copied from ' + c.domain + '. You can upload it manually.');
+                        }
+                    });
+                    list.appendChild(row);
+                });
             });
 
             profileForm.addEventListener('submit', (e) => {
