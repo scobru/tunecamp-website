@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Global Identity — TuneCamp</title>
+    <title>Your Account — TuneCamp</title>
     <link rel="icon" type="image/svg+xml" href="tunecamp.svg" />
     <meta name="description"
-        content="Manage your self-sovereign global TuneCamp identity and linked federated instances using Zen SEA." />
+        content="Sign in to your TuneCamp account to keep your library, playlists and favorites in one place." />
     <link rel="stylesheet" href="fonts/fonts.css" />
     <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css" />
     <script src="vendor/tailwind.js"></script>
@@ -61,41 +61,29 @@
                 class="absolute -right-10 -bottom-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none">
             </div>
             <div class="max-w-2xl relative z-10 space-y-3">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full badge-verified text-xs font-semibold">
-                    <i class="fa-solid fa-circle-nodes"></i> P2P Graph Auth via FID (Fediverse-ID)
-                </div>
                 <h1 class="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
-                    Self-Sovereign Identity
+                    Your account
                 </h1>
                 <p class="text-text-muted text-sm sm:text-base leading-relaxed">
-                    Unify your profiles across independent TuneCamp instances. Your keys, your identity — powered by FID
-                    (Fediverse-ID) and zero-knowledge cryptographic proof.
-                </p>
-                <p class="text-text-muted text-xs sm:text-sm leading-relaxed">
-                    FID is an open, self-sovereign SSO protocol: one Zen SEA keypair logs you into any FID-enabled
-                    instance, no passwords or central server. <a href="https://github.com/scobru/fid" target="_blank"
-                        rel="noopener" class="text-primary hover:underline">Repo</a> · <a
-                        href="https://fid-portal.vercel.app" target="_blank" rel="noopener"
-                        class="text-primary hover:underline">Reference portal</a>
+                    Sign in to keep your library, playlists and favorites with you on every device. No email needed —
+                    just pick a username and a password.
                 </p>
             </div>
         </div>
 
         <!-- Layout Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <!-- Left Column: Zen SEA Login & Key Info -->
-            <div class="lg:col-span-4 space-y-6">
+            <!-- Left Column: Sign in / user section -->
+            <div class="lg:col-span-4 space-y-6" id="accountColumn">
                 <!-- Auth Card -->
                 <div class="glass-card p-6 space-y-5" id="authSection">
-                    <h2 class="font-display text-lg font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-key text-primary"></i> Cryptographic Identity
-                    </h2>
-
-                    <!-- Zen SEA Pane -->
                     <div id="zenAuthPane" role="tabpanel">
+                        <h2 id="signInTitle" class="font-display text-lg font-bold text-white flex items-center gap-2 mb-4">
+                            <i class="fa-solid fa-user text-primary"></i> Sign in
+                        </h2>
                         <form id="loginForm" class="space-y-4">
                             <div class="space-y-1">
-                                <label class="block text-xs font-medium text-text-muted mb-1">TuneCamp Alias</label>
+                                <label class="block text-xs font-medium text-text-muted mb-1">Username</label>
                                 <div class="relative">
                                     <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-text-muted">
                                         @
@@ -106,7 +94,7 @@
                                 </div>
                             </div>
                             <div class="space-y-1">
-                                <label class="block text-xs font-medium text-text-muted mb-1">Passphrase</label>
+                                <label class="block text-xs font-medium text-text-muted mb-1">Password</label>
                                 <input type="password" id="passphraseInput" required autocomplete="current-password"
                                     placeholder="••••••••••••"
                                     class="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-primary transition-colors" />
@@ -114,46 +102,109 @@
                             <div class="flex gap-2">
                                 <button type="submit" id="loginBtn"
                                     class="flex-1 py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded-lg transition-colors">
-                                    Sign In / Register
+                                    Sign in / Create account
                                 </button>
                             </div>
+                            <p class="text-[11px] text-text-muted leading-relaxed">
+                                New here? Enter the username and password you want and your account is created
+                                instantly. There is no password recovery, so keep it somewhere safe.
+                            </p>
                         </form>
                     </div>
 
+                    <div id="loggedInView" class="hidden space-y-5">
+                        <div class="flex items-center gap-3">
+                            <div id="userAvatar"
+                                class="w-14 h-14 shrink-0 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center text-xl font-bold text-primary uppercase overflow-hidden">
+                            </div>
+                            <div class="min-w-0">
+                                <div id="displayNameText" class="text-base font-bold text-white truncate"></div>
+                                <div id="currentAlias" class="text-xs text-text-muted truncate"></div>
+                            </div>
+                        </div>
+                        <p id="bioText" class="text-sm text-text-muted leading-relaxed break-words"></p>
+
+                        <button type="button" id="editProfileBtn"
+                            class="w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-pen"></i> Edit profile
+                        </button>
+
+                        <form id="profileForm" class="hidden space-y-3 p-3 bg-black/30 border border-white/10 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <div id="avatarPreview"
+                                    class="w-16 h-16 shrink-0 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center text-xl font-bold text-primary uppercase overflow-hidden">
+                                </div>
+                                <div class="flex flex-col gap-1.5">
+                                    <label
+                                        class="px-3 py-1.5 bg-white/10 hover:bg-white/15 text-xs text-white font-medium rounded-lg cursor-pointer text-center">
+                                        <i class="fa-solid fa-image"></i> Choose image
+                                        <input type="file" id="avatarFileInput" accept="image/*" class="hidden" />
+                                    </label>
+                                    <button type="button" id="avatarRemoveBtn"
+                                        class="text-[11px] text-text-muted hover:text-white text-left">Remove image</button>
+                                </div>
+                            </div>
+                            <button type="button" id="importProfileBtn"
+                                class="w-full py-1.5 bg-primary/10 hover:bg-primary/20 border border-primary/30 text-xs text-primary font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-file-import"></i> Import from my instances
+                            </button>
+                            <div id="importList" class="hidden space-y-2"></div>
+                            <div class="space-y-1">
+                                <label class="block text-xs font-medium text-text-muted" for="displayNameInput">Name</label>
+                                <input type="text" id="displayNameInput" maxlength="40"
+                                    class="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-primary transition-colors" />
+                            </div>
+                            <div class="space-y-1">
+                                <label class="block text-xs font-medium text-text-muted" for="bioInput">About you</label>
+                                <textarea id="bioInput" rows="3" maxlength="160"
+                                    class="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-primary transition-colors resize-none"></textarea>
+                            </div>
+                            <p class="text-[11px] text-text-muted">Name, image and description are public.</p>
+                            <div class="flex gap-2">
+                                <button type="submit" id="saveProfileBtn"
+                                    class="flex-1 py-2 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-lg transition-colors">Save</button>
+                                <button type="button" id="cancelProfileBtn"
+                                    class="px-3 py-2 bg-white/10 hover:bg-white/15 text-white text-xs font-medium rounded-lg transition-colors">Cancel</button>
+                            </div>
+                        </form>
+
+                        <div class="grid grid-cols-1 gap-2">
+                            <a href="player.html"
+                                class="w-full py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-headphones"></i> My library &amp; playlists
+                            </a>
+                            <a href="index.html"
+                                class="w-full py-2.5 bg-white/10 hover:bg-white/15 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-compass"></i> Discover music
+                            </a>
+                            <button id="logoutBtn"
+                                class="w-full py-2 bg-rose-500/10 hover:bg-rose-500/20 text-xs text-rose-400 font-medium rounded-lg transition-colors">
+                                Sign out
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Right Column: Linked Instances & Public Activity -->
-            <div class="lg:col-span-8 space-y-6">
-
-
-                <div id="loggedInView" class="hidden space-y-4">
-                    <div class="p-3 bg-white/5 border border-white/10 rounded-lg space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs text-text-muted">Authenticated as</span>
-                            <span id="currentAlias" class="text-sm font-bold text-primary"></span>
-                        </div>
-                        <div class="text-[10px] font-mono text-text-muted break-all bg-black/40 p-2 rounded border border-white/5"
-                            id="currentPubKey">
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col gap-2">
-                        <button id="copyPubKeyBtn"
-                            class="w-full py-2 bg-white/10 hover:bg-white/15 text-xs text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
-                            <i class="fa-regular fa-copy"></i> Copy Public Key
-                        </button>
-                        <button id="logoutBtn"
-                            class="w-full py-2 bg-rose-500/10 hover:bg-rose-500/20 text-xs text-rose-400 font-medium rounded-lg transition-colors">
-                            Disconnect Session
-                        </button>
-                    </div>
-                </div>
+        <!-- Right Column: advanced (linked instances, network activity) -->
+        <div class="lg:col-span-8 space-y-6 hidden" id="advancedColumn">
+          <details class="glass-card group" id="advancedDetails">
+            <summary class="p-5 cursor-pointer select-none flex items-center justify-between gap-3 list-none">
+                <span class="font-display text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-text-muted"></i> Advanced
+                    <span class="text-xs font-normal text-text-muted">Artist instances, public key &amp; network activity</span>
+                </span>
+                <i class="fa-solid fa-chevron-down text-xs text-text-muted transition-transform group-open:rotate-180"></i>
+            </summary>
+            <div class="p-5 pt-0 space-y-6">
+            <div class="p-3 bg-white/5 border border-white/10 rounded-lg space-y-2">
+                <div class="text-xs text-text-muted">Your public key (decentralized ID, sign-in via FID / Zen SEA)</div>
+                <div class="text-[10px] font-mono text-text-muted break-all bg-black/40 p-2 rounded border border-white/5" id="currentPubKey"></div>
+                <button id="copyPubKeyBtn"
+                    class="px-3 py-1.5 bg-white/10 hover:bg-white/15 text-xs text-white font-medium rounded-lg transition-colors inline-flex items-center gap-2">
+                    <i class="fa-regular fa-copy"></i> Copy public key
+                </button>
             </div>
-        </div>
-
-        <!-- Right Column: Linked Instances & Public Activity -->
-        <div class="lg:col-span-8 space-y-6">
             <!-- Linked Instances Card -->
             <div class="glass-card p-6 space-y-6">
                 <div>
@@ -239,6 +290,8 @@
                     </div>
                 </div>
             </div>
+            </div>
+          </details>
         </div>
         </div>
     </main>
@@ -305,6 +358,245 @@
                 });
             }
 
+
+            // ---- Public profile (name, image, description) ----
+            // Stored in the user's own Zen subtree `~<pub>/tc-profile-v1`, in the clear, so any
+            // TuneCamp page can show it. Cached locally so it renders instantly and offline.
+            const PROFILE_NODE = 'tc-profile-v1';
+            const AVATAR_PREFIX = 'data:image/jpeg;base64,';
+            const profileForm = document.getElementById('profileForm');
+            const editProfileBtn = document.getElementById('editProfileBtn');
+            let profileState = { name: '', bio: '', avatar: '', at: 0 };
+            let draftAvatar = '';
+
+            function cleanProfile(raw) {
+                const p = raw || {};
+                return {
+                    name: typeof p.name === 'string' ? p.name.slice(0, 40) : '',
+                    bio: typeof p.bio === 'string' ? p.bio.slice(0, 160) : '',
+                    // Only our own resized JPEGs are accepted; anything else could be a hostile URL.
+                    avatar: typeof p.avatar === 'string' && p.avatar.startsWith(AVATAR_PREFIX) && p.avatar.length < 60000 ? p.avatar : '',
+                    at: Number(p.at) || 0
+                };
+            }
+
+            function paintAvatar(el, avatar, fallbackName) {
+                el.textContent = '';
+                if (avatar) {
+                    const img = document.createElement('img');
+                    img.src = avatar;
+                    img.alt = '';
+                    img.className = 'w-full h-full object-cover';
+                    el.appendChild(img);
+                } else {
+                    el.textContent = (fallbackName || '?').charAt(0);
+                }
+            }
+
+            function renderProfile(alias) {
+                document.getElementById('displayNameText').textContent = profileState.name || '@' + alias;
+                document.getElementById('bioText').textContent = profileState.bio;
+                document.getElementById('bioText').classList.toggle('hidden', !profileState.bio);
+                paintAvatar(document.getElementById('userAvatar'), profileState.avatar, profileState.name || alias);
+            }
+
+            function loadProfile(alias, pub) {
+                try { profileState = cleanProfile(JSON.parse(localStorage.getItem('tunecamp_profile_' + pub) || 'null')); } catch (e) { profileState = cleanProfile(null); }
+                renderProfile(alias);
+                if (!zen) return;
+                zen.get('~' + pub).get(PROFILE_NODE).once((node) => {
+                    const remote = cleanProfile(node);
+                    if (remote.at > profileState.at && currentPair && currentPair.pub === pub) {
+                        profileState = remote;
+                        try { localStorage.setItem('tunecamp_profile_' + pub, JSON.stringify(remote)); } catch (e) { }
+                        renderProfile(alias);
+                    }
+                });
+            }
+
+            function openProfileEditor() {
+                const alias = currentAlias.textContent.replace('@', '');
+                document.getElementById('displayNameInput').value = profileState.name;
+                document.getElementById('bioInput').value = profileState.bio;
+                draftAvatar = profileState.avatar;
+                paintAvatar(document.getElementById('avatarPreview'), draftAvatar, profileState.name || alias);
+                profileForm.classList.remove('hidden');
+                editProfileBtn.classList.add('hidden');
+            }
+            function closeProfileEditor() {
+                profileForm.classList.add('hidden');
+                document.getElementById('importList').classList.add('hidden');
+                editProfileBtn.classList.remove('hidden');
+            }
+            editProfileBtn.addEventListener('click', openProfileEditor);
+            document.getElementById('cancelProfileBtn').addEventListener('click', closeProfileEditor);
+            document.getElementById('avatarRemoveBtn').addEventListener('click', () => {
+                draftAvatar = '';
+                paintAvatar(document.getElementById('avatarPreview'), '', document.getElementById('displayNameInput').value || currentAlias.textContent.replace('@', ''));
+            });
+
+            // Center-crop to a 128px square JPEG (~5 KB) so it fits comfortably in one graph node.
+            function imageToAvatar(source, width, height) {
+                const size = 128;
+                const side = Math.min(width, height);
+                const canvas = document.createElement('canvas');
+                canvas.width = canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, size, size);
+                ctx.drawImage(source, (width - side) / 2, (height - side) / 2, side, side, 0, 0, size, size);
+                return canvas.toDataURL('image/jpeg', 0.8);
+            }
+
+            document.getElementById('avatarFileInput').addEventListener('change', (e) => {
+                const file = e.target.files && e.target.files[0];
+                e.target.value = '';
+                if (!file || !file.type.startsWith('image/')) return;
+                const url = URL.createObjectURL(file);
+                const img = new Image();
+                img.onload = () => {
+                    draftAvatar = imageToAvatar(img, img.width, img.height);
+                    URL.revokeObjectURL(url);
+                    paintAvatar(document.getElementById('avatarPreview'), draftAvatar, '?');
+                };
+                img.onerror = () => { URL.revokeObjectURL(url); alert('Could not read that image.'); };
+                img.src = url;
+            });
+
+            // ---- Import from linked instances ----
+            // Reads the public profile each linked instance already exposes and offers it as a
+            // starting point; nothing is written until the user presses Save.
+            function linkedInstanceEntries() {
+                const all = [];
+                for (const store of ['tunecamp_linked_instances', 'fid_registry']) {
+                    try { all.push(...JSON.parse(localStorage.getItem(store) || '[]')); } catch (e) { }
+                }
+                const seen = new Set();
+                return all.filter(item => {
+                    const domain = item.instanceDomain || item.instanceUrl;
+                    const key = `${domain}::${item.localUsername || item.username || ''}`;
+                    if (!domain || seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                });
+            }
+
+            async function fetchInstanceProfile(inst, alias) {
+                const domain = inst.instanceDomain || (inst.instanceUrl ? new URL(inst.instanceUrl).hostname : '');
+                if (!domain) return null;
+                const user = inst.localUsername || inst.username || alias;
+                const baseUrl = inst.instanceUrl && inst.instanceUrl.startsWith('http') ? inst.instanceUrl : `https://${domain}`;
+                const endpoint = inst.publicDataEndpoint || `${baseUrl}/api/auth/zen/user/${encodeURIComponent(user)}/public`;
+                const res = await fetch(sanitizeUrl(endpoint), { headers: { 'Accept': 'application/json' } });
+                if (!res.ok) return null;
+                const data = await res.json();
+                const prof = data.publicProfile || data.user || data.profile;
+                if (!prof) return null;
+                const rawAvatar = prof.imageUrl || prof.avatar || '';
+                return {
+                    domain,
+                    user,
+                    name: String(prof.artistName || prof.displayName || prof.username || '').slice(0, 40),
+                    bio: String(prof.bio || prof.description || prof.about || '').slice(0, 160),
+                    avatarUrl: rawAvatar ? sanitizeUrl(toAbsoluteUrl(rawAvatar, baseUrl), true) : ''
+                };
+            }
+
+            // The instance has to allow cross-origin reads for the pixels to be usable; if it
+            // does not, the caller keeps name and bio and asks for a manual upload.
+            async function avatarFromUrl(url) {
+                const res = await fetch(url, { mode: 'cors' });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const bitmap = await createImageBitmap(await res.blob());
+                return imageToAvatar(bitmap, bitmap.width, bitmap.height);
+            }
+
+            document.getElementById('importProfileBtn').addEventListener('click', async () => {
+                const list = document.getElementById('importList');
+                const btn = document.getElementById('importProfileBtn');
+                const alias = currentAlias.textContent.replace('@', '');
+                const entries = linkedInstanceEntries();
+                list.classList.remove('hidden');
+                list.textContent = '';
+                const note = (text) => {
+                    const p = document.createElement('p');
+                    p.className = 'text-[11px] text-text-muted';
+                    p.textContent = text;
+                    list.appendChild(p);
+                    return p;
+                };
+                if (entries.length === 0) {
+                    note('No linked instances yet. Link one in Advanced first.');
+                    return;
+                }
+                btn.disabled = true;
+                const loading = note('Looking up your profiles…');
+                const found = (await Promise.all(entries.map(e => fetchInstanceProfile(e, alias).catch(() => null)))).filter(Boolean);
+                btn.disabled = false;
+                loading.remove();
+                if (found.length === 0) {
+                    note('None of your instances shared a profile.');
+                    return;
+                }
+                found.forEach((c) => {
+                    const row = document.createElement('button');
+                    row.type = 'button';
+                    row.className = 'w-full flex items-center gap-2 p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-left transition-colors';
+                    const thumb = document.createElement('div');
+                    thumb.className = 'w-9 h-9 shrink-0 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-bold uppercase overflow-hidden';
+                    paintAvatar(thumb, '', c.name || c.user);
+                    if (c.avatarUrl) {
+                        const img = document.createElement('img');
+                        img.src = c.avatarUrl;
+                        img.alt = '';
+                        img.className = 'w-full h-full object-cover';
+                        thumb.textContent = '';
+                        thumb.appendChild(img);
+                    }
+                    const text = document.createElement('div');
+                    text.className = 'min-w-0';
+                    const n = document.createElement('div');
+                    n.className = 'text-xs font-semibold text-white truncate';
+                    n.textContent = c.name || '@' + c.user;
+                    const d = document.createElement('div');
+                    d.className = 'text-[10px] text-text-muted truncate';
+                    d.textContent = c.domain;
+                    text.append(n, d);
+                    row.append(thumb, text);
+                    row.addEventListener('click', async () => {
+                        document.getElementById('displayNameInput').value = c.name;
+                        document.getElementById('bioInput').value = c.bio;
+                        list.classList.add('hidden');
+                        if (!c.avatarUrl) return;
+                        try {
+                            draftAvatar = await avatarFromUrl(c.avatarUrl);
+                            paintAvatar(document.getElementById('avatarPreview'), draftAvatar, c.name || c.user);
+                        } catch (err) {
+                            alert('Name and description imported, but the image could not be copied from ' + c.domain + '. You can upload it manually.');
+                        }
+                    });
+                    list.appendChild(row);
+                });
+            });
+
+            profileForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (!currentPair) return;
+                const next = cleanProfile({
+                    name: document.getElementById('displayNameInput').value.trim(),
+                    bio: document.getElementById('bioInput').value.trim(),
+                    avatar: draftAvatar,
+                    at: Date.now()
+                });
+                profileState = next;
+                try { localStorage.setItem('tunecamp_profile_' + currentPair.pub, JSON.stringify(next)); } catch (err) { }
+                renderProfile(currentAlias.textContent.replace('@', ''));
+                closeProfileEditor();
+                if (zen) {
+                    zen.get('~' + currentPair.pub).get(PROFILE_NODE).put(next, null, { authenticator: currentPair });
+                }
+            });
+
             // Load saved session or check Zen session
             const savedSession = localStorage.getItem('tunecamp_zen_user');
             if (savedSession) {
@@ -363,7 +655,10 @@
                 loginForm.classList.add('hidden');
                 loggedInView.classList.remove('hidden');
                 currentAlias.textContent = '@' + alias;
+                document.getElementById('signInTitle').classList.add('hidden');
+                loadProfile(alias, pub);
                 currentPubKey.textContent = pub;
+                document.getElementById('advancedColumn').classList.remove('hidden');
                 loadLinkedInstances(alias);
             }
 
@@ -371,13 +666,16 @@
                 localStorage.removeItem('tunecamp_zen_user');
                 currentPair = null;
                 loginForm.classList.remove('hidden');
+                document.getElementById('signInTitle').classList.remove('hidden');
+                document.getElementById('profileForm').classList.add('hidden');
                 loggedInView.classList.add('hidden');
+                document.getElementById('advancedColumn').classList.add('hidden');
                 instancesList.textContent = '';
             });
 
             copyPubKeyBtn.addEventListener('click', () => {
                 navigator.clipboard.writeText(currentPubKey.textContent);
-                alert('Zen PubKey copied to clipboard!');
+                alert('Public key copied to clipboard!');
             });
 
             // Link Instance Flow

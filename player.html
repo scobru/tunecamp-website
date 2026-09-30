@@ -1168,11 +1168,11 @@
             // The footer note below the menu would otherwise keep claiming the
             // library never leaves this browser while it is being synced.
             el('libraryMenuNote').textContent = identity && sync && sync.status().enabled
-                ? 'Also mirrored to your FID identity, encrypted. Export still gives you a copy you own outright.'
+                ? 'Also synced to your account, encrypted. Export still gives you a copy you own outright.'
                 : 'Saved in this browser only. Export to move it to another device.';
             if (!identity) {
                 box.innerHTML = `<span class="text-text-muted">Saved in this browser only.</span>
-                    <a href="profile.html" class="text-primary hover:underline">Unlock your FID identity</a>
+                    <a href="profile.html" class="text-primary hover:underline">Sign in to sync your library</a>
                     <span class="text-text-muted">to sync it across devices.</span>`;
                 return;
             }
@@ -1209,7 +1209,7 @@
             }
             const identity = Sync.readIdentity();
             if (!identity) {
-                showToast('Unlock your FID identity on the Profile page to share a playlist');
+                showToast('Sign in on the Account page to share a playlist');
                 return;
             }
             if (!confirm(`Publish "${pl.name}" so anyone with the link can open it?\n\nIts tracks leave your browser in the clear — everything else in your library stays encrypted.`)) return;
