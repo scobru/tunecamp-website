@@ -91,7 +91,7 @@
     </div>
 
     <script type="module">
-        import { signData } from './vendor/identity.js';
+        import { signData, isValidPair } from './vendor/identity.js';
         import { resolveRedirectUri } from './vendor/fid-redirect.js';
 
         /**
@@ -195,6 +195,13 @@
 
             if (!session) {
                 showError("Non sei autenticato. Crea o sblocca la tua Identità FID dalla pagina Profilo prima di fare l'accesso.");
+                return;
+            }
+
+            // A login saved by the old Zen-based page holds keys that are not Ed25519 keys.
+            if (!(await isValidPair(session.pair))) {
+                localStorage.removeItem('tunecamp_zen_user');
+                showError("La tua identità precedente usava il vecchio sistema Zen SEA, che non è più supportato. Crea una nuova identità dalla pagina Profilo (alias e passphrase): sarà diversa dalla precedente.");
                 return;
             }
 

@@ -79,6 +79,17 @@ try { await Sync.decryptRecord(sealed, pairOther.priv); } catch (e) { refused = 
 ok(refused, 'another key cannot read it');
 ok((await Sync.encryptRecord({ a: 1 }, pairA.priv)) !== (await Sync.encryptRecord({ a: 1 }, pairA.priv)), 'every encryption uses a fresh IV');
 
+// --- sessions saved by the old Zen-based page --------------------------------
+store.set('tunecamp_zen_user', JSON.stringify({ alias: 'alice', pair: { pub: '0DGULtYbQYzYDlRUddrRNoS7NrEzGIZAsQrXSKQYThMX1', priv: 'kP3xQz_ab-CD9efGh1JkLmNoPqRsTuVwXyZ0123456789' } }));
+ok(Sync.readIdentity() === null, 'a Zen-era session is not an identity');
+ok(await Sync.readValidIdentity() === null && !store.has('tunecamp_zen_user'), 'and it is removed instead of failing on every signature');
+// right shape, wrong key: 43 characters each, but the pub is not the priv's
+store.set('tunecamp_zen_user', JSON.stringify({ alias: 'alice', pair: { pub: pairOther.pub, priv: pairA.priv } }));
+ok(Sync.readIdentity() !== null && await Sync.readValidIdentity() === null && !store.has('tunecamp_zen_user'), 'a pub that is not the priv\'s is caught by the derivation check');
+store.set('tunecamp_zen_user', JSON.stringify({ alias: 'alice', pair: pairA }));
+ok((await Sync.readValidIdentity()).pair.pub === pairA.pub && store.has('tunecamp_zen_user'), 'a real identity is kept');
+store.delete('tunecamp_zen_user');
+
 // --- share links ----------------------------------------------------------
 const token = Sync.shareToken(pairA.pub, 'id.with.dots', 'https://sudorecords.test:8443');
 const parsed = Sync.parseShareToken(token);
