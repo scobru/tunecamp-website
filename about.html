@@ -243,7 +243,7 @@
                     </div>
                     <h3 class="text-xl font-bold mb-3 font-display text-white">Self-Sovereign Identity</h3>
                     <p class="text-text-muted text-sm leading-relaxed">
-                        Unify your artist profiles, published releases, starred favorites, and playlists across independent TuneCamp instances using decentralized Zen SEA keys.
+                        Unify your artist profiles, published releases, starred favorites, and playlists across independent TuneCamp instances using a decentralized Ed25519 identity.
                     </p>
                 </a>
             </div>
@@ -549,10 +549,10 @@
                             <span class="text-[10px] font-bold uppercase tracking-wider text-white text-center leading-none">FID</span>
                         </div>
 
-                        <!-- Zen SEA (Top Left) -->
+                        <!-- Master key (Top Left) -->
                         <div id="node-fid-zensea" class="absolute top-[5%] left-[5%] z-10 w-20 h-20 rounded-2xl bg-bg-surface border border-white/10 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-primary/40" onclick="selectFidNode('zensea')">
                             <div class="text-2xl text-text-muted mb-1 transition-colors"><i class="fas fa-key"></i></div>
-                            <span class="text-[9px] font-semibold text-text-muted text-center leading-none px-1">Zen SEA</span>
+                            <span class="text-[9px] font-semibold text-text-muted text-center leading-none px-1">Ed25519</span>
                         </div>
 
                         <!-- Portability (Top Right) -->
@@ -596,11 +596,11 @@
                 color: "#8b5cf6"
             },
             zensea: {
-                title: "Zen SEA Master Key",
+                title: "Ed25519 Master Key",
                 tag: "Password-Derived",
                 icon: "fa-key",
                 iconColor: "text-amber-400",
-                desc: "Your master keypair is derived client-side from a username/password pair using ZEN SEA (secp256k1). It never leaves your browser — only signatures and derived seeds are ever transmitted.",
+                desc: "Your master keypair is derived client-side from a username/password pair using Ed25519 (WebCrypto). It never leaves your browser — only signatures and derived seeds are ever transmitted.",
                 color: "#fbbf24"
             },
             portable: {
@@ -632,7 +632,7 @@
                 tag: "One-Time Signed Token",
                 icon: "fa-door-open",
                 iconColor: "text-indigo-400",
-                desc: "A short-lived, signed SSO token (max 15 min) carries your public key and signature to the destination instance. The instance verifies the Zen SEA signature server-side and logs you in — no shared password database between instances.",
+                desc: "A short-lived, signed SSO token (max 15 min) carries your public key and signature to the destination instance. The instance verifies the Ed25519 signature server-side and logs you in — no shared password database between instances.",
                 color: "#818cf8"
             }
         };

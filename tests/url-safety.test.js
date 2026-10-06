@@ -93,7 +93,7 @@ const unsafeIndexSinks = unsanitisedUrlSinks(index);
 ok(unsafeIndexSinks.length === 0, `index.html sanitises every interpolated URL (found: ${unsafeIndexSinks.join(', ')})`);
 
 // player.html renders the same federated tracks, plus playlists fetched from a
-// relay by whatever pubkey a ?pl= link names.
+// an instance, chosen by whatever host a ?pl= link names.
 const player = readFileSync(join(root, 'player.html'), 'utf8');
 const unsafePlayerSinks = unsanitisedUrlSinks(player);
 ok(unsafePlayerSinks.length === 0, `player.html sanitises every interpolated URL (found: ${unsafePlayerSinks.join(', ')})`);

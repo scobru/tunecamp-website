@@ -19,7 +19,7 @@
  * Storage is always local: localStorage, per-browser and anonymous — no
  * account, no server, nothing leaves the device. On top of that, an optional
  * sync layer (components/library-sync.js, driven by a FID identity) mirrors the
- * same library through the Zen graph so it follows the listener across devices.
+ * same library to the listener's TuneCamp instance over HTTP so it follows them across devices.
  * Local stays the source of truth for rendering; sync only merges.
  *
  * Merging is last-write-wins per item, never per list: two devices editing
@@ -128,7 +128,7 @@ const localBackend = {
 
 let backend = localBackend;
 
-/** Phase 2 hook: swap in a synced backend (FID/Zen) without touching callers. */
+/** Phase 2 hook: swap in a synced backend (FID) without touching callers. */
 export function setBackend(next) {
     backend = next || localBackend;
     state = migrate(backend.load());

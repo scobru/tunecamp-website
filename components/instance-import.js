@@ -27,7 +27,7 @@ const REQUEST_TIMEOUT_MS = 12000;
 /**
  * The instances the Profile page has linked, from either of the two stores it
  * writes (the link flow uses one, the FID portal the other). profile.html keeps
- * its own copy of this merge because it also tags entries for its Zen sync;
+ * its own copy of this merge because it also tags entries it must not write back;
  * this reader only needs somewhere to fetch from.
  */
 export function readLinkedInstances() {
