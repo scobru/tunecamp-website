@@ -76,6 +76,17 @@
             <div class="lg:col-span-4 space-y-6" id="accountColumn">
                 <!-- Auth Card -->
                 <div class="glass-card p-6 space-y-5" id="authSection">
+                    <!-- Opened from an instance's profile page: bind this identity to that account. -->
+                    <div id="fidLinkBanner" class="hidden rounded-xl border border-primary/40 bg-primary/10 p-4 space-y-3">
+                        <p class="text-sm text-white font-medium">
+                            <i class="fa-solid fa-link text-primary mr-1"></i>
+                            Collega la tua identità FID all'account che hai aperto su <strong id="fidLinkHost" class="font-mono"></strong>
+                        </p>
+                        <p id="fidLinkHint" class="text-xs text-text-muted"></p>
+                        <button id="fidLinkBtn" type="button" class="btn btn-primary w-full" disabled>Collega questa identità</button>
+                        <p id="fidLinkStatus" class="text-xs"></p>
+                    </div>
+
                     <div id="zenAuthPane" role="tabpanel">
                         <h2 id="signInTitle" class="font-display text-lg font-bold text-white flex items-center gap-2 mb-4">
                             <i class="fa-solid fa-user text-primary"></i> Sign in
@@ -618,12 +629,88 @@
                 showLoggedIn(alias, pair.pub);
             }
 
+            // ---- Binding this identity to the account open on an instance ----
+            // The instance's profile page sends us here with a one-time code in the URL fragment
+            // (never sent to a server). The code stands for the signed-in account; our signature
+            // over the instance's challenge proves we hold the key.
+            const linkParams = new URLSearchParams(location.hash.slice(1));
+            const pendingLink = {
+                code: linkParams.get('linkCode') || '',
+                host: (linkParams.get('instance') || '').toLowerCase()
+            };
+            if (pendingLink.code) history.replaceState(null, '', location.pathname + location.search);
+            const validLink = pendingLink.code && /^[a-z0-9]([a-z0-9.-]*[a-z0-9])?(:\d{1,5})?$/.test(pendingLink.host);
+
+            /**
+             * The string the key signs. It comes from a challenge a remote server made up, and the
+             * same key signs SSO tokens (`clientId:domain:username:pub:issuedAt:nonce`), so a
+             * crafted challenge must not be able to spell one: a username without ':' and a hex
+             * nonce make this string have exactly one ':', which an SSO payload never does.
+             */
+            function challengeToSign(challenge) {
+                if (!challenge || typeof challenge.username !== 'string' || typeof challenge.nonce !== 'string'
+                    || !/^[^:\x00-\x1f]{1,64}$/.test(challenge.username) || !/^[0-9a-f]{32}$/.test(challenge.nonce)) {
+                    throw new Error('Challenge non valido: l\'istanza ha restituito dati inattesi');
+                }
+                return `${challenge.username}:${challenge.nonce}`;
+            }
+
+            function renderLinkBanner() {
+                const banner = document.getElementById('fidLinkBanner');
+                if (!pendingLink.code) return;
+                banner.classList.remove('hidden');
+                if (!validLink) {
+                    document.getElementById('fidLinkHost').textContent = '?';
+                    document.getElementById('fidLinkHint').textContent = 'Il link non è valido o è scaduto: riaprilo dalla pagina Profilo della tua istanza.';
+                    return;
+                }
+                document.getElementById('fidLinkHost').textContent = pendingLink.host;
+                const btn = document.getElementById('fidLinkBtn');
+                btn.disabled = !currentPair;
+                document.getElementById('fidLinkHint').textContent = currentPair
+                    ? 'Verrà collegata la chiave mostrata qui sotto: da quel momento accederai a quell\'istanza con questa identità.'
+                    : 'Accedi prima con il tuo alias e la tua passphrase: sarà questa identità a essere collegata.';
+            }
+
+            document.getElementById('fidLinkBtn').addEventListener('click', async () => {
+                const status = document.getElementById('fidLinkStatus');
+                const btn = document.getElementById('fidLinkBtn');
+                if (!currentPair || !validLink) return;
+                btn.disabled = true;
+                status.className = 'text-xs text-text-muted';
+                status.textContent = 'Collegamento in corso…';
+                try {
+                    const base = `https://${pendingLink.host}`;
+                    const chRes = await fetch(`${base}/api/auth/zen/challenge?linkCode=${encodeURIComponent(pendingLink.code)}`);
+                    const chData = await chRes.json().catch(() => ({}));
+                    if (!chRes.ok) throw new Error(chData.error || `HTTP ${chRes.status}`);
+                    const signature = await signData(challengeToSign(chData.challenge), currentPair.priv);
+                    const res = await fetch(`${base}/api/auth/zen/set`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ zenPubKey: currentPair.pub, challenge: chData.challenge, seaSignature: signature, linkCode: pendingLink.code })
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+                    pendingLink.code = '';
+                    status.className = 'text-xs text-emerald-400';
+                    status.textContent = `Fatto. Ora puoi accedere a ${pendingLink.host} con questa identità FID.`;
+                } catch (err) {
+                    btn.disabled = false;
+                    status.className = 'text-xs text-rose-400';
+                    status.textContent = 'Collegamento fallito: ' + err.message;
+                }
+            });
+
+            renderLinkBanner();
+
             function showLoggedIn(alias, pub) {
                 loginForm.classList.add('hidden');
                 loggedInView.classList.remove('hidden');
                 currentAlias.textContent = '@' + alias;
                 document.getElementById('signInTitle').classList.add('hidden');
                 loadProfile(alias, pub);
+                renderLinkBanner();
                 currentPubKey.textContent = pub;
                 document.getElementById('advancedColumn').classList.remove('hidden');
                 loadLinkedInstances(alias);
@@ -690,7 +777,7 @@
                     if (!challenge?.nonce) throw new Error('L\'istanza non ha restituito alcun challenge');
 
                     // Step 2: sign challenge
-                    const signature = await signData(`${challenge.username}:${challenge.nonce}`, privKey);
+                    const signature = await signData(challengeToSign(challenge), privKey);
 
                     // Step 3: submit signed challenge to get passport
                     const response = await fetch(`https://${instanceDomain}/api/auth/zen/link`, {

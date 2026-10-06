@@ -134,3 +134,7 @@ drives two devices through it, so the sync is proven end to end without any
 network.
 
 Feel free to open issues or PRs to improve discovery, player controls, or visual styles.
+
+## Linking a new FID key from an instance
+
+`profile.html#linkCode=<code>&instance=<host>` is opened by the instance's Profile page ("Link my FID identity"). After signing in with alias and passphrase, the page signs the instance challenge with the new key and binds it to the account; the code is read from the URL fragment, removed from the address bar, and only challenges with a plain username and a 32-hex nonce are ever signed.
