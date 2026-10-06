@@ -52,11 +52,10 @@ function ok(cond, msg) { if (!cond) throw new Error('FAIL: ' + msg); passed++; c
     args: ['--autoplay-policy=no-user-gesture-required', '--no-sandbox']
   });
   const page = await browser.newPage();
-  // Zen probes the page origin for a peer (404 on a static host) and, in a
-  // sandbox with no route to the relay, its socket fails: both are the library's
-  // own behaviour and are already what profile.html does today. Everything else
-  // must stay silent.
-  const EXPECTED = [/\/status(\?|$)/, /delay\.scobrudot\.dev/, /wss?:\/\//];
+  // The sync tests below talk to a stubbed instance, and one run points at an
+  // instance that refuses the connection: that failed request is expected.
+  // Everything else must stay silent.
+  const EXPECTED = [/\/api\/auth\/zen\/library\//, /ERR_CONNECTION_REFUSED/, /Failed to load resource/];
   const expected = (text, url) => EXPECTED.some((re) => re.test(url || '') || re.test(text || ''));
   const errors = [];
   page.on('pageerror', (e) => errors.push(String(e)));
@@ -68,7 +67,7 @@ function ok(cond, msg) { if (!cond) throw new Error('FAIL: ' + msg); passed++; c
 
   await page.route('**/config.js', (r) =>
     r.fulfill({ contentType: 'application/javascript', body:
-      `window.TUNECAMP_DIRECTORY = ["${SITE}"]; window.ZEN_RELAY = "ws://127.0.0.1:9/zen";` }));
+      `window.TUNECAMP_DIRECTORY = ["${SITE}"];` }));
   await page.route('**/api/community/sites', (r) =>
     r.fulfill({ contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify([{ url: SITE, name: 'Alpha' }]) }));
   await page.route('**/api/catalog/full', (r) =>
@@ -180,15 +179,19 @@ function ok(cond, msg) { if (!cond) throw new Error('FAIL: ' + msg); passed++; c
 
   // --- sync status, sharing, and opening a shared link ---------------------
   await page.click('#libraryMenuBtn');
-  ok((await page.textContent('#syncStatus')).includes('Unlock your FID identity'),
+  ok((await page.textContent('#syncStatus')).includes('Sign in to sync your library'),
      'with no identity the menu says the library is browser-only');
   await page.click('#libraryMenuBtn');
 
   // unlock an identity the way profile.html would, then reload into it
+  // and an instance for it to sync with — one that is down for now
+  const LIBRARY_API = '**/sudorecords.test/api/auth/zen/library/**';
+  await page.route(LIBRARY_API, (r) => r.abort('connectionrefused'));
   const alias = await page.evaluate(async () => {
-    const { default: Zen } = await import('./vendor/zen.min.js');
-    const pair = await new Promise((res) => Zen.pair((p) => res(p), { seed: 'alice:hunter2' }));
+    const { deriveMasterPair } = await import('./vendor/identity.js');
+    const pair = await deriveMasterPair('alice', 'correct horse battery staple');
     localStorage.setItem('tunecamp_zen_user', JSON.stringify({ alias: 'alice', pair }));
+    localStorage.setItem('tunecamp_linked_instances', JSON.stringify([{ instanceDomain: 'sudorecords.test', localUsername: 'alice' }]));
     return 'alice';
   });
   await page.reload();
@@ -197,11 +200,11 @@ function ok(cond, msg) { if (!cond) throw new Error('FAIL: ' + msg); passed++; c
     const box = document.getElementById('syncStatus');
     return box && box.textContent.includes('@' + a);
   }, alias, { timeout: 15000 });
-  // This run points at a dead relay, so the status must say so rather than
-  // claiming the library is reaching it.
+  // The instance is down, so the status must say so rather than claiming the
+  // library is reaching it.
   const syncText = (await page.textContent('#syncStatus')).replace(/\s+/g, ' ');
   ok(syncText.includes('Sync pending') && syncText.includes('unreachable'),
-     'an unreachable relay is reported honestly: ' + syncText.trim().slice(0, 90));
+     'an unreachable instance is reported honestly: ' + syncText.trim().slice(0, 90));
   ok(syncText.includes('saved here'), 'and the listener is told their changes are kept locally');
 
   // --- importing the stars the listener made on their own instances --------
@@ -269,6 +272,27 @@ function ok(cond, msg) { if (!cond) throw new Error('FAIL: ' + msg); passed++; c
 
   page.on('dialog', (d) => d.accept());
 
+  // the instance comes back: a stand-in that stores records and serves shared playlists
+  await page.unroute(LIBRARY_API);
+  const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'X-Fid-Auth, Content-Type', 'Access-Control-Allow-Methods': 'GET, PUT, OPTIONS' };
+  const rows = new Map();
+  await page.route(LIBRARY_API, (r) => {
+    const req = r.request();
+    const json = (status, body) => r.fulfill({ status, contentType: 'application/json', headers: CORS, body: JSON.stringify(body) });
+    if (req.method() === 'OPTIONS') return r.fulfill({ status: 204, headers: CORS });
+    const u = new URL(req.url());
+    const shared = u.pathname.match(/\/library\/([^/]+)\/shared\/(.+)$/);
+    if (shared) {
+      const row = rows.get(`shared/${decodeURIComponent(shared[2])}`);
+      return row && !row.del ? json(200, { ...JSON.parse(row.d), at: row.at }) : json(404, {});
+    }
+    if (req.method() === 'PUT') {
+      for (const rec of JSON.parse(req.postData()).records) rows.set(`${rec.bucket}/${rec.id}`, rec);
+      return json(200, { ok: true });
+    }
+    return json(200, { records: [...rows.values()] });
+  });
+
   // the playlist was emptied earlier in this run; put a track back before sharing
   await page.click('[data-view="network"]');
   await page.waitForSelector('#tracksContainer .track-row[data-idx="0"]');
@@ -293,7 +317,7 @@ function ok(cond, msg) { if (!cond) throw new Error('FAIL: ' + msg); passed++; c
     const Library = await import('./components/library.js');
     const identity = Sync.readIdentity();
     const pl = Library.listPlaylists().find((p) => p.name === 'Nightshift');
-    return { token: Sync.shareToken(identity.pair.pub, pl.id), isPublic: pl.isPublic, name: pl.name };
+    return { token: Sync.shareToken(identity.pair.pub, pl.id, Sync.readInstance()), isPublic: pl.isPublic, name: pl.name };
   });
   ok(token.isPublic === true, 'the playlist is marked public in the library');
 
@@ -302,23 +326,21 @@ function ok(cond, msg) { if (!cond) throw new Error('FAIL: ' + msg); passed++; c
   ok((await page.textContent('#tracksContainer')).includes('public'), 'the playlist row shows it is public');
 
   // wait until the published copy is actually readable before following the
-  // link: the graph flushes on its own schedule and this test is faster than a
+  // link: the graph publishes on its own schedule and this test is faster than a
   // human with a copied URL ever is
   const readable = await (async () => {
     for (let i = 0; i < 20; i++) {
       const found = await page.evaluate(async (t) => {
-        const [Sync, { default: Zen }] = await Promise.all([
-          import('./components/library-sync.js'), import('./vendor/zen.min.js')
-        ]);
+        const Sync = await import('./components/library-sync.js');
         const parsed = Sync.parseShareToken(t);
-        const pl = await Sync.fetchSharedPlaylist({ Zen, relay: window.ZEN_RELAY, pub: parsed.pub, id: parsed.id, timeout: 1500 });
+        const pl = await Sync.fetchSharedPlaylist({ instance: parsed.instance, pub: parsed.pub, id: parsed.id, timeout: 1500 });
         return pl ? pl.name : null;
       }, token.token);
       if (found) return found;
     }
     return null;
   })();
-  ok(readable === token.name, 'the published playlist is readable from the graph');
+  ok(readable === token.name, 'the published playlist is readable from the instance');
 
   // open the share link as a visitor would
   await page.goto(`${BASE_URL}/player.html?pl=${encodeURIComponent(token.token)}`);

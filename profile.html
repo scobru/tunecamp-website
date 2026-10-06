@@ -15,7 +15,6 @@
     <script src="theme.js"></script>
     <script src="config.js"></script>
     <script src="utils.js"></script>
-    <script type="module" src="vendor/zen.min.js"></script>
     <script src="components/tc-header.js"></script>
     <style type="text/tailwindcss">
         @theme {
@@ -198,7 +197,7 @@
             </summary>
             <div class="p-5 pt-0 space-y-6">
             <div class="p-3 bg-white/5 border border-white/10 rounded-lg space-y-2">
-                <div class="text-xs text-text-muted">Your public key (decentralized ID, sign-in via FID / Zen SEA)</div>
+                <div class="text-xs text-text-muted">Your public key (decentralized ID, sign-in via FID)</div>
                 <div class="text-[10px] font-mono text-text-muted break-all bg-black/40 p-2 rounded border border-white/5" id="currentPubKey"></div>
                 <button id="copyPubKeyBtn"
                     class="px-3 py-1.5 bg-white/10 hover:bg-white/15 text-xs text-white font-medium rounded-lg transition-colors inline-flex items-center gap-2">
@@ -211,7 +210,7 @@
                     <h2 class="font-display text-lg font-bold text-white flex items-center gap-2">
                         <i class="fa-solid fa-server text-emerald-400"></i> Linked TuneCamp Instances
                     </h2>
-                    <p class="text-xs text-text-muted">Verified instances linked to your Zen PubKey</p>
+                    <p class="text-xs text-text-muted">Verified instances linked to your public key</p>
                 </div>
 
                 <form id="linkInstanceForm" class="flex flex-col sm:flex-row gap-2">
@@ -298,16 +297,10 @@
 
     <!-- Script Logic -->
     <script type="module">
-        import Zen from './vendor/zen.min.js';
+        import { deriveMasterPair, signData } from './vendor/identity.js';
 
         document.addEventListener('DOMContentLoaded', () => {
-            const relay = window.ZEN_RELAY || "wss://delay.scobrudot.dev/zen";
-            let zen = null;
             let currentPair = null;
-
-            if (Zen) {
-                zen = new Zen({ peers: [relay] });
-            }
 
             const loginForm = document.getElementById('loginForm');
             const aliasInput = document.getElementById('aliasInput');
@@ -349,20 +342,9 @@
                 el.innerHTML = html;
             }
 
-            function zenSign(data, priv) {
-                return new Promise((resolve, reject) => {
-                    Zen.sign(data, { priv }, (out) => {
-                        if (typeof out === "string") resolve(out);
-                        else reject(new Error("Zen.sign failed"));
-                    });
-                });
-            }
-
-
             // ---- Public profile (name, image, description) ----
-            // Stored in the user's own Zen subtree `~<pub>/tc-profile-v1`, in the clear, so any
-            // TuneCamp page can show it. Cached locally so it renders instantly and offline.
-            const PROFILE_NODE = 'tc-profile-v1';
+            // Kept in this browser only (`tunecamp_profile_<pub>`): there is no relay to carry it
+            // to another device, and nothing else reads it.
             const AVATAR_PREFIX = 'data:image/jpeg;base64,';
             const profileForm = document.getElementById('profileForm');
             const editProfileBtn = document.getElementById('editProfileBtn');
@@ -403,15 +385,6 @@
             function loadProfile(alias, pub) {
                 try { profileState = cleanProfile(JSON.parse(localStorage.getItem('tunecamp_profile_' + pub) || 'null')); } catch (e) { profileState = cleanProfile(null); }
                 renderProfile(alias);
-                if (!zen) return;
-                zen.get('~' + pub).get(PROFILE_NODE).once((node) => {
-                    const remote = cleanProfile(node);
-                    if (remote.at > profileState.at && currentPair && currentPair.pub === pub) {
-                        profileState = remote;
-                        try { localStorage.setItem('tunecamp_profile_' + pub, JSON.stringify(remote)); } catch (e) { }
-                        renderProfile(alias);
-                    }
-                });
             }
 
             function openProfileEditor() {
@@ -592,12 +565,9 @@
                 try { localStorage.setItem('tunecamp_profile_' + currentPair.pub, JSON.stringify(next)); } catch (err) { }
                 renderProfile(currentAlias.textContent.replace('@', ''));
                 closeProfileEditor();
-                if (zen) {
-                    zen.get('~' + currentPair.pub).get(PROFILE_NODE).put(next, null, { authenticator: currentPair });
-                }
             });
 
-            // Load saved session or check Zen session
+            // Load the saved session
             const savedSession = localStorage.getItem('tunecamp_zen_user');
             if (savedSession) {
                 try {
@@ -626,21 +596,12 @@
                 submitBtn.appendChild(span);
 
                 try {
-                    if (Zen) {
-                        Zen.pair((pair) => {
-                            if (pair && pair.pub) {
-                                currentPair = pair;
-                                saveAndShowUser(alias, pair);
-                            } else {
-                                alert("Failed to generate identity.");
-                            }
-                            submitBtn.innerHTML = originalHtml;
-                        }, { seed: alias + ':' + pass });
-                    } else {
-                        throw new Error("Zen SEA library not loaded");
-                    }
+                    const pair = await deriveMasterPair(alias, pass);
+                    currentPair = pair;
+                    saveAndShowUser(alias, pair);
                 } catch (err) {
                     alert('Auth error: ' + err.message);
+                } finally {
                     submitBtn.innerHTML = originalHtml;
                 }
             });
@@ -695,7 +656,7 @@
                 const alias = (currentAlias?.textContent?.replace('@', '') || identity?.alias || 'anonymous').toLowerCase();
 
                 if (!privKey || alias === 'anonymous') {
-                    alert('Devi prima autenticarti con Zen SEA.');
+                    alert('Devi prima autenticarti con la tua identità FID.');
                     return;
                 }
 
@@ -723,7 +684,7 @@
                     if (!challenge?.nonce) throw new Error('L\'istanza non ha restituito alcun challenge');
 
                     // Step 2: sign challenge
-                    const signature = await zenSign(`${challenge.username}:${challenge.nonce}`, privKey);
+                    const signature = await signData(`${challenge.username}:${challenge.nonce}`, privKey);
 
                     // Step 3: submit signed challenge to get passport
                     const response = await fetch(`https://${instanceDomain}/api/auth/zen/link`, {
@@ -814,11 +775,6 @@
                 existing.push(passport);
                 localStorage.setItem('tunecamp_linked_instances', JSON.stringify(existing));
 
-                // Sync to Zen relay if authenticated
-                if (zen && currentPair) {
-                    const safeId = key.replace(/[^a-z0-9]/gi, '_');
-                    zen.get('~' + currentPair.pub).get('instances').get(safeId).put(passport, null, { authenticator: currentPair });
-                }
 
                 const activeUser = getActiveIdentity()?.alias;
                 loadLinkedInstances(activeUser);
@@ -843,11 +799,6 @@
                     localStorage.setItem(store, JSON.stringify(kept.filter(keep)));
                 }
 
-                // Sync to Zen relay if authenticated
-                if (zen && currentPair) {
-                    const safeId = keyToUnlink.replace(/[^a-z0-9]/gi, '_');
-                    zen.get('~' + currentPair.pub).get('instances').get(safeId).put(null, null, { authenticator: currentPair });
-                }
 
                 const activeUser = getActiveIdentity()?.alias;
                 loadLinkedInstances(activeUser);
@@ -872,7 +823,7 @@
                     fidRegistry = [];
                 }
                 fidRegistry = fidRegistry
-                    // Tagged so the Zen sync below writes only real passports back to
+                    // Tagged so only real passports are ever written back to
                     // tunecamp_linked_instances instead of copying the registry into it.
                     .map(entry => ({ ...entry, __fromFidRegistry: true }));
                 const rawExisting = [...passports, ...fidRegistry];
@@ -942,38 +893,6 @@
 
                 // Initial local render
                 renderInstances(existing);
-
-                // Sync from Zen network
-                if (zen && currentPair) {
-                    zen.get('~' + currentPair.pub).get('instances').map().once((data, safeId) => {
-                        if (!safeId || safeId === '_' || !data) return;
-                        if (data === null) {
-                            // Instance unlinked remotely
-                            existing = existing.filter(item => {
-                                const domain = item.instanceDomain || item.instanceUrl;
-                                const user = item.localUsername || item.username || activeUser || '';
-                                const key = `${domain}::${user}`;
-                                return key.replace(/[^a-z0-9]/gi, '_') !== safeId;
-                            });
-                        } else if (data && (data.instanceDomain || data.instanceUrl)) {
-                            // Instance linked remotely
-                            const domain = data.instanceDomain || data.instanceUrl;
-                            const user = data.localUsername || data.username || activeUser || '';
-                            const key = `${domain}::${user}`;
-                            if (!seen.has(key)) {
-                                seen.add(key);
-                                existing.push(data);
-                            }
-                        } else {
-                            return;
-                        }
-
-                        // Update local cache and UI
-                        localStorage.setItem('tunecamp_linked_instances',
-                            JSON.stringify(existing.filter(item => !item.__fromFidRegistry)));
-                        renderInstances(existing);
-                    });
-                }
             }
 
             window.switchProfileTab = function (tab) {
@@ -1122,7 +1041,7 @@
                             }
                         }
                     } catch (err) {
-                        console.warn(`[Zen Aggregator] Could not fetch public data for @${targetUser} from ${domain}:`, err);
+                        console.warn(`[Aggregator] Could not fetch public data for @${targetUser} from ${domain}:`, err);
                     }
                 }
 

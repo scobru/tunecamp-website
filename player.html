@@ -759,7 +759,7 @@
                 case 'shared':
                     if (sharedPlaylist && sharedPlaylist.loading) return emptyState('fa-circle-notch fa-spin', 'Fetching the shared playlist…');
                     return emptyState('fa-link-slash',
-                        'This shared playlist did not answer. The relay may be slow or unreachable, or the link may have been unpublished.',
+                        'This shared playlist did not answer. The instance may be slow or unreachable, or the link may have been unpublished.',
                         'Try again', 'retryshared');
                 default:
                     return allTracks.length === 0
@@ -1140,17 +1140,22 @@
         /**
          * The library works with no account at all; this only adds cross-device
          * sync when a FID identity has already been unlocked on the Profile
-         * page. Zen is a 120KB bundle, so it is only fetched in that case.
+         * page and linked to an instance, which is where the library is stored.
          */
         async function initSync() {
             renderSyncStatus();
             const identity = Sync.readIdentity();
             if (!identity) return;
+            let instance = Sync.readInstance();
+            if (!instance) {
+                // A new device has no linked passport: ask the directory where this key has an account.
+                instance = await Sync.discoverInstance({ pub: identity.pair.pub, directory: window.TUNECAMP_DIRECTORY });
+                if (instance) Sync.rememberInstance(instance);
+            }
+            if (!instance) return renderSyncStatus();
             try {
-                const { default: Zen } = await import('./vendor/zen.min.js');
                 sync = Sync.createSync({
-                    Zen,
-                    relay: window.ZEN_RELAY,
+                    instance,
                     identity,
                     onStatus: renderSyncStatus
                 });
@@ -1176,8 +1181,14 @@
                     <span class="text-text-muted">to sync it across devices.</span>`;
                 return;
             }
-            const status = sync ? sync.status() : { enabled: false, connected: false, pending: 0, mirrored: 0 };
-            const host = (() => { try { return new URL(window.ZEN_RELAY).host; } catch (e) { return 'the relay'; } })();
+            if (!sync) {
+                box.innerHTML = `<span class="text-text-muted">Signed in as @${escapeHtml(identity.alias)}.</span>
+                    <a href="profile.html" class="text-primary hover:underline">Link an instance</a>
+                    <span class="text-text-muted">to sync your library across devices.</span>`;
+                return;
+            }
+            const status = sync.status();
+            const host = status.host || 'the instance';
             // Report the state, not this session's traffic: someone who returns
             // already in sync transfers nothing, and bare counters read as a
             // failure when they mean "up to date".
@@ -1208,13 +1219,14 @@
                 return;
             }
             const identity = Sync.readIdentity();
-            if (!identity) {
-                showToast('Sign in on the Account page to share a playlist');
+            const instance = Sync.readInstance();
+            if (!identity || !instance) {
+                showToast('Sign in and link an instance on the Account page to share a playlist');
                 return;
             }
-            if (!confirm(`Publish "${pl.name}" so anyone with the link can open it?\n\nIts tracks leave your browser in the clear — everything else in your library stays encrypted.`)) return;
+            if (!confirm(`Publish "${pl.name}" so anyone with the link can open it?\n\nIts tracks are stored in the clear on the instance you linked — everything else in your library stays encrypted.`)) return;
             Library.setPlaylistPublic(id, true);
-            const url = `${location.origin}${location.pathname}?pl=${encodeURIComponent(Sync.shareToken(identity.pair.pub, id))}`;
+            const url = `${location.origin}${location.pathname}?pl=${encodeURIComponent(Sync.shareToken(identity.pair.pub, id, instance))}`;
             copyToClipboard(url);
             if (sync) sync.flush();
         }
@@ -1228,7 +1240,7 @@
             }
         }
 
-        /** `?pl=<pub>.<id>` opens someone else's public playlist, read-only. */
+        /** `?pl=<pub>.<id>@<host>` opens someone else's public playlist from that instance, read-only. */
         async function openSharedFromUrl() {
             const token = new URLSearchParams(location.search).get('pl');
             const parsed = token ? Sync.parseShareToken(token) : null;
@@ -1240,8 +1252,7 @@
 
             let result = null;
             try {
-                const { default: Zen } = await import('./vendor/zen.min.js');
-                result = await Sync.fetchSharedPlaylist({ Zen, relay: window.ZEN_RELAY, pub: parsed.pub, id: parsed.id });
+                result = await Sync.fetchSharedPlaylist({ instance: parsed.instance, pub: parsed.pub, id: parsed.id });
             } catch (e) {
                 console.warn('[player] shared playlist unavailable:', e);
             }

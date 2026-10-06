@@ -8,7 +8,7 @@ The official landing page, global community directory, and browser-based communi
 - **Community Directory (`community.html`)**: Real-time discovery of live, public TuneCamp instances querying the public `/api/community/sites` REST endpoint of directory seeds.
 - **Community Player (`player.html`)**: A client-side audio player that aggregates and plays tracks across all discovered active TuneCamp instances in the network.
 - **Personal Library**: Favourites, playlists, followed artists and recently played, saved in the visitor's own browser — no account, no server, nothing leaves the device. Export and import it as JSON from the player's library menu.
-- **Optional FID Sync**: With a FID identity unlocked on the Profile page, the same library follows the listener across devices through the Zen relay, encrypted to their own key. Playlists they explicitly publish get a shareable link anyone can open.
+- **Optional FID Sync**: With a FID identity unlocked on the Profile page, the same library follows the listener across devices through the TuneCamp instance their identity is linked to, encrypted to their own key. Playlists they explicitly publish get a shareable link anyone can open.
 - **Import from your own instances**: the stars and public playlists on the TuneCamp instances linked to a FID identity can be copied into the player's library in one click.
 - **Responsive & Premium UI**: Designed with customized glassmorphism, responsive Tailwind CSS grid, and smooth interactive elements.
 
@@ -59,25 +59,32 @@ stays the source of truth for rendering, and the sync only merges.
 ### FID sync (`components/library-sync.js`)
 
 Entirely optional, and inert until a FID identity has been unlocked on the
-Profile page (`tunecamp_zen_user`). It mirrors the library into that identity's
-own subtree of the Zen graph, `~<pub>/tc-library-v1/`:
+Profile page (`tunecamp_zen_user`) and an instance is known: the first one the
+identity is linked to (`tunecamp_linked_instances`), or, on a new device, the one
+that answers `GET /api/auth/zen/library/<pub>/account` among the directory
+instances in `config.js`. It mirrors the library to that instance over plain
+HTTP, through the TuneCamp server's `/api/auth/zen/library/<pub>` routes:
 
-| Node | Contents | Visibility |
+| Bucket | Contents | Visibility |
 | --- | --- | --- |
-| `favorites/<id>`, `artists/<id>`, `playlists/<id>` | `{ d: ciphertext, at, del }` | encrypted to the identity's key |
-| `shared/<id>` | `{ name, items, owner, at, del }` | public and in the clear |
+| `favorites`, `artists`, `playlists` | `{ d: ciphertext, at, del }` | encrypted in the browser (AES-GCM, key derived from the identity key) |
+| `shared` | `{ d: { name, items, owner }, at, del }` | public and in the clear |
 
-Only the payload is encrypted — timestamps stay readable because the merge needs
-them, so the relay can see how many items an identity holds and when they
-changed, but not what they are. `shared/` is the deliberate exception: a
-playlist the listener publishes, republished in the clear so that
-`player.html?pl=<pub>.<id>` opens for anyone. Unpublishing tombstones it and the
-link stops resolving. Listening history and player preferences are never synced.
+Requests are signed with the identity key (`X-Fid-Auth: <ts>.<sig>` over the
+method, path, timestamp and body hash), and the instance only accepts a key that
+belongs to one of its own active accounts. Only the payload is encrypted —
+timestamps stay readable because the merge needs them, so the instance can see
+how many items an identity holds and when they changed, but not what they are.
+`shared` is the deliberate exception: a playlist the listener publishes,
+republished in the clear so that `player.html?pl=<pub>.<id>@<host>` opens for
+anyone. Unpublishing tombstones it and the link stops resolving. Listening
+history and player preferences are never synced.
 
-No TuneCamp server is involved. The relay carries signed writes it cannot forge,
-and only the holder of the private key can write under that subtree. When the
-relay is unreachable the library keeps working and the player says so rather
-than pretending to be synced.
+The player reads when it opens, when the tab becomes visible again and once a
+minute; writes are debounced. Last write wins by each record's own timestamp.
+When the instance is unreachable the library keeps working and the player says
+so rather than pretending to be synced. The profile card (name, bio, avatar) is
+kept in the browser only.
 
 ### Importing from linked instances (`components/instance-import.js`)
 
@@ -112,21 +119,18 @@ an album into a dozen separate hearts would misrepresent what was starred.
 ```bash
 # units — no dependencies
 node --experimental-default-type=module tests/library.test.js
+node --experimental-default-type=module tests/library-sync.test.js   # sync, crypto, share links, against an in-process instance
 node --experimental-default-type=module tests/instance-import.test.js
 node --experimental-default-type=module tests/url-safety.test.js
 
-# browser tests (need Playwright, and a server for them to drive)
+# browser test (needs Playwright, and a server for it to drive)
 npx http-server -p 8123 -s .
 node tests/player.e2e.cjs     # the player: library, sharing, shared links
-node tests/sync.e2e.cjs       # the sync module against the real Zen crypto
-
-# two devices syncing through a throwaway relay (also needs `npm install ws`)
-node tests/relay.e2e.cjs
 ```
 
-`relay.e2e.cjs` stands up a dumb websocket broadcast on localhost — all a Zen
-relay has to be, since every write is signed — and drives two independent
-browser profiles through it, so the sync is proven end to end without touching
-the public relay.
+`library-sync.test.js` stands in for the TuneCamp server with the same contract
+(signed requests, last write wins, tombstones, public shared playlists) and
+drives two devices through it, so the sync is proven end to end without any
+network.
 
 Feel free to open issues or PRs to improve discovery, player controls, or visual styles.

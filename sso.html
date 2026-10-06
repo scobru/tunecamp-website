@@ -55,7 +55,7 @@
             </p>
         </div>
 
-        <!-- Zen SEA Auth Pane -->
+        <!-- Identity Auth Pane -->
         <div id="zenAuthPane" role="tabpanel">
             <div id="authActions" class="hidden space-y-4 pt-4">
                 <div class="bg-black/40 border border-white/10 rounded-lg p-4 text-left">
@@ -91,7 +91,7 @@
     </div>
 
     <script type="module">
-        import Zen from './vendor/zen.min.js';
+        import { signData } from './vendor/identity.js';
         import { resolveRedirectUri } from './vendor/fid-redirect.js';
 
         /**
@@ -178,7 +178,7 @@
                 return;
             }
 
-            // Check for Zen SEA session
+            // Check for an unlocked FID identity
             const zenSessionStr = localStorage.getItem('tunecamp_zen_user');
 
             let session = null;
@@ -223,12 +223,7 @@
 
                         const tokenPayload = `${clientId}:${instanceDomain}:${username}:${session.pair.pub}:${issuedAt}:${nonce}`;
 
-                        const signature = await new Promise((resolve, reject) => {
-                            Zen.sign(tokenPayload, { priv: session.pair.priv }, (out) => {
-                                if (typeof out === "string") resolve(out);
-                                else reject(new Error("Zen.sign failed"));
-                            });
-                        });
+                        const signature = await signData(tokenPayload, session.pair.priv);
 
                         const ssoToken = {
                             clientId,
