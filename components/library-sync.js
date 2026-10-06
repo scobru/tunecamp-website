@@ -27,7 +27,7 @@
  */
 
 import * as Library from './library.js';
-import { signData } from '../vendor/identity.js';
+import { signData, isValidPair } from '../vendor/identity.js';
 
 const PRIVATE_BUCKETS = ['favorites', 'artists', 'playlists'];
 const API = '/api/auth/zen/library/';
@@ -102,10 +102,28 @@ export function readIdentity() {
     try {
         const parsed = JSON.parse(localStorage.getItem('tunecamp_zen_user') || 'null');
         if (!parsed || !parsed.alias || !parsed.pair || !parsed.pair.pub || !parsed.pair.priv) return null;
+        // Ed25519 keys are 32 bytes, 43 base64url characters. A key saved by the old Zen-based
+        // page has another shape, and is not an identity any more.
+        if (!KEY_SHAPE.test(parsed.pair.pub) || !KEY_SHAPE.test(parsed.pair.priv)) return null;
         return { alias: parsed.alias, pair: parsed.pair };
     } catch (e) {
         return null;
     }
+}
+
+const KEY_SHAPE = /^[A-Za-z0-9_-]{43}$/;
+
+/**
+ * readIdentity, plus the check that the private key really produces the public one. A session
+ * that fails it is removed, so a stale Zen-era login cannot keep failing on every signature.
+ */
+export async function readValidIdentity() {
+    const identity = readIdentity();
+    if (identity && await isValidPair(identity.pair)) return identity;
+    if (localStorage.getItem('tunecamp_zen_user')) {
+        try { localStorage.removeItem('tunecamp_zen_user'); } catch (e) { /* storage unavailable */ }
+    }
+    return null;
 }
 
 /**

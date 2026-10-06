@@ -297,7 +297,7 @@
 
     <!-- Script Logic -->
     <script type="module">
-        import { deriveMasterPair, signData } from './vendor/identity.js';
+        import { deriveMasterPair, signData, isValidPair } from './vendor/identity.js';
 
         document.addEventListener('DOMContentLoaded', () => {
             let currentPair = null;
@@ -570,13 +570,19 @@
             // Load the saved session
             const savedSession = localStorage.getItem('tunecamp_zen_user');
             if (savedSession) {
-                try {
-                    const parsed = JSON.parse(savedSession);
-                    if (parsed.pair) {
-                        currentPair = parsed.pair;
-                        showLoggedIn(parsed.alias, parsed.pair.pub);
-                    }
-                } catch (e) { }
+                (async () => {
+                    try {
+                        const parsed = JSON.parse(savedSession);
+                        if (parsed.pair && await isValidPair(parsed.pair)) {
+                            currentPair = parsed.pair;
+                            showLoggedIn(parsed.alias, parsed.pair.pub);
+                        } else {
+                            // Saved by the old Zen-based page: not an Ed25519 key, so it cannot sign anything.
+                            localStorage.removeItem('tunecamp_zen_user');
+                            alert('La tua identità precedente usava il vecchio sistema Zen SEA, che non è più supportato. Accedi di nuovo con alias e passphrase: sarà una nuova identità, diversa dalla precedente.');
+                        }
+                    } catch (e) { }
+                })();
             }
 
             loginForm.addEventListener('submit', async (e) => {

@@ -1144,8 +1144,8 @@
          */
         async function initSync() {
             renderSyncStatus();
-            const identity = Sync.readIdentity();
-            if (!identity) return;
+            const identity = await Sync.readValidIdentity();
+            if (!identity) return renderSyncStatus();
             let instance = Sync.readInstance();
             if (!instance) {
                 // A new device has no linked passport: ask the directory where this key has an account.
